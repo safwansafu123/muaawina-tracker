@@ -13,7 +13,8 @@
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "d5a80102-b162-4a4f-9877-a0d48b307e50",
-      serviceWorkerPath: "OneSignalSDKWorker.js", // Path ലളിതമാക്കി
+      serviceWorkerPath: "OneSignalSDKWorker.js",
+      serviceWorkerParam: { scope: "./" }
     });
   });
 </script>
