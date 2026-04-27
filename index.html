@@ -916,20 +916,26 @@ if (mainPayConfirmBtn) {
             if(monthFilterEl) monthFilterEl.innerHTML = options;
         }
 
-        function updateAdminStats(batch) {
-            let filtered = (batch === 'all' || batch === 'All') ? adminMembers : adminMembers.filter(m => m.batch === batch);
-            let collected = filtered.reduce((sum, m) => sum + m.totalPaid, 0);
-            let pending = filtered.reduce((sum, m) => sum + m.balance, 0);
-           
-            const totalEl = document.getElementById('admTotal');
-            const pendingEl = document.getElementById('admPending');
-           
-            if (totalEl) totalEl.innerText = '₹' + collected;
-            if (pendingEl) pendingEl.innerText = '₹' + pending;
-           
-            renderChart({ totalCollected: collected, totalPending: pending });
-            renderAdminList(filtered);
-        }
+       function updateAdminStats(batch) {
+    let filtered = (batch === 'all' || batch === 'All') ? adminMembers : adminMembers.filter(m => m.batch === batch);
+    
+    let collected = filtered.reduce((sum, m) => sum + m.totalPaid, 0);
+    
+    // സർവറിലെ ബാലൻസിന് പകരം പെൻഡിങ് ലിസ്റ്റ് നോക്കി തുക കണക്കാക്കുന്നു
+    let pending = filtered.reduce((sum, m) => {
+        let count = m.pendingList ? m.pendingList.length : 0;
+        return sum + (count * (m.fee || 500)); // fee ഇല്ലെങ്കിൽ ഡിഫോൾട്ട് 500
+    }, 0);
+    
+    const totalEl = document.getElementById('admTotal');
+    const pendingEl = document.getElementById('admPending');
+    
+    if (totalEl) totalEl.innerText = '₹' + collected;
+    if (pendingEl) pendingEl.innerText = '₹' + pending;
+    
+    renderChart({ totalCollected: collected, totalPending: pending });
+    renderAdminList(filtered);
+}
 
         function getLastMonthStrings() {
             const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -1166,32 +1172,37 @@ if (mainPayConfirmBtn) {
             printWindow.document.close();
         }
 
-        function renderAdminList(mbs) {
-            const l = document.getElementById('adminMemberList');
-            if (!l) return;
-            if(mbs.length === 0) {
-                l.innerHTML = '<p class="p-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest text-center shadow-inner">അംഗങ്ങളില്ല</p>';
-                return;
-            }
-            l.innerHTML = mbs.map(m => `
-                <div class="p-5 flex justify-between items-center hover:bg-slate-50 transition-all cursor-pointer border-b" onclick="showMemberDetails('${encodeURIComponent(JSON.stringify(m))}')">
-                    <div class="flex items-center gap-4">
-                        <div class="w-11 h-11 rounded-2xl ${m.balance <= 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-500'} flex items-center justify-center font-black text-lg shadow-inner text-center uppercase border border-white/50">${m.name.charAt(0)}</div>
-                        <div>
-                            <p class="font-black text-slate-900 text-sm leading-tight uppercase tracking-tight text-left leading-none">${m.name}</p>
-                            <p class="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-widest text-left leading-none mb-1">${m.batch}</p>
-                            ${m.balance > 0 && m.pendingList ? `<p class="text-[10px] font-bold text-rose-500 mt-1 uppercase tracking-widest bg-rose-50 inline-block px-2 py-0.5 rounded border border-rose-100">${m.pendingList.length} മാസം കുടിശ്ശിക</p>` : '<p class="text-[10px] font-bold text-emerald-500 mt-1 uppercase tracking-widest bg-emerald-50 inline-block px-2 py-0.5 rounded border border-emerald-100">കുടിശ്ശികയില്ല</p>'}
-                        </div>
+       function renderAdminList(mbs) {
+    const l = document.getElementById('adminMemberList');
+    if (!l) return;
+    if(mbs.length === 0) {
+        l.innerHTML = '<p class="p-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest text-center shadow-inner">അംഗങ്ങളില്ല</p>';
+        return;
+    }
+    l.innerHTML = mbs.map(m => {
+        // മെമ്പേഴ്സ് പേജിലെ അതേ ലോജിക് ഇവിടെയും ഉപയോഗിക്കുന്നു
+        let calculatedBalance = m.pendingList ? m.pendingList.length * (m.fee || 500) : 0;
+        
+        return `
+            <div class="p-5 flex justify-between items-center hover:bg-slate-50 transition-all cursor-pointer border-b" onclick="showMemberDetails('${encodeURIComponent(JSON.stringify(m))}')">
+                <div class="flex items-center gap-4">
+                    <div class="w-11 h-11 rounded-2xl ${calculatedBalance <= 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-500'} flex items-center justify-center font-black text-lg shadow-inner text-center uppercase border border-white/50">${m.name.charAt(0)}</div>
+                    <div>
+                        <p class="font-black text-slate-900 text-sm leading-tight uppercase tracking-tight text-left leading-none mb-1">${m.name}</p>
+                        <p class="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-widest text-left leading-none mb-1">${m.batch}</p>
+                        ${calculatedBalance > 0 ? `<p class="text-[10px] font-bold text-rose-500 mt-1 uppercase tracking-widest bg-rose-50 inline-block px-2 py-0.5 rounded border border-rose-100">${m.pendingList.length} മാസം കുടിശ്ശിക</p>` : '<p class="text-[10px] font-bold text-emerald-500 mt-1 uppercase tracking-widest bg-emerald-50 inline-block px-2 py-0.5 rounded border border-emerald-100">കുടിശ്ശികയില്ല</p>'}
                     </div>
-                    <div class="flex items-center gap-4">
-                        <div class="text-right">
-                            <p class="text-[9px] font-black uppercase text-slate-300 text-right leading-none mb-1">Balance</p>
-                            <p class="text-sm font-black ${m.balance > 0 ? 'text-rose-600' : 'text-emerald-600'} text-right leading-none">₹${m.balance}</p>
-                        </div>
-                        ${m.balance > 0 && m.pendingList ? `<button onclick="event.stopPropagation(); currentMember={phone:'${m.phone}'}; window.open('https://wa.me/91${m.phone.replace(/\D/g,'')}?text=${encodeURIComponent('السلام عليكم \n ' + m.name + ',\nനിങ്ങളുടെ MUAAWINA വരിസംഖ്യയിൽ ₹' + m.balance + ' കുടിശ്ശികയുണ്ട്.')}', '_blank');" class="text-emerald-600 w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center border border-emerald-100 active:scale-90 transition-all shadow-sm"><i class="fab fa-whatsapp text-xl"></i></button>` : '<i class="fas fa-chevron-right text-slate-200 text-xs text-right opacity-30"></i>'}
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <p class="text-[9px] font-black uppercase text-slate-300 text-right leading-none mb-1">Balance</p>
+                        <p class="text-sm font-black ${calculatedBalance > 0 ? 'text-rose-600' : 'text-emerald-600'} text-right leading-none">₹${calculatedBalance}</p>
                     </div>
-                </div>`).join('');
-        }
+                    <i class="fas fa-chevron-right text-slate-200 text-xs text-right opacity-30"></i>
+                </div>
+            </div>`;
+    }).join('');
+}
 
         function showMemberDetails(d) {
             const m = JSON.parse(decodeURIComponent(d));
