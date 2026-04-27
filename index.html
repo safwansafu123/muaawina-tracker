@@ -1273,39 +1273,25 @@ function renderAdminList(mbs) {
     }).join('');
 }
 
-     function showMemberDetails(d) {
+function showMemberDetails(d) {
     const m = JSON.parse(decodeURIComponent(d));
     currentMember = m;
     
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     let dueCountUpToNow = 0;
     let dueMonthsList = [];
-    let totalExpectedCount = 0; // ഈ മാസം വരെ ആകെ അടയ്ക്കേണ്ട മാസങ്ങളുടെ എണ്ണം
 
     let currentFee = m.fee || 50;
 
-    // 1. മുഴുവൻ ഹിസ്റ്ററിയിൽ നിന്നും ഈ മാസം വരെയുള്ള ആകെ അടയ്ക്കേണ്ട തുക (Total Expected) കണക്കാക്കുന്നു
-    if (m.history) {
-        m.history.forEach(h => {
-            let hIdx = monthNames.indexOf(h.month);
-            let hYear = parseInt(h.year);
-            
-            // ഗൂഗിൾ ഷീറ്റിലെ Current Date-ന് മുമ്പുള്ള മാസമാണോ എന്ന് നോക്കുന്നു
-            let isPastOrCurrent = hYear < globalAppYear || (hYear === globalAppYear && hIdx <= globalAppMonth);
-            
-            if (isPastOrCurrent) {
-                totalExpectedCount++;
-            }
-        });
-    }
-
-    // 2. കുടിശ്ശിക മാസങ്ങൾ (Pending) മാത്രം കണ്ടെത്തുന്നു
+    // 1. ഗൂഗിൾ ഷീറ്റിലെ തീയതി (Current Date) വരെയുള്ള കുടിശ്ശിക മാസങ്ങൾ മാത്രം കണ്ടെത്തുന്നു
     if (m.pendingList) {
         m.pendingList.forEach(pStr => {
             let parts = pStr.split(" ");
             if (parts.length === 2) {
                 let mIdx = monthNames.indexOf(parts[0]);
                 let mYear = parseInt(parts[1]);
+                
+                // Current Date-ന് ഉള്ളിലാണോ എന്ന് പരിശോധിക്കുന്നു
                 if (mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth)) {
                     dueCountUpToNow++;
                     dueMonthsList.push(pStr);
@@ -1314,14 +1300,21 @@ function renderAdminList(mbs) {
         });
     }
 
-    let expectedToPayUntilNow = totalExpectedCount * currentFee;
+    // 2. തുക കണക്കാക്കുന്നു
     let dueAmount = dueCountUpToNow * currentFee;
     
-    // 3. അഡ്വാൻസ് തുക കണക്കാക്കുന്നു (ആകെ അടച്ചത് - അടയ്ക്കേണ്ടിയിരുന്ന തുക)
-    // നിലവിലെ മാസം വരെ അടച്ച തുക = (അടയ്ക്കേണ്ടിയിരുന്ന തുക - കുടിശ്ശിക)
-    let paidUntilNow = expectedToPayUntilNow - dueAmount;
-    let advanceAmount = m.totalPaid - paidUntilNow;
-    if (advanceAmount < 0) advanceAmount = 0;
+    // 3. ആകെ അടയ്ക്കേണ്ടിയിരുന്ന തുക (Total Expected) = അടച്ച തുക + ബാക്കി തുക
+    // (Advance അടച്ചവർക്ക് കുടിശ്ശിക പൂജ്യമായതുകൊണ്ട് ഈ കണക്ക് കൃത്യമായി വരും)
+    let expectedToPayUntilNow = m.totalPaid + dueAmount;
+
+    // 4. അഡ്വാൻസ് തുക കണക്കാക്കുന്നു
+    // ആകെ അടച്ച തുകയിൽ നിന്ന് ഈ മാസം വരെ അടയ്ക്കേണ്ട തുക കുറയ്ക്കുന്നു
+    let advanceAmount = m.totalPaid > expectedToPayUntilNow ? m.totalPaid - expectedToPayUntilNow : 0;
+    
+    // അഡ്വാൻസ് ഉള്ളവർക്ക് expectedToPayUntilNow എന്നത് m.totalPaid - advanceAmount ആയിരിക്കും
+    if(m.totalPaid > expectedToPayUntilNow) {
+        expectedToPayUntilNow = m.totalPaid - advanceAmount;
+    }
 
     // UI എലമെന്റുകളിലേക്ക് വിവരങ്ങൾ നൽകുന്നു
     document.getElementById('detName').innerText = m.name;
@@ -1329,7 +1322,7 @@ function renderAdminList(mbs) {
     document.getElementById('detBatch').innerText = m.batch || 'UNASSIGNED';
     document.getElementById('detPaid').innerText = '₹' + m.totalPaid;
     
-    // ആകെ (Total Expected) കാണിക്കുന്നു
+    // 'ആകെ' എന്നതിൽ ഈ മാസം വരെ അടയ്ക്കേണ്ട തുക കാണിക്കുന്നു
     const totalExpEl = document.getElementById('detTotalExpected');
     if(totalExpEl) totalExpEl.innerText = '₹' + expectedToPayUntilNow;
 
