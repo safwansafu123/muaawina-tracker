@@ -141,6 +141,13 @@
             </div>
            
             <div id="sectionOverview" class="space-y-6">
+                <div class="glass-card p-4 mb-6 border-t-4 border-blue-600 shadow-md">
+    <p class="text-[10px] font-black text-slate-400 uppercase mb-3">എല്ലാവർക്കും അറിയിപ്പ് അയക്കുക</p>
+    <div class="flex gap-2">
+        <input type="text" id="pushMsg" placeholder="സന്ദേശം ടൈപ്പ് ചെയ്യുക..." class="flex-1 p-3 rounded-xl border border-slate-100 text-xs font-bold outline-none focus:border-blue-400">
+        <button onclick="broadcastPush()" class="bg-blue-600 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase shadow-md active:scale-95">Send 🚀</button>
+    </div>
+</div>
                 <div class="flex gap-2 items-center">
                     <select id="batchReportFilter" onchange="updateAdminStats(this.value)" class="custom-select flex-1 p-4 rounded-2xl border-2 border-blue-50 bg-white font-black text-slate-700 text-sm outline-none focus:border-blue-500 shadow-sm transition-all"></select>
                     <button onclick="printReport()" class="bg-blue-600 text-white px-5 py-4 rounded-2xl font-black text-xs shadow-md active:scale-95 transition-all flex flex-col items-center justify-center gap-1">
@@ -1595,7 +1602,21 @@ function downloadReceipt(month, year, amount) {
             document.getElementById('reminderModal').classList.remove('hidden');
         }
 
-       
+      function broadcastPush() {
+    const msg = document.getElementById('pushMsg').value;
+    if(!msg) return Swal.fire('ശ്രദ്ധിക്കുക', 'സന്ദേശം ടൈപ്പ് ചെയ്യുക!', 'warning');
+    
+    showLoader(true);
+    callAPI('sendPushNotification', { title: "MUAAWINA അറിയിപ്പ്", message: msg }).then(res => {
+        showLoader(false);
+        if(res.success) {
+            Swal.fire('വിജയിച്ചു', 'നോട്ടിഫിക്കേഷൻ അയച്ചു!', 'success');
+            document.getElementById('pushMsg').value = '';
+        } else {
+            Swal.fire('പിഴവ്', 'അയക്കാൻ കഴിഞ്ഞില്ല', 'error');
+        }
+    });
+} 
        
     </script>
 </body>
