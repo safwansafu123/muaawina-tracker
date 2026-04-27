@@ -1669,12 +1669,15 @@ function installPWA() {
 }
 
 function enableCustomNotifications() {
-    if(window.OneSignal) {
-        window.OneSignal.showSlidedownPrompt();
-    } else {
-        Swal.fire('ശ്രദ്ധിക്കുക', 'നോട്ടിഫിക്കേഷൻ സിസ്റ്റം ലോഡ് ആയിട്ടില്ല. കുറച്ചു കഴിഞ്ഞ് വീണ്ടും ശ്രമിക്കുക.', 'warning');
-    }
-} 
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+            OneSignalDeferred.push(function(OneSignal) {
+                OneSignal.Slidedown.promptPush().then(function() {
+                    console.log("Notification Prompt Shown");
+                }).catch(function(err) {
+                    Swal.fire('ശ്രദ്ധിക്കുക', 'നോട്ടിഫിക്കേഷൻ ഓൺ ചെയ്യാൻ കഴിഞ്ഞില്ല അല്ലെങ്കിൽ താങ്കൾ നേരത്തെ തന്നെ ഓൺ ആക്കിയിട്ടുണ്ട്.', 'warning');
+                });
+            });
+        }
     </script>
 </body>
 </html>
