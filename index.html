@@ -752,34 +752,52 @@ if (otherUpiBtn) {
             if (pModal) pModal.classList.add('hidden');
         }
        
-      const mainPayConfirmBtn = document.getElementById('payConfirmBtn');
-        if (mainPayConfirmBtn) {
-            mainPayConfirmBtn.onclick = function() {
-                if(!isGASAvailable()) return;
-                showLoader(true);
-                const totDisplay = document.getElementById('payTotalDisplay');
-                const tot = totDisplay ? totDisplay.innerText : '0';
+     // പണമടച്ച വിവരം അപ്ഡേറ്റ് ചെയ്യാനും മെസ്സേജ് അയക്കാനുമുള്ള ബട്ടൺ
+const mainPayConfirmBtn = document.getElementById('payConfirmBtn');
+if (mainPayConfirmBtn) {
+    mainPayConfirmBtn.onclick = function() {
+        showLoader(true);
+        const totDisplay = document.getElementById('payTotalDisplay');
+        const tot = totDisplay ? totDisplay.innerText : '0';
+        
+        // പണമടച്ച വിവരം സർവറിലേക്ക് അയക്കുന്നു
+        let reqAction = currentPaymentType === 'single' ? 'submitSinglePaymentRequest' : 'submitBulkPaymentRequest';
+        let reqData = currentPaymentType === 'single' ? 
+            { id: currentMember.id, name: currentMember.name, phone: currentMember.phone, year: currentTargetData.year, month: currentTargetData.month } : 
+            { id: currentMember.id, name: currentMember.name, phone: currentMember.phone, targetData: currentTargetData };
+
+        callAPI(reqAction, reqData).then(res => {
+            showLoader(false);
+            if(res.error) {
+                Swal.fire('Error', res.error, 'error');
+            } else {
+                closePayModal();
                 
-                const cb = () => {
-                    showLoader(false);
-                    closePayModal();
-                    
-                    // പുതിയ സക്സസ് അലർട്ട് മെസ്സേജ്
-                    Swal.fire({
-                        title: 'വിജയിച്ചു! 🎉',
-                        text: 'നിങ്ങളുടെ പേയ്മെന്റ് വിവരങ്ങൾ സമർപ്പിച്ചു. അഡ്മിൻ അപ്രൂവ് ചെയ്യുന്നതിനായി കാത്തിരിക്കുക.',
-                        icon: 'success',
-                        confirmButtonText: 'OK, അഡ്മിനെ അറിയിക്കുക <i class="fab fa-whatsapp ml-1"></i>',
-                        confirmButtonColor: '#10b981',
-                        allowOutsideClick: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            let wpNumber = (APP_CONFIG && APP_CONFIG.ADMIN_WHATSAPP) ? APP_CONFIG.ADMIN_WHATSAPP : "";
-                            window.open(`https://wa.me/${wpNumber}?text=${encodeURIComponent('السلام عليكم \n പണമടച്ചിട്ടുണ്ട്.\nപേര്: ' + currentMember.name + '\nതുക: ' + tot)}`, '_blank');
-                            setTimeout(fetchMemberDetails, 1000);
-                        }
-                    });
-                };
+                // സക്സസ് മെസ്സേജും വാട്സ്ആപ്പ് അയക്കാനുള്ള ഓപ്ഷനും
+                Swal.fire({
+                    title: 'വിജയിച്ചു! 🎉',
+                    text: 'നിങ്ങളുടെ പേയ്മെന്റ് വിവരങ്ങൾ സമർപ്പിച്ചു. അഡ്മിൻ അപ്രൂവ് ചെയ്യുന്നതിനായി കാത്തിരിക്കുക.',
+                    icon: 'success',
+                    confirmButtonText: 'അഡ്മിനെ അറിയിക്കുക (WhatsApp)',
+                    confirmButtonColor: '#10b981',
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        let wpNumber = (APP_CONFIG && APP_CONFIG.ADMIN_WHATSAPP) ? APP_CONFIG.ADMIN_WHATSAPP : "";
+                        // വാട്സ്ആപ്പിലേക്ക് ലിങ്ക് ഓപ്പൺ ചെയ്യുന്നു
+                        window.open(`https://wa.me/${wpNumber}?text=${encodeURIComponent('السلام عليكم \n പണമടച്ചിട്ടുണ്ട്.\nപേര്: ' + currentMember.name + '\nതുക: ' + tot)}`, '_blank');
+                        
+                        // വിവരങ്ങൾ പുതുക്കാൻ
+                        setTimeout(fetchMemberDetails, 1000);
+                    }
+                });
+            }
+        }).catch(err => {
+            showLoader(false);
+            Swal.fire('Error', 'സർവറുമായി ബന്ധപ്പെടാൻ കഴിഞ്ഞില്ല.', 'error');
+        });
+    };
+}
                 
                 let reqAction = currentPaymentType === 'single' ? 'submitSinglePaymentRequest' : 'submitBulkPaymentRequest';
                 let reqData = currentPaymentType === 'single' ? 
