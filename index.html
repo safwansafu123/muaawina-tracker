@@ -8,15 +8,15 @@
     <title>MUAAWINA വരിസംഖ്യ ട്രാക്കർ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: "d5a80102-b162-4a4f-9877-a0d48b307e50",
-          allowLocalhostAsSecureOrigin: true // ഇത് ടെസ്റ്റ് ചെയ്യാൻ സഹായിക്കും
-        });
-      });
-    </script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "d5a80102-b162-4a4f-9877-a0d48b307e50",
+      serviceWorkerPath: "OneSignalSDKWorker.js", // Path ലളിതമാക്കി
+    });
+  });
+</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -1633,45 +1633,32 @@ function downloadReceipt(month, year, amount) {
                 Swal.fire('പിഴവ്', 'നെറ്റ്‌വർക്ക് കണക്ഷൻ പ്രശ്നം!', 'error');
             });
         }  
-     // --- App Install & Notification Logic (Corrected) ---
-        let deferredPrompt;
+   // --- App Install & Notification Logic ---
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const installCard = document.getElementById('appInstallCard');
+    if(installCard) installCard.classList.remove('hidden');
+});
 
-        // ഇൻസ്റ്റാൾ ബട്ടൺ സ്ക്രീനിൽ കാണിക്കാനുള്ള ലോജിക്
-        window.addEventListener('beforeinstallprompt', (e) => {
-            console.log('PWA Install Prompt Detected');
-            e.preventDefault();
-            deferredPrompt = e;
-            const installCard = document.getElementById('appInstallCard');
-            if(installCard) installCard.classList.remove('hidden');
-        });
-
-        // ഇൻസ്റ്റാൾ ബട്ടൺ ക്ലിക്ക് ചെയ്യുമ്പോൾ വർക്ക് ചെയ്യേണ്ടത്
-        function installPWA() {
-            if (!deferredPrompt) {
-                Swal.fire('ശ്രദ്ധിക്കുക', 'ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യാൻ ഇപ്പോൾ കഴിയില്ല. ബ്രൗസർ സെറ്റിംഗ്സ് പരിശോധിക്കുക അല്ലെങ്കിൽ ക്രോം അപ്ഡേറ്റ് ചെയ്യുക.', 'info');
-                return;
-            }
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted the install prompt');
-                    document.getElementById('appInstallCard').classList.add('hidden');
-                }
-                deferredPrompt = null;
-            });
+function installPWA() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+            document.getElementById('appInstallCard').classList.add('hidden');
         }
+        deferredPrompt = null;
+    });
+}
 
-        // നോട്ടിഫിക്കേഷൻ ബട്ടൺ ക്ലിക്ക് ചെയ്യുമ്പോൾ വർക്ക് ചെയ്യേണ്ടത്
-        function enableCustomNotifications() {
-            window.OneSignalDeferred = window.OneSignalDeferred || [];
-            OneSignalDeferred.push(function(OneSignal) {
-                OneSignal.Slidedown.promptPush().then(() => {
-                    console.log("Notification prompt shown to user");
-                }).catch(err => {
-                    Swal.fire('നോട്ടിഫിക്കേഷൻ', 'ഇപ്പോൾ ലഭ്യല്ല. താങ്കൾ നേരത്തെ സബ്സ്ക്രൈബ് ചെയ്തിട്ടുണ്ടാകാം.', 'warning');
-                });
-            });
-        }
+function enableCustomNotifications() {
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(function(OneSignal) {
+        OneSignal.Slidedown.promptPush();
+    });
+}
     </script>
 </body>
 </html>
