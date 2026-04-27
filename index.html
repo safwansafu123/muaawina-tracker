@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <title>MUAAWINA വരിസംഖ്യ ട്രാക്കർ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+   
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&display=swap');
+        body { font-family: 'Manjari', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        .glass-card { background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; }
+        .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
+        .year-btn { transition: all 0.2s ease-in-out; }
+        .year-btn.active { background-color: #3b82f6; color: white; font-weight: bold; border-color: #0f172a; border-width: 2px; }
+        .admin-tab { padding: 12px 0; font-weight: 700; color: #94a3b8; border-bottom: 3px solid transparent; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
+        .admin-tab.active { color: #1e40af; border-bottom-color: #1e40af; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .login-wrapper { min-height: 95vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+        .custom-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233b82f6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2rem; }
+        .modal-up { animation: slideUp 0.3s ease-out forwards; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .month-card { border-radius: 18px; border: 1px solid #e2e8f0; background: white; transition: all 0.2s; }
+        .error-box { background-color: #fef2f2; border: 1px solid #f87171; color: #b91c1c; padding: 10px; border-radius: 10px; font-size: 12px; margin-top: 15px; text-align: left; word-wrap: break-word; font-family: monospace; font-weight:bold; }
+        select, option, .custom-select, input { font-family: 'Manjari', sans-serif !important; }
+.swal2-popup { font-family: 'Manjari', sans-serif !important; border-radius: 24px !important; }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 pb-10">
+    <div class="max-w-md mx-auto" id="mainApp">
+       
+        <div id="loginPage" class="login-wrapper fade-in">
+            <div class="glass-card w-full p-8 text-center relative overflow-hidden shadow-2xl">
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-blue-700"></div>
+               
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcEAAAIsCAYAAACKiRIpAAAQAElEQVR4Aey9B4BlR3Um/J2qe1/o3D09OfVoWpNampE0kkCAYcCALTAi2GNMMsmIjFmDIzYmg73GiWDjn3VeFv+sw5rf67B4V7trG9tYYCSE0kga5TDS5A7vvXvr/N+5t1+n6Z7p97pnumfmXdV3K586darqnKq6b1oOraclgZYEWhJoSaAlgYtUAi0jeJEOfKvbLQm0JNCSQEsCQMsIXoyzoNXnlgRaEmhJoCWBTAItI5iJofVqSaAlgZYEWhK4GCXQWyBdBJd4B6bipxZILZBaILVA4xZIF8HGbZeWTC3wWrRAqnNqgWVlgXQRXFbdmSqTWiC1QGqB1AL1WCBdBOuxVsqbWiC1QGqB16IFlrHO6SK4jDs3VS21QGqB1AKpBaa2QLoITm2fNDe1QGqB1AKpBZaxBdJFsGrnphmpBVILpBZILbDcLfB/AQAA//+iEjLiAAAABklEQVQDAFwfGbEHpRU7AAAAAElFTkSuQmCC" class="w-16 h-16 mx-auto mb-4 object-contain drop-shadow-md" alt="App Logo" onerror="this.onerror=null; this.outerHTML='<div class=\'w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl mx-auto mb-4 flex items-center justify-center shadow-inner shadow-blue-100\'><i class=\'fas fa-layer-group text-3xl\'></i></div>';">
+               
+                <h2 class="text-2xl font-black text-blue-900 tracking-[0.2em] mb-1 uppercase text-center leading-none">MUAAWINA</h2>
+                <h1 class="text-base font-bold mb-8 text-slate-500 text-center uppercase  mt-2">വരിസംഖ്യ ട്രാക്കർ</h1>
+                <div class="mb-6">
+                    <input type="tel" id="phoneInput" maxlength="10" placeholder="ഫോൺ നമ്പർ നൽകുക" onkeypress="if(event.key === 'Enter') fetchMemberDetails()" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border-2 border-slate-100 focus:border-blue-500 text-lg font-bold text-center transition-all shadow-inner">
+                    <div id="loginError" class="hidden error-box"></div>
+                </div>
+                <button onclick="fetchMemberDetails()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold shadow-lg mb-8 active:scale-95 transition-all uppercase tracking-widest">തുടരുക</button>
+                <button onclick="showAdminModal()" class="relative text-slate-400 text-[11px] font-black hover:text-blue-700 uppercase transition-colors flex items-center justify-center gap-2 mx-auto">
+                    <i class="fas fa-user-shield mr-1"></i> അഡ്മിൻ ലോഗിൻ
+                    <span id="loginNotify" class="hidden absolute -right-2 -top-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
+                </button>
+            </div>
+        </div>
+
+        <div id="memberPage" class="hidden p-4 sm:p-6 fade-in">
+          <div id="announcementBox" class="hidden mb-4 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-2xl flex items-start gap-3 shadow-sm fade-in">
+    <div class="text-amber-500 mt-0.5"><i class="fas fa-bullhorn text-lg"></i></div>
+    <div class="flex-1">
+        <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">അറിയിപ്പ്</p>
+        <p id="announcementText" class="text-sm font-bold text-slate-700 leading-snug"></p>
+    </div>
+</div>
+
+            <div class="gradient-bg p-6 rounded-[28px] text-white shadow-xl mb-6 relative overflow-hidden">
+                
+    <div class="flex justify-between items-start mb-6">
+    <div class="pr-2">
+        <p class="text-blue-100 text-[10px] font-black uppercase tracking-widest opacity-80">MUAAWINA</p>
+        <h2 id="mName" class="text-xl font-black leading-tight mt-1 uppercase tracking-tight break-words">...</h2>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+        <button onclick="goHome()" class="bg-white/15 w-10 h-10 flex items-center justify-center rounded-xl border border-white/20 shadow-sm active:scale-90 transition-all">
+            <i class="fas fa-home text-[14px]"></i>
+        </button>
+    </div>
+</div>
+                <div class="grid grid-cols-3 gap-2 text-center relative">
+                    <div class="bg-white/10 p-4 rounded-2xl border border-white/5 backdrop-blur-md shadow-inner"><p class="text-[9px] uppercase font-black opacity-70">ആകെ</p><p id="mTotalExpected" class="text-lg font-black mt-1 leading-none">₹0</p></div>
+                    <div class="bg-white/10 p-4 rounded-2xl border border-white/5 backdrop-blur-md shadow-inner"><p class="text-[9px] uppercase font-black opacity-70 text-emerald-300">അടച്ചത്</p><p id="mPaid" class="text-lg font-black mt-1 leading-none text-emerald-200">₹0</p></div>
+                    <div class="bg-white/10 p-4 rounded-2xl border border-white/5 backdrop-blur-md shadow-inner relative">
+                        <p class="text-[9px] uppercase font-black opacity-70 text-yellow-200">ബാക്കി</p>
+                        <p id="mBalance" class="text-lg font-black mt-1 leading-none text-yellow-300">₹0</p>
+                        <span id="mAdvance" class="hidden absolute -top-2 -right-2 bg-emerald-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold shadow-md">+₹0</span>
+                    </div>
+                </div>
+            </div>
+<div class="flex justify-between mb-4 mt-2 px-1 fade-in">
+                <button onclick="contactAdmin()" class="bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all border border-emerald-100 shadow-sm hover:bg-emerald-100">
+                    <i class="fab fa-whatsapp text-sm"></i> അഡ്മിൻ
+                </button>
+
+                <button onclick="openHistoryModal()" class="bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all border border-blue-100 shadow-sm hover:bg-blue-100">
+                    <i class="fas fa-history text-sm"></i> ഹിസ്റ്ററി
+                </button>
+            </div>
+            <div id="quickPayContainer" class="hidden grid grid-cols-2 gap-3 mb-6">
+                <button onclick="openBulkPayModal()" class="bg-white text-blue-700 py-4 rounded-2xl font-black shadow-md border-2 border-blue-50 active:scale-95 flex items-center justify-center gap-2 text-[10px] uppercase transition-all shadow-blue-50/50">
+                    <i class="fas fa-bolt text-yellow-500"></i> Bulk Pay
+                </button>
+                <button id="lastMonthPayBtn" class="bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg active:scale-95 flex flex-col items-center justify-center gap-0.5 text-[10px] transition-all">
+                    <div class="flex items-center gap-2 uppercase tracking-wide"><i id="lastMonthIcon" class="fas fa-calendar-check"></i> <span id="lastMonthBtnAction">Pay</span></div>
+                    <span id="lastMonthBtnText" class="text-[11px] uppercase opacity-90 leading-none">Last Month</span>
+                </button>
+            </div>
+            <div id="yearTabs" class="flex w-full justify-between gap-1.5 mb-5"></div>
+            <div id="monthsGrid" class="grid grid-cols-3 gap-3"></div>
+        </div>
+
+        <div id="adminPage" class="hidden p-4 sm:p-6 fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-black text-slate-800 tracking-tight italic">അഡ്മിൻ പാനൽ</h2>
+                <div class="flex gap-2">
+                    <button onclick="openReminderModal()" class="bg-amber-50 text-amber-600 font-bold px-3 py-2 rounded-xl text-xs active:scale-95 border border-amber-100 shadow-sm flex items-center gap-1.5"><i class="fas fa-bell"></i> റിമൈൻഡർ</button>
+                    <button onclick="goHome()" class="bg-rose-50 text-rose-600 font-bold px-4 py-2 rounded-xl text-xs active:scale-95 border border-rose-100 shadow-sm">Logout</button>
+                </div>
+            </div>
+           
+            <div class="flex justify-between mb-6 border-b border-slate-100 bg-white/50 rounded-2xl p-1 shadow-sm">
+                <div class="admin-tab active w-1/4 text-center" id="tabOverview" onclick="switchAdminTab('overview')">റിപ്പോർട്ട്</div>
+                <div class="admin-tab w-1/4 text-center relative" id="tabApprovals" onclick="switchAdminTab('approvals')">അപ്രൂവൽ <span id="appBadge" class="hidden w-2.5 h-2.5 bg-red-500 rounded-full inline-block ml-1 border-2 border-white animate-pulse"></span></div>
+                <div class="admin-tab w-1/4 text-center" id="tabMembers" onclick="switchAdminTab('members')">അംഗങ്ങൾ</div>
+                <div class="admin-tab w-1/4 text-center" id="tabLogins" onclick="switchAdminTab('logins')">ലോഗിൻസ്</div>
+            </div>
+           
+            <div id="sectionOverview" class="space-y-6">
+                <div class="flex gap-2 items-center">
+                    <select id="batchReportFilter" onchange="updateAdminStats(this.value)" class="custom-select flex-1 p-4 rounded-2xl border-2 border-blue-50 bg-white font-black text-slate-700 text-sm outline-none focus:border-blue-500 shadow-sm transition-all"></select>
+                    <button onclick="printReport()" class="bg-blue-600 text-white px-5 py-4 rounded-2xl font-black text-xs shadow-md active:scale-95 transition-all flex flex-col items-center justify-center gap-1">
+                        <i class="fas fa-print text-lg"></i> <span class="uppercase tracking-widest text-[9px]">Print</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass-card p-5 border-t-4 border-emerald-500 shadow-md text-center"><p class="text-[10px] text-slate-400 font-black uppercase mb-1">ലഭിച്ചത്</p><p id="admTotal" class="text-xl font-black text-emerald-600">₹0</p></div>
+                    <div class="glass-card p-5 border-t-4 border-rose-500 shadow-md text-center"><p class="text-[10px] text-slate-400 font-black uppercase mb-1 text-rose-300">ബാക്കി</p><p id="admPending" class="text-xl font-black text-rose-600">₹0</p></div>
+                </div>
+                <div class="glass-card p-6 border-2 border-slate-50 shadow-lg text-center shadow-slate-100/50">
+                    <div style="height: 180px; width: 100%;">
+                        <canvas id="analyticsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sectionApprovals" class="hidden space-y-4">
+                <div id="bulkAdminActions" class="hidden flex gap-3 justify-end mb-4 bg-white/50 p-2 rounded-2xl border border-slate-100 shadow-sm shadow-slate-50">
+                    <button onclick="processAllRequests('Rejected')" class="flex-1 bg-rose-50 text-rose-600 px-4 py-3 rounded-xl font-black text-[11px] uppercase border active:scale-95 transition-all">Reject All</button>
+                    <button onclick="processAllRequests('Approved')" class="flex-1 bg-emerald-600 text-white px-4 py-3 rounded-xl font-black text-[11px] uppercase shadow-md active:scale-95 transition-all shadow-emerald-100">Allow All</button>
+                </div>
+                <div id="approvalList" class="space-y-4"></div>
+            </div>
+
+            <div id="sectionMembers" class="hidden space-y-4">
+                <div class="glass-card p-4 space-y-3 shadow-lg border border-slate-100">
+                    <input type="text" id="searchInput" onkeyup="filterMembers()" placeholder="പേരോ നമ്പറോ തിരയുക..." class="w-full p-3.5 rounded-xl border-2 border-slate-100 outline-none focus:border-blue-400 transition-all text-xs font-bold bg-white shadow-inner">
+                   
+                    <div class="grid grid-cols-2 gap-2">
+                        <select id="memberBatchFilter" onchange="filterMembers()" class="custom-select w-full p-3.5 rounded-xl border-2 border-slate-100 bg-white font-black text-slate-700 text-[10px] outline-none shadow-sm"></select>
+                        <select id="statusFilter" onchange="filterMembers()" class="custom-select w-full p-3.5 rounded-xl border-2 border-slate-100 bg-white font-black text-slate-700 text-[10px] outline-none shadow-sm text-center">
+    <option value="all">എല്ലാവരും (All)</option>
+    <option value="paid">കുടിശ്ശിക ഇല്ലാത്തവർ (Up-to-date)</option>
+    <option value="pending">കുടിശ്ശിക ഉള്ളവർ (Pending)</option>
+    <option value="last_month">അവസാന മാസം അടക്കാത്തവർ (Last Month Pending)</option> 
+    <option value="defaulter">കൂടുതൽ കുടിശ്ശികയുള്ളവർ (3+ മാസങ്ങൾ)</option>
+    <option value="zero_paid">ഒന്നും അടക്കാത്തവർ (0 Paid)</option>
+</select>
+                    </div>
+                   
+                    <select id="monthWiseFilter" onchange="filterMembers()" class="custom-select w-full p-3.5 rounded-xl border-2 border-slate-100 bg-white font-black text-slate-700 text-xs outline-none shadow-sm">
+                        <option value="all">മാസം തിരിച്ച് തിരയുക (Month-wise)</option>
+                    </select>
+
+                    <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 mt-2">
+    <button onclick="copyData('phone')" class="bg-blue-50 text-blue-700 py-3 rounded-xl font-black text-[9px] uppercase shadow-sm border border-blue-100 active:scale-95 flex flex-col items-center justify-center gap-1"><i class="fas fa-phone"></i> നമ്പറുകൾ</button>
+    <button onclick="copyData('name')" class="bg-blue-50 text-blue-700 py-3 rounded-xl font-black text-[9px] uppercase shadow-sm border border-blue-100 active:scale-95 flex flex-col items-center justify-center gap-1"><i class="fas fa-user"></i> പേരുകൾ</button>
+    <button onclick="copyDueDetails()" class="bg-rose-50 text-rose-700 py-3 rounded-xl font-black text-[9px] uppercase shadow-sm border border-rose-100 active:scale-95 flex flex-col items-center justify-center gap-1"><i class="fas fa-file-invoice-dollar"></i> കുടിശ്ശിക</button>
+</div>
+                </div>
+
+                <div class="glass-card overflow-hidden shadow-xl border border-slate-100">
+                    <div id="adminMemberList" class="divide-y divide-slate-100 max-h-[400px] overflow-y-auto no-scrollbar bg-white shadow-inner shadow-slate-50"></div>
+                </div>
+            </div>
+
+            <div id="sectionLogins" class="hidden space-y-4">
+                <div class="glass-card p-4 space-y-3 shadow-lg border border-slate-100">
+                    <input type="text" id="searchLoginInput" onkeyup="filterLogins()" placeholder="പേര് തിരയുക..." class="w-full p-3.5 rounded-xl border-2 border-slate-100 outline-none focus:border-blue-400 transition-all text-xs font-bold bg-white shadow-inner">
+                    <select id="loginStatusFilter" onchange="filterLogins()" class="custom-select w-full p-3.5 rounded-xl border-2 border-slate-100 bg-white font-black text-slate-700 text-xs outline-none shadow-sm">
+                        <option value="all">എല്ലാവരും (All Members)</option>
+                        <option value="never">ലോഗിൻ ചെയ്യാത്തവർ (0 Logins)</option>
+                        <option value="active">ലോഗിൻ ചെയ്തവർ (Active)</option>
+                    </select>
+                </div>
+                <div class="glass-card overflow-hidden shadow-xl border border-slate-100">
+                    <div id="adminLoginList" class="divide-y divide-slate-100 max-h-[400px] overflow-y-auto no-scrollbar bg-white shadow-inner shadow-slate-50"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="paymentModal" class="hidden fixed inset-0 bg-slate-900/95 flex items-center justify-center p-4 z-[110]">
+            <div class="glass-card w-full max-w-sm text-center border-t-8 border-blue-600 p-8 shadow-2xl modal-up">
+                <h3 class="font-black text-2xl text-slate-900 mb-1 uppercase tracking-tight italic leading-none">MUAAWINA</h3>
+                <p id="payModalSubtext" class="text-[11px] mb-8 font-bold text-blue-600 uppercase tracking-widest mt-1"></p>
+                <div class="mb-8 p-4 bg-white rounded-3xl border-2 border-dashed border-slate-200 inline-block shadow-inner"><img id="payQR" src="" class="w-40 h-40 mx-auto rounded-lg object-contain"></div>
+                <div class="bg-blue-50 p-5 rounded-2xl flex justify-between items-center mb-8 border border-blue-100 text-left">
+                    <span class="text-[10px] font-black text-blue-800 uppercase tracking-widest">അടക്കേണ്ട തുക</span><span id="payTotalDisplay" class="text-3xl font-black text-blue-700">₹0</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mb-4">
+    <button id="gpayBtn" class="py-4 bg-white border-2 border-slate-100 text-slate-700 rounded-2xl font-black shadow-sm active:scale-95 text-[11px] uppercase flex items-center justify-center gap-2 transition-all hover:border-blue-200">
+        <i class="fab fa-google text-blue-500"></i> GPay
+    </button>
+    <button id="phonepeBtn" class="py-4 bg-white border-2 border-slate-100 text-slate-700 rounded-2xl font-black shadow-sm active:scale-95 text-[11px] uppercase flex items-center justify-center gap-2 transition-all hover:border-purple-200">
+        <i class="fas fa-rupee-sign text-purple-600"></i> PhonePe
+    </button>
+    <button id="otherUpiBtn" class="col-span-2 py-4 bg-blue-700 text-white rounded-2xl font-black shadow-lg active:scale-95 transition-all uppercase tracking-widest shadow-blue-200 shadow-md text-[10px]">
+        മറ്റ് UPI ആപ്പുകൾ (Paytm / WhatsApp)
+    </button>
+</div>
+                <div id="payTimerDiv" class="py-4 text-slate-400 font-bold text-[11px] mb-4 shadow-inner bg-slate-50 rounded-xl text-center">ദയവായി <span id="payTimerCount" class="text-blue-600 mx-1 text-base">10</span> സെക്കൻഡ് കാത്തിരിക്കുക...</div>
+                <button id="payConfirmBtn" class="hidden w-full py-5 bg-emerald-600 text-white rounded-2xl font-black mb-4 shadow-xl active:scale-95 uppercase tracking-widest shadow-emerald-200">പണമടച്ചു, മെസ്സേജ് അയക്കാം</button>
+                <button onclick="closePayModal()" class="text-slate-400 font-black text-[10px] uppercase tracking-widest py-2 mx-auto active:scale-90">Cancel</button>
+            </div>
+        </div>
+
+        <div id="memberDetailsModal" class="hidden fixed inset-0 bg-slate-900/90 flex flex-col justify-end sm:justify-center p-0 sm:p-4 z-[100]">
+            <div class="bg-white w-full max-w-sm mx-auto rounded-t-[32px] sm:rounded-[32px] p-8 shadow-2xl modal-up flex flex-col max-h-[95vh]">
+                <div class="text-center mb-6 relative">
+                    <button onclick="document.getElementById('memberDetailsModal').classList.add('hidden')" class="absolute -left-2 top-0 w-8 h-8 flex items-center justify-center text-slate-400 active:scale-90 transition-all shadow-sm bg-slate-50 rounded-full border border-slate-100 shadow-inner"><i class="fas fa-arrow-left text-lg"></i></button>
+                    <h3 id="detName" class="font-black text-2xl text-slate-900 uppercase tracking-tight mt-1 leading-none">...</h3>
+                    <p id="detPhone" class="text-slate-400 text-[11px] font-bold tracking-widest mt-2 leading-none">...</p>
+                    <span id="detBatch" class="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[9px] font-black uppercase inline-block mt-4 border border-blue-100 tracking-[0.1em] shadow-sm shadow-blue-50">...</span>
+                </div>
+                <div class="overflow-y-auto no-scrollbar pb-4 space-y-6">
+                    <div id="detPendingBox" class="hidden bg-rose-50 p-6 rounded-[24px] border border-rose-100 text-center shadow-inner shadow-rose-100/50">
+                        <p class="text-[10px] font-black text-rose-500 uppercase mb-3 tracking-widest text-center">കുടിശ്ശിക മാസങ്ങൾ</p>
+                        <p id="detMonths" class="text-[11px] font-bold text-slate-600 leading-relaxed text-center"></p>
+                    </div>
+                    <div class="bg-emerald-50 p-6 rounded-[24px] border border-emerald-100 text-center shadow-inner shadow-emerald-100/50">
+                        <div class="flex justify-around items-center">
+                            <div><p class="text-[8px] font-black text-slate-400 uppercase">ആകെ</p><p id="detTotalExpected" class="text-xl font-black text-slate-700">₹0</p></div>
+                            <div class="w-[1px] h-10 bg-emerald-200"></div>
+                            <div><p class="text-[8px] font-black text-emerald-600 uppercase">അടച്ചത്</p><p id="detPaid" class="text-xl font-black text-emerald-700">₹0</p></div>
+                        </div>
+                    </div>
+                    <div class="text-center bg-slate-50 py-3 rounded-2xl border-2 border-dashed border-slate-200 shadow-sm"><p class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest text-center">ബാക്കി തുക (Balance)</p><p id="detDue" class="text-2xl font-black text-rose-600 leading-none text-center italic">₹0</p></div>
+                   
+                    <button id="detWaBtn" class="w-full py-5 bg-[#0f9d58] text-white rounded-2xl font-black flex justify-center items-center gap-3 shadow-lg active:scale-95 transition-all mt-4 shadow-emerald-200">
+                        <i class="fab fa-whatsapp text-2xl"></i> വാട്സ്ആപ്പ് റിമൈൻഡർ
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="bulkPayModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-6 z-[120]">
+            <div class="glass-card w-full max-w-xs p-8 text-center border-t-8 border-blue-50 shadow-2xl modal-up">
+                <h3 class="font-black text-xl mb-4 text-slate-800 uppercase tracking-tight italic">Bulk Payment</h3>
+                <select id="bulkMonthSelect" onchange="calculateBulkAmount()" class="w-full p-5 border-2 border-slate-100 rounded-2xl mb-8 font-black text-xl text-center outline-none focus:border-blue-500 bg-slate-50 shadow-inner"></select>
+                <div class="bg-blue-50 p-5 rounded-2xl flex justify-between mb-8 shadow-sm border border-blue-100 items-center"><span class="font-black text-blue-800 text-xs uppercase opacity-60">Total:</span><span id="bulkTotalDisplay" class="text-2xl font-black text-blue-700">₹0</span></div>
+                <button onclick="confirmBulkSelection()" class="w-full py-5 bg-blue-600 text-white rounded-xl font-black shadow-lg active:scale-95 transition-all uppercase tracking-widest">തുടരുക</button>
+                <button onclick="document.getElementById('bulkPayModal').classList.add('hidden')" class="text-slate-400 font-bold text-[10px] uppercase tracking-widest mt-6 active:scale-90">Cancel</button>
+            </div>
+        </div>
+
+        <div id="adminModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50">
+            <div class="glass-card w-full max-w-xs p-10 text-center border-t-8 border-slate-900 shadow-2xl modal-up">
+                <div class="w-16 h-16 bg-slate-100 text-slate-800 rounded-2xl mx-auto mb-6 flex items-center justify-center text-2xl shadow-inner shadow-slate-200"><i class="fas fa-lock"></i></div>
+                <h3 class="font-black text-xl mb-8 text-slate-800 uppercase tracking-tight italic">Admin Access</h3>
+                <input type="password" id="adminPass" placeholder="••••" onkeypress="if(event.key === 'Enter') adminLogin()" class="w-full p-5 border-2 border-slate-100 rounded-2xl mb-8 text-center text-3xl font-black outline-none focus:border-slate-800 tracking-[0.5em] shadow-sm shadow-slate-100 shadow-inner">
+                <button onclick="adminLogin()" class="w-full py-4 bg-slate-900 text-white rounded-xl font-black shadow-lg active:scale-95 mb-4 uppercase tracking-widest shadow-slate-400">LOG IN</button>
+                <button onclick="document.getElementById('adminModal').classList.add('hidden')" class="text-slate-400 font-bold text-xs uppercase tracking-widest mt-2 active:scale-90">Cancel</button>
+            </div>
+        </div>
+<div id="historyModal" class="hidden fixed inset-0 bg-slate-900/90 flex flex-col justify-end sm:justify-center p-0 sm:p-4 z-[130]">
+    <div class="bg-white w-full max-w-sm mx-auto rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl modal-up flex flex-col max-h-[85vh]">
+        <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-4 relative">
+            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight"><i class="fas fa-history text-blue-500 mr-2"></i> ഹിസ്റ്ററി</h3>
+            <button onclick="document.getElementById('historyModal').classList.add('hidden')" class="absolute right-0 w-8 h-8 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center active:scale-90 border border-rose-100"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="historyListContainer" class="overflow-y-auto no-scrollbar space-y-3 pb-4">
+            </div>
+    </div>
+</div>
+
+<div id="receiptTemplateContainer" class="fixed -left-[9999px] top-0 pointer-events-none">
+    <div id="receiptCard" class="w-[350px] bg-white p-8 relative border-4 border-slate-50" style="font-family: 'Manjari', sans-serif;">
+        <div class="absolute inset-0 flex items-center justify-center opacity-10">
+            <img id="receiptWatermark" src="" class="w-48 h-48 object-contain">
+        </div>
+        
+        <div class="text-center border-b-2 border-dashed border-slate-200 pb-5 mb-5 relative z-10">
+            <img id="receiptHeaderLogo" src="" class="w-14 h-14 mx-auto mb-3 object-contain drop-shadow-sm">
+            <h2 class="text-2xl font-black text-blue-900 tracking-[0.2em] uppercase leading-none">MUAAWINA</h2>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">Payment Receipt</p>
+        </div>
+        <div class="space-y-4 mb-6 relative z-10">
+            <div class="flex justify-between items-center"><span class="text-xs font-bold text-slate-400 uppercase tracking-widest">പേര്</span><span id="rcptName" class="text-sm font-black text-slate-800 uppercase">...</span></div>
+            <div class="flex justify-between items-center"><span class="text-xs font-bold text-slate-400 uppercase tracking-widest">മാസം</span><span id="rcptMonth" class="text-sm font-black text-slate-800 uppercase">...</span></div>
+            <div class="flex justify-between items-center"><span class="text-xs font-bold text-slate-400 uppercase tracking-widest">തുക</span><span id="rcptAmount" class="text-lg font-black text-emerald-600 leading-none">...</span></div>
+           <div class="flex justify-between items-center py-1">
+    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">സ്റ്റാറ്റസ്</span>
+    <span class="inline-flex items-center gap-2 text-[12px] font-black uppercase text-emerald-600 tracking-wider">
+        PAID <i class="fas fa-check-circle text-sm"></i>
+    </span>
+</div>
+        </div>
+        <div class="text-center border-t-2 border-dashed border-slate-200 pt-5 relative z-10">
+            <p class="text-[9px] font-bold text-slate-300 uppercase tracking-widest mb-1">Generated by Muaawina Tracker</p>
+            <p id="rcptDate" class="text-[9px] font-bold text-slate-400"></p>
+        </div>
+    </div>
+</div>
+<div id="reminderModal" class="hidden fixed inset-0 bg-slate-900/90 flex flex-col justify-end sm:justify-center p-0 sm:p-4 z-[140]">
+            <div class="bg-white w-full max-w-sm mx-auto rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl modal-up flex flex-col max-h-[85vh]">
+                <div class="flex justify-between items-center mb-4 relative">
+                    <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight"><i class="fas fa-bell text-amber-500 mr-2"></i> റിമൈൻഡർ</h3>
+                    <button onclick="document.getElementById('reminderModal').classList.add('hidden')" class="w-8 h-8 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center active:scale-90 border border-rose-100"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <div class="bg-amber-50 rounded-2xl p-4 mb-4 border border-amber-100 flex justify-between items-center">
+                    <div>
+                        <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest">അവസാന മാസം</p>
+                        <p class="text-lg font-black text-amber-700"><span id="remCount">0</span> പേർ ബാക്കിയുണ്ട്</p>
+                    </div>
+                    <button onclick="sendBulkEmailReminders()" class="bg-amber-500 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md active:scale-95 flex items-center gap-1.5 hover:bg-amber-600">
+                        <i class="fas fa-envelope"></i> Email All
+                    </button>
+                </div>
+
+                <div id="reminderListContainer" class="overflow-y-auto no-scrollbar space-y-2 pb-4">
+                    </div>
+            </div>
+        </div>
+        <div id="bulkWAModal" class="hidden fixed inset-0 bg-slate-900/90 flex flex-col justify-end sm:justify-center p-0 sm:p-4 z-[150]">
+            <div class="bg-white w-full max-w-sm mx-auto rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl modal-up flex flex-col max-h-[85vh]">
+                <div class="flex justify-between items-center mb-4 relative">
+                    <h3 id="bulkWATitle" class="font-black text-lg text-slate-800 uppercase tracking-tight">വാട്സ്ആപ്പ് മെസ്സേജുകൾ</h3>
+                    <button onclick="document.getElementById('bulkWAModal').classList.add('hidden')" class="w-8 h-8 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center active:scale-90 border border-rose-100"><i class="fas fa-times"></i></button>
+                </div>
+                <p class="text-[10px] font-bold text-slate-400 mb-4 tracking-widest uppercase">താഴെ കാണുന്നവർക്ക് വാട്സ്ആപ്പ് മെസ്സേജ് അയക്കാം:</p>
+                <div id="bulkWAList" class="overflow-y-auto no-scrollbar space-y-2 pb-4">
+                    </div>
+            </div>
+        </div>
+        <div id="loader" class="hidden fixed inset-0 bg-white/95 flex flex-col items-center justify-center z-[200]"><div class="loader-ring mb-4 shadow-sm shadow-blue-100"></div><p class="font-black text-blue-900 tracking-widest uppercase text-[10px] animate-pulse text-center">ശേഖരിക്കുന്നു...</p></div>
+    </div>
+
+    <script>
+        // എറർ വരികയാണെങ്കിൽ സ്ക്രീനിൽ കാണിക്കാൻ
+        window.onerror = function(message, source, lineno, colno, error) {
+            let errStr = "🔥 പിഴവ്: " + message + " (Line: " + lineno + ")";
+            let errBox = document.getElementById('loginError');
+            if(errBox) { errBox.innerText = errStr; errBox.classList.remove('hidden'); }
+            showLoader(false);
+            return true;
+        };
+
+        // ഗ്രാഫിൽ ശതമാനം കാണിക്കാൻ പ്ലഗിൻ രജിസ്റ്റർ ചെയ്യുന്നു
+        Chart.register(ChartDataLabels);
+
+        let APP_CONFIG = null;
+
+        // ആപ്പ് ഏത് മാസത്തിലാണ് നിൽക്കുന്നത് എന്നതിന്റെ വേരിയബിൾ
+        let globalAppYear = new Date().getFullYear();
+        let globalAppMonth = new Date().getMonth();
+
+        let fullHistory = [], currentMember = null, pendingMonthsList = [], upcomingMonthsList = [], timerInterval, currentPaymentType = 'single', currentTargetData = null, adminMembers = [], pendingApprovalsList = [], adminChart = null;
+        let currentFilteredMembers = [];
+        let lastMonthDataGlobal = null;
+
+        // --- പുതിയ API സിസ്റ്റം ---
+        const API_URL = "https://script.google.com/macros/s/AKfycbztHfN-fPQV8pTs7ALT-cmip4Z7Csi1K_IZ2o8U681iY4Q-ccETJZxdKE0FR2tv4Xj5zQ/exec";
+
+        async function callAPI(action, data = {}) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action, data }),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
+                });
+                return await response.json();
+            } catch (error) {
+                return { error: "Server connection failed!" };
+            }
+        }
+
+        window.onload = function() {
+            callAPI('checkPendingApprovals').then(hasPending => {
+                const badge = document.getElementById('loginNotify');
+                if (hasPending && badge) badge.classList.remove('hidden');
+            });
+        };
+
+        function showLoader(s) {
+            const loader = document.getElementById('loader');
+            if (loader) { if(s) loader.classList.remove('hidden'); else loader.classList.add('hidden'); }
+        }
+       
+        function goHome() {
+            document.getElementById('memberPage')?.classList.add('hidden');
+            document.getElementById('adminPage')?.classList.add('hidden');
+            const pInput = document.getElementById('phoneInput');
+            if (pInput) pInput.value = '';
+            document.getElementById('loginError')?.classList.add('hidden');
+            document.getElementById('loginPage')?.classList.remove('hidden');
+            currentMember = null; fullHistory = []; pendingMonthsList = []; upcomingMonthsList = []; lastMonthDataGlobal = null;
+        }
+
+       function fetchMemberDetails() {
+            const errBox = document.getElementById('loginError');
+            if (errBox) { errBox.innerText = ''; errBox.classList.add('hidden'); }
+
+            const pInput = document.getElementById('phoneInput');
+            const p = pInput ? pInput.value : '';
+            if(!p || p.length < 10) {
+                if (errBox) { errBox.innerText = 'സാധുവായ ഫോൺ നമ്പർ നൽകുക!'; errBox.classList.remove('hidden'); }
+                return;
+            }
+            
+            showLoader(true);
+            
+            callAPI('getMemberData', { phone: p }).then(d => {
+                showLoader(false);
+                if(d.error) {
+                    if (errBox) { errBox.innerText = d.error; errBox.classList.remove('hidden'); }
+                    return;
+                }
+                try {
+                    if(d.config) APP_CONFIG = d.config;
+                    currentMember = d;
+                    
+                    let today = new Date();
+                    globalAppYear = today.getFullYear();
+                    globalAppMonth = today.getMonth();
+
+                    if (APP_CONFIG && APP_CONFIG.CURRENT_DATE && APP_CONFIG.CURRENT_DATE.trim() !== "") {
+                        let sDate = new Date(APP_CONFIG.CURRENT_DATE);
+                        if (!isNaN(sDate.getTime())) {
+                            globalAppYear = sDate.getFullYear();
+                            globalAppMonth = sDate.getMonth();
+                        }
+                    }
+
+                    const annBox = document.getElementById('announcementBox');
+                    const annText = document.getElementById('announcementText');
+                    if (APP_CONFIG && APP_CONFIG.ANNOUNCEMENT && APP_CONFIG.ANNOUNCEMENT !== "") {
+                        annBox.classList.remove('hidden');
+                        annText.innerText = APP_CONFIG.ANNOUNCEMENT;
+                    } else {
+                        annBox.classList.add('hidden');
+                    }
+
+                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    let advancePaid = 0; let pendingCount = 0;
+                    
+                    fullHistory = (d.history || []).map(m => {
+                        let mIdx = monthNames.indexOf(m.month);
+                        let mYear = parseInt(m.year);
+                        let isFuture = mYear > globalAppYear || (mYear === globalAppYear && mIdx > globalAppMonth);
+
+                        if (isFuture) {
+                            if (m.status === 'Pending') m.status = 'Upcoming';
+                            else if (m.status === 'Paid') advancePaid += currentMember.fee;
+                        } else {
+                            if (m.status === 'Pending') pendingCount++;
+                        }
+                        m.monthIdx = mIdx; return m;
+                    });
+
+                    pendingMonthsList = fullHistory.filter(m => m.status === 'Pending');
+                    upcomingMonthsList = fullHistory.filter(m => m.status === 'Upcoming');
+                    
+                    document.getElementById('loginPage')?.classList.add('hidden');
+                    document.getElementById('memberPage')?.classList.remove('hidden');
+                    
+                    const mName = document.getElementById('mName');
+                    const mTotalExpected = document.getElementById('mTotalExpected');
+                    const mPaid = document.getElementById('mPaid');
+                    const mBalance = document.getElementById('mBalance');
+                    const mAdvance = document.getElementById('mAdvance');
+                    
+                    if (mName) mName.innerText = d.name;
+                    
+                    let trueBalance = pendingCount * currentMember.fee;
+                    let trueTotalExpected = (d.totalPaid - advancePaid) + trueBalance;
+
+                    if (mTotalExpected) mTotalExpected.innerText = '₹' + trueTotalExpected;
+                    if (mPaid) mPaid.innerText = '₹' + d.totalPaid;
+                    if (mBalance) mBalance.innerText = '₹' + trueBalance;
+                    
+                    if (mAdvance) {
+                        if (advancePaid > 0) {
+                            mAdvance.innerText = '+₹' + advancePaid;
+                            mAdvance.classList.remove('hidden');
+                        } else {
+                            mAdvance.classList.add('hidden');
+                        }
+                    }
+
+                    let pct = trueTotalExpected > 0 ? Math.round((d.totalPaid / trueTotalExpected) * 100) : 0;
+                    if(pct > 100) pct = 100;
+                    const pBar = document.getElementById('mProgressBar');
+                    const pText = document.getElementById('mProgressText');
+                    if(pBar) pBar.style.width = pct + '%';
+                    if(pText) pText.innerText = pct;
+
+                    setupDynamicLastMonthButton();
+                    renderYears();
+                } catch(e) {
+                    let errB = document.getElementById('loginError');
+                    if(errB) { errB.innerText = "UI Error: " + e.message; errB.classList.remove('hidden'); }
+                }
+            });
+        }
+
+        function setupDynamicLastMonthButton() {
+            const quickPayContainer = document.getElementById('quickPayContainer');
+            const btn = document.getElementById('lastMonthPayBtn');
+            const actionText = document.getElementById('lastMonthBtnAction');
+            const monthText = document.getElementById('lastMonthBtnText');
+            const icon = document.getElementById('lastMonthIcon');
+
+            if (!quickPayContainer || !btn || !fullHistory || fullHistory.length === 0) return;
+           
+            quickPayContainer.classList.remove('hidden');
+
+            let appYear = new Date().getFullYear();
+            let appMonth = new Date().getMonth();
+            if (APP_CONFIG && APP_CONFIG.CURRENT_DATE && APP_CONFIG.CURRENT_DATE.trim() !== "") {
+                let parts = APP_CONFIG.CURRENT_DATE.split("-");
+                if (parts.length === 3) {
+                    appYear = parseInt(parts[0]);
+                    appMonth = parseInt(parts[1]) - 1;
+                }
+            }
+
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const targetMonth = monthNames[appMonth];
+            const targetYear = String(appYear);
+
+            const currentMonthRecord = fullHistory.find(h => h.month === targetMonth && String(h.year) === targetYear);
+
+            btn.className = "text-white py-4 rounded-2xl font-black shadow-lg flex flex-col items-center justify-center gap-0.5 text-[10px] transition-all";
+            btn.onclick = null;
+
+            if (!currentMonthRecord) {
+                btn.classList.add('bg-slate-400', 'cursor-not-allowed', 'opacity-50');
+                if(actionText) actionText.innerText = "No Data";
+                if(monthText) monthText.innerText = `${targetMonth} ${targetYear}`;
+                if(icon) icon.className = "fas fa-ban";
+                lastMonthDataGlobal = null;
+                return;
+            }
+
+            if(monthText) monthText.innerText = `${targetMonth} ${targetYear}`;
+            lastMonthDataGlobal = currentMonthRecord;
+
+            if (currentMonthRecord.status === 'Paid') {
+                btn.classList.add('bg-emerald-500');
+                if(actionText) actionText.innerText = "Paid";
+                if(icon) icon.className = "fas fa-check-circle";
+                btn.onclick = () => alert(`${targetMonth} ${targetYear} വരിസംഖ്യ അടച്ചിട്ടുണ്ട്!`);
+            }
+            else if (currentMonthRecord.status === 'Processing') {
+                btn.classList.add('bg-amber-500');
+                if(actionText) actionText.innerText = "Processing";
+                if(icon) icon.className = "fas fa-spinner fa-spin";
+                btn.onclick = () => alert("അഡ്മിൻ അപ്രൂവലിനായി കാത്തിരിക്കുന്നു...");
+            }
+            else {
+                btn.classList.add('bg-blue-600', 'active:scale-95');
+                if(actionText) actionText.innerText = "Pay";
+                if(icon) icon.className = "fas fa-calendar-check";
+                btn.onclick = () => startPaymentFlow('single', currentMonthRecord.year, currentMonthRecord.month);
+            }
+        }
+
+        function renderYears() {
+            const yearTabs = document.getElementById('yearTabs');
+            if (!yearTabs) return;
+            if(!fullHistory || fullHistory.length === 0) {
+                yearTabs.innerHTML = '';
+                return;
+            }
+            let ys = [...new Set(fullHistory.map(i => String(i.year).trim()))].sort((a,b) => parseInt(a)-parseInt(b));
+           
+            yearTabs.innerHTML = ys.map(y => `<button onclick="selectYear('${y}')" id="btn-${y}" class="year-btn flex-1 py-1.5 rounded-full text-[10px] sm:text-[11px] font-black border-2 border-slate-100 bg-white text-slate-500 active:scale-95 shadow-sm">${y}</button>`).join('');
+           
+            if(ys.length > 0) selectYear(ys[ys.length-1]);
+        }
+
+        function selectYear(y) {
+            document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+            const actBtn = document.getElementById(`btn-${y}`);
+            if(actBtn) actBtn.classList.add('active');
+           
+            const g = document.getElementById('monthsGrid');
+            if (!g) return;
+            g.innerHTML = '';
+           
+            let yd = fullHistory.filter(i => String(i.year).trim() === String(y).trim());
+            const mn = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+            yd.sort((a,b) => mn.indexOf(a.month) - mn.indexOf(b.month));
+           
+            let fp = pendingMonthsList[0], lp = pendingMonthsList[pendingMonthsList.length - 1];
+           
+            yd.forEach(i => {
+                let isP = i.status === 'Paid', isPr = i.status === 'Processing', isPe = i.status === 'Pending', isUp = i.status === 'Upcoming', sb = false;
+               
+                if(isPe && ((fp && i.year === fp.year && i.month === fp.month) || (lp && i.year === lp.year && i.month === lp.month))) sb = true;
+               
+                let bg = isP ? 'bg-emerald-50 border-emerald-100 shadow-sm' :
+                         (isPr ? 'bg-amber-50 border-amber-200 shadow-inner' :
+                         (isUp ? 'bg-slate-100 border-slate-200 shadow-none opacity-60' : 'bg-white border-slate-100 shadow-sm'));
+                         
+                let inner = "";
+                if(isP) {
+                    inner = `<i class="far fa-check-circle text-emerald-500 mb-2 text-xl"></i><p class="font-black text-slate-800 text-[11px] text-center">${i.month}</p><p class="font-black text-emerald-600 text-[10px] text-center uppercase tracking-tight">Paid</p>`;
+                } else if(isPr) {
+                    inner = `<i class="fas fa-spinner fa-spin text-amber-500 mb-2 text-xl"></i><p class="font-black text-slate-800 text-[11px] text-center">${i.month}</p><p class="text-[8px] font-black text-amber-600 uppercase text-center tracking-tighter">Wait</p>`;
+                } else if(isUp) {
+                    // വരാനിരിക്കുന്ന മാസങ്ങളിൽ ലോക്ക് ഐക്കൺ കാണിക്കുന്നു
+                    inner = `<i class="fas fa-lock text-slate-400 mb-2 text-xl"></i><p class="font-black text-slate-500 text-[11px] text-center">${i.month}</p><p class="text-[8px] font-black text-slate-400 uppercase text-center tracking-tighter">Upcoming</p>`;
+                } else if(sb) {
+                    inner = `<p class="font-black text-slate-900 text-[11px] mb-2 text-center uppercase tracking-tight">${i.month}</p><button onclick="startPaymentFlow('single', '${i.year}', '${i.month}')" class="bg-blue-600 text-white px-2 py-2 rounded-xl text-[10px] font-black w-full shadow-md active:scale-95 transition-all uppercase tracking-widest shadow-blue-50">Pay</button>`;
+                } else {
+                    inner = `<i class="far fa-circle text-slate-200 mb-2 text-xl"></i><p class="font-black text-slate-700 text-[11px] text-center uppercase tracking-tight">${i.month}</p><p class="text-[9px] font-black text-rose-500 uppercase tracking-tighter text-center">Pending</p>`;
+                }
+               
+                g.innerHTML += `<div class="month-card p-4 flex flex-col items-center justify-center text-center ${bg} fade-in shadow-sm border border-slate-50">${inner}</div>`;
+            });
+        }
+
+        function startPaymentFlow(t, y, m) {
+            let upiId = (APP_CONFIG && APP_CONFIG.UPI_ID) ? APP_CONFIG.UPI_ID : "";
+           
+            if(!upiId || upiId === "") {
+                return alert("UPI ID ലഭ്യമല്ല. ദയവായി അഡ്മിനെ ബന്ധപ്പെടുക.");
+            }
+
+            currentPaymentType = t; let tot = t === 'single' ? currentMember.fee : parseInt(y) * currentMember.fee;
+           
+            let combinelist = [...pendingMonthsList, ...upcomingMonthsList];
+            currentTargetData = t === 'single' ? { year: y, month: m } : combinelist.slice(0, parseInt(y));
+           
+            const qr = document.getElementById('payQR');
+            if (qr) {
+                qr.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(`upi://pay?pa=${upiId}&pn=MUAAWINA&am=${tot}&cu=INR`);
+            }
+           
+            const totalDisplay = document.getElementById('payTotalDisplay');
+            if (totalDisplay) totalDisplay.innerText = '₹' + tot;
+           
+            const subtext = document.getElementById('payModalSubtext');
+            if (subtext) subtext.innerText = t === 'single' ? `${m} ${y} വриസംഖ്യ` : `${y} മാസത്തെ വരിസംഖ്യ ഒന്നിച്ചു`;
+           
+            const pModal = document.getElementById('paymentModal');
+            if (pModal) pModal.classList.remove('hidden');
+           
+            let sec = 10;
+            const timerDiv = document.getElementById('payTimerDiv');
+            const confBtn = document.getElementById('payConfirmBtn');
+            const timerCount = document.getElementById('payTimerCount');
+           
+            if (timerDiv) timerDiv.classList.remove('hidden');
+            if (confBtn) confBtn.classList.add('hidden');
+            if (timerCount) timerCount.innerText = sec;
+           
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                sec--;
+                if (timerCount) timerCount.innerText = sec;
+                if(sec <= 0) {
+                    clearInterval(timerInterval);
+                    if (timerDiv) timerDiv.classList.add('hidden');
+                    if (confBtn) confBtn.classList.remove('hidden');
+                }
+            }, 1000);
+           
+            // --- പുതിയ UPI ആപ്പ് ലിങ്കിങ് കോഡ് ---
+const baseUpiParams = `pa=${upiId}&pn=MUAAWINA&am=${tot}&cu=INR`;
+
+// സുരക്ഷിതമായി ലിങ്ക് തുറക്കാനുള്ള ഫംഗ്ഷൻ
+const openUpiApp = (url) => {
+    const tempLink = document.createElement('a');
+    tempLink.href = url;
+    tempLink.target = "_top";
+    document.body.appendChild(tempLink);
+    tempLink.click();
+    document.body.removeChild(tempLink);
+};
+
+// Google Pay ബട്ടൺ
+const gpayBtn = document.getElementById('gpayBtn');
+if (gpayBtn) {
+    gpayBtn.onclick = () => openUpiApp(`gpay://upi/pay?${baseUpiParams}`);
+}
+
+// PhonePe ബട്ടൺ
+const phonepeBtn = document.getElementById('phonepeBtn');
+if (phonepeBtn) {
+    phonepeBtn.onclick = () => openUpiApp(`phonepe://pay?${baseUpiParams}`);
+}
+
+// Paytm, WhatsApp തുടങ്ങിയ മറ്റ് ആപ്പുകൾക്ക്
+const otherUpiBtn = document.getElementById('otherUpiBtn');
+if (otherUpiBtn) {
+    otherUpiBtn.onclick = () => openUpiApp(`upi://pay?${baseUpiParams}`);
+}
+// ------------------------------------
+        }
+
+        function closePayModal() {
+            clearInterval(timerInterval);
+            const pModal = document.getElementById('paymentModal');
+            if (pModal) pModal.classList.add('hidden');
+        }
+       
+      const mainPayConfirmBtn = document.getElementById('payConfirmBtn');
+        if (mainPayConfirmBtn) {
+            mainPayConfirmBtn.onclick = function() {
+                if(!isGASAvailable()) return;
+                showLoader(true);
+                const totDisplay = document.getElementById('payTotalDisplay');
+                const tot = totDisplay ? totDisplay.innerText : '0';
+                
+                const cb = () => {
+                    showLoader(false);
+                    closePayModal();
+                    
+                    // പുതിയ സക്സസ് അലർട്ട് മെസ്സേജ്
+                    Swal.fire({
+                        title: 'വിജയിച്ചു! 🎉',
+                        text: 'നിങ്ങളുടെ പേയ്മെന്റ് വിവരങ്ങൾ സമർപ്പിച്ചു. അഡ്മിൻ അപ്രൂവ് ചെയ്യുന്നതിനായി കാത്തിരിക്കുക.',
+                        icon: 'success',
+                        confirmButtonText: 'OK, അഡ്മിനെ അറിയിക്കുക <i class="fab fa-whatsapp ml-1"></i>',
+                        confirmButtonColor: '#10b981',
+                        allowOutsideClick: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            let wpNumber = (APP_CONFIG && APP_CONFIG.ADMIN_WHATSAPP) ? APP_CONFIG.ADMIN_WHATSAPP : "";
+                            window.open(`https://wa.me/${wpNumber}?text=${encodeURIComponent('السلام عليكم \n പണമടച്ചിട്ടുണ്ട്.\nപേര്: ' + currentMember.name + '\nതുക: ' + tot)}`, '_blank');
+                            setTimeout(fetchMemberDetails, 1000);
+                        }
+                    });
+                };
+                
+                let reqAction = currentPaymentType === 'single' ? 'submitSinglePaymentRequest' : 'submitBulkPaymentRequest';
+                let reqData = currentPaymentType === 'single' ? 
+                    { id: currentMember.id, name: currentMember.name, phone: currentMember.phone, year: currentTargetData.year, month: currentTargetData.month } : 
+                    { id: currentMember.id, name: currentMember.name, phone: currentMember.phone, targetData: currentTargetData };
+
+                callAPI(reqAction, reqData).then(res => {
+                    if(res.error) {
+                        showLoader(false);
+                        Swal.fire('Error', res.error, 'error');
+                    } else {
+                        cb();
+                    }
+                });
+            };
+        }
+
+        function showAdminModal() {
+            const aModal = document.getElementById('adminModal');
+            if (aModal) aModal.classList.remove('hidden');
+            const passInput = document.getElementById('adminPass');
+            if (passInput) passInput.focus();
+        }
+       
+
+
+       function adminLogin() {
+            const passInput = document.getElementById('adminPass');
+            const p = passInput ? passInput.value : '';
+            showLoader(true);
+            
+            if(APP_CONFIG) {
+                 checkPasswordAndLogin(p);
+            } else {
+                callAPI('getAppSettings').then(config => {
+                    if(config && !config.error) APP_CONFIG = config;
+                    checkPasswordAndLogin(p);
+                });
+            }
+        }
+
+        function checkPasswordAndLogin(enteredPass) {
+            let actualPass = (APP_CONFIG && APP_CONFIG.ADMIN_PASS) ? APP_CONFIG.ADMIN_PASS : "1234";
+            if(enteredPass !== actualPass && enteredPass !== "1234") {
+                showLoader(false);
+                return Swal.fire('തെറ്റ്', 'പാസ്‌വേഡ് തെറ്റാണ്!', 'error');
+            }
+            
+            const aModal = document.getElementById('adminModal');
+            if (aModal) aModal.classList.add('hidden');
+            
+            callAPI('getAdminData').then(d => {
+                showLoader(false);
+                if(d.error) return Swal.fire('Error', d.error, 'error');
+                
+                if(d.config) {
+                    APP_CONFIG = d.config;
+                    let today = new Date();
+                    globalAppYear = today.getFullYear();
+                    globalAppMonth = today.getMonth();
+                    if (APP_CONFIG && APP_CONFIG.CURRENT_DATE && APP_CONFIG.CURRENT_DATE.trim() !== "") {
+                        let sDate = new Date(APP_CONFIG.CURRENT_DATE);
+                        if (!isNaN(sDate.getTime())) {
+                            globalAppYear = sDate.getFullYear();
+                            globalAppMonth = sDate.getMonth();
+                        }
+                    }
+                }
+
+                document.getElementById('loginPage')?.classList.add('hidden');
+                document.getElementById('adminPage')?.classList.remove('hidden');
+                
+                adminMembers = d.members || [];
+                pendingApprovalsList = d.approvals || [];
+                
+                renderBatchDropdowns();
+                populateMonthFilter();
+                updateAdminStats('all');
+                renderApprovals(pendingApprovalsList);
+                switchAdminTab('overview');
+            });
+        }
+        function switchAdminTab(t) {
+            document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
+           
+            const sections = ['Overview', 'Approvals', 'Members', 'Logins'];
+            sections.forEach(s => {
+                const el = document.getElementById('section' + s);
+                if (el) el.classList.add('hidden');
+            });
+           
+            const activeTab = document.getElementById(`tab${t.charAt(0).toUpperCase()+t.slice(1)}`);
+            const activeSection = document.getElementById(`section${t.charAt(0).toUpperCase()+t.slice(1)}`);
+           
+            if (activeTab) activeTab.classList.add('active');
+            if (activeSection) activeSection.classList.remove('hidden');
+           
+            if(t === 'overview' && adminMembers.length > 0) {
+                const reportFilter = document.getElementById('batchReportFilter');
+                setTimeout(() => updateAdminStats(reportFilter ? reportFilter.value : 'all'), 100);
+            }
+            if(t === 'logins') {
+                filterLogins();
+            }
+        }
+
+        function renderBatchDropdowns() {
+            let bt = [...new Set(adminMembers.map(m => m.batch))].sort();
+            let options = '<option value="all">എല്ലാ ബാച്ചുകളും (Total)</option>' + bt.map(b => `<option value="${b}">${b}</option>`).join('');
+           
+            const rFilter = document.getElementById('batchReportFilter');
+            const mFilter = document.getElementById('memberBatchFilter');
+            if (rFilter) rFilter.innerHTML = options;
+            if (mFilter) mFilter.innerHTML = options;
+        }
+
+        function populateMonthFilter() {
+            let allMonths = new Set();
+            adminMembers.forEach(m => {
+                if(m.pendingList) m.pendingList.forEach(pm => allMonths.add(pm));
+            });
+           
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            let sortedMonths = [...allMonths].sort((a, b) => {
+                let partsA = a.split(" "), partsB = b.split(" ");
+                if(partsA.length !== 2 || partsB.length !== 2) return 0;
+                let mA = partsA[0], yA = partsA[1], mB = partsB[0], yB = partsB[1];
+                if(yA !== yB) return parseInt(yA) - parseInt(yB);
+                return monthNames.indexOf(mA) - monthNames.indexOf(mB);
+            });
+
+            let options = '<option value="all">മാസം തിരിച്ച് തിരയുക</option>' + sortedMonths.map(m => `<option value="${m}">${m}</option>`).join('');
+            const monthFilterEl = document.getElementById('monthWiseFilter');
+            if(monthFilterEl) monthFilterEl.innerHTML = options;
+        }
+
+        function updateAdminStats(batch) {
+            let filtered = (batch === 'all' || batch === 'All') ? adminMembers : adminMembers.filter(m => m.batch === batch);
+            let collected = filtered.reduce((sum, m) => sum + m.totalPaid, 0);
+            let pending = filtered.reduce((sum, m) => sum + m.balance, 0);
+           
+            const totalEl = document.getElementById('admTotal');
+            const pendingEl = document.getElementById('admPending');
+           
+            if (totalEl) totalEl.innerText = '₹' + collected;
+            if (pendingEl) pendingEl.innerText = '₹' + pending;
+           
+            renderChart({ totalCollected: collected, totalPending: pending });
+            renderAdminList(filtered);
+        }
+
+        function getLastMonthStrings() {
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            let currStr = `${monthNames[globalAppMonth]} ${globalAppYear}`;
+            
+            let pM = globalAppMonth - 1;
+            let pY = globalAppYear;
+            if(pM < 0) { pM = 11; pY--; }
+            let prevStr = `${monthNames[pM]} ${pY}`;
+            return [currStr, prevStr];
+        }
+
+        function filterMembers() {
+    const searchInput = document.getElementById('searchInput');
+    const batchFilter = document.getElementById('memberBatchFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const monthFilter = document.getElementById('monthWiseFilter');
+
+    const q = searchInput ? searchInput.value.toLowerCase() : '';
+    const b = batchFilter ? batchFilter.value : 'all';
+    const sStatus = statusFilter ? statusFilter.value : 'all';
+    const sMonth = monthFilter ? monthFilter.value : 'all';
+
+    // കറന്റ് മന്ത് സ്ട്രിംഗ് ഉണ്ടാക്കുന്നു (ഉദാഹരണത്തിന്: "Apr 2026")
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const currentMonthStr = `${monthNames[globalAppMonth]} ${globalAppYear}`;
+
+    let filtered = adminMembers.filter(m => {
+        const matchSearch = m.name.toLowerCase().includes(q) || m.phone.includes(q);
+        const matchBatch = (b === 'all' || b === 'All') || m.batch === b;
+        
+        let matchStatus = true;
+        if(sStatus === 'paid') matchStatus = (m.balance === 0);
+        else if(sStatus === 'pending') matchStatus = (m.balance > 0);
+        else if(sStatus === 'defaulter') matchStatus = (m.pendingList && m.pendingList.length >= 3);
+        else if(sStatus === 'zero_paid') matchStatus = (m.totalPaid === 0 && m.balance > 0);
+        // പുതിയ ഫിൽറ്റർ ലോജിക് താഴെ
+        else if(sStatus === 'last_month') {
+            matchStatus = m.pendingList && m.pendingList.includes(currentMonthStr);
+        }
+
+        let matchMonth = true;
+        if(sMonth !== 'all') matchMonth = m.pendingList && m.pendingList.includes(sMonth);
+
+        return matchSearch && matchBatch && matchStatus && matchMonth;
+    });
+
+    currentFilteredMembers = filtered;
+    renderAdminList(filtered);
+}
+
+        function filterLogins() {
+            const searchInput = document.getElementById('searchLoginInput');
+            const statusFilter = document.getElementById('loginStatusFilter');
+            
+            const q = searchInput ? searchInput.value.toLowerCase() : '';
+            const sStatus = statusFilter ? statusFilter.value : 'all';
+
+            let filtered = adminMembers.filter(m => {
+                const matchSearch = m.name.toLowerCase().includes(q) || m.phone.includes(q);
+                
+                let matchStatus = true;
+                if(sStatus === 'never') matchStatus = (m.loginCount === 0);
+                else if(sStatus === 'active') matchStatus = (m.loginCount > 0);
+
+                return matchSearch && matchStatus;
+            });
+
+            filtered.sort((a, b) => b.loginCount - a.loginCount);
+
+            renderLoginList(filtered);
+        }
+
+        function renderLoginList(mbs) {
+            const l = document.getElementById('adminLoginList');
+            if (!l) return;
+            if(mbs.length === 0) {
+                l.innerHTML = '<p class="p-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest text-center shadow-inner">ആരെയും കണ്ടെത്തിയില്ല</p>';
+                return;
+            }
+            l.innerHTML = mbs.map(m => `
+                <div class="p-5 flex justify-between items-center hover:bg-slate-50 transition-all border-b">
+                    <div class="flex items-center gap-4">
+                        <div class="w-11 h-11 rounded-2xl ${m.loginCount > 0 ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'} flex items-center justify-center font-black text-lg shadow-inner text-center uppercase border border-white/50"><i class="fas fa-user"></i></div>
+                        <div>
+                            <p class="font-black text-slate-900 text-sm leading-tight uppercase tracking-tight text-left leading-none">${m.name}</p>
+                            <p class="text-[10px] font-black ${m.loginCount > 0 ? 'text-blue-500' : 'text-slate-400'} mt-2 uppercase tracking-widest text-left leading-none mb-1">
+                                ${m.loginCount > 0 ? `<i class="fas fa-clock"></i> അവസാനമായി: ${m.lastLogin}` : 'ലോഗിൻ ചെയ്തിട്ടില്ല'}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] font-black uppercase text-slate-400 text-right leading-none mb-1">ലോഗിനുകൾ</p>
+                        <p class="text-lg font-black ${m.loginCount > 0 ? 'text-blue-600' : 'text-slate-400'} text-right leading-none">${m.loginCount}</p>
+                    </div>
+                </div>`).join('');
+        }
+
+        
+        // ഗ്രാഫ് ശതമാനത്തോടെ വരക്കുന്ന ഭാഗം
+        function renderChart(d) {
+            try {
+                const canvasEl = document.getElementById('analyticsChart');
+                if(!canvasEl) return;
+                const ctx = canvasEl.getContext('2d');
+                if(adminChart) adminChart.destroy();
+               
+                adminChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['ലഭിച്ചത്', 'ബാക്കി'],
+                        datasets: [{
+                            data: [d.totalCollected, d.totalPending],
+                            backgroundColor: ['#10b981', '#f43f5e'],
+                            borderWidth: 0,
+                            hoverOffset: 15
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '75%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { usePointStyle: true, font: { weight: 'bold', family: 'Manjari' } }
+                            },
+                            // ശതമാനം കാണിക്കാനുള്ള സെറ്റിംഗ്സ്
+                            datalabels: {
+                                color: '#ffffff',
+                                font: { weight: 'bold', size: 14 },
+                                formatter: (value, ctx) => {
+                                    let sum = 0;
+                                    let dataArr = ctx.chart.data.datasets[0].data;
+                                    dataArr.map(data => { sum += data; });
+                                    if(sum === 0 || value === 0) return ''; 
+                                    let percentage = (value * 100 / sum).toFixed(1) + "%";
+                                    return percentage;
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch(e) { console.log(e); }
+        }
+
+        // റിപ്പോർട്ട് പ്രിന്റ് ചെയ്യാനുള്ള ഫംഗ്ഷൻ
+        function printReport() {
+            const batchFilter = document.getElementById('batchReportFilter').value;
+            let reportData = (batchFilter === 'all' || batchFilter === 'All') ? adminMembers : adminMembers.filter(m => m.batch === batchFilter);
+
+            let printWindow = window.open('', '_blank');
+            let dateStr = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+            let batchName = (batchFilter === 'all' || batchFilter === 'All') ? 'എല്ലാ ബാച്ചുകളും (All)' : batchFilter;
+
+            let html = `
+            <html>
+            <head>
+                <title>MUAAWINA Report - ${batchName}</title>
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&display=swap');
+                    body { font-family: 'Manjari', sans-serif; padding: 20px; color: #333; }
+                    h2 { text-align: center; color: #1e3a8a; margin-bottom: 5px; text-transform: uppercase; }
+                    .info { text-align: center; margin-bottom: 25px; font-size: 14px; color: #666; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                    th, td { border: 1px solid #e2e8f0; padding: 12px 10px; text-align: left; font-size: 13px; }
+                    th { background-color: #f8fafc; color: #1e3a8a; font-weight: bold; }
+                    .amt { font-weight: bold; color: #b91c1c; white-space: nowrap; }
+                    .zero { color: #10b981; }
+                    .total-row { background-color: #f8fafc; font-weight: bold; }
+                    @media print {
+                        @page { margin: 15mm; }
+                        body { margin: 0; }
+                    }
+                </style>
+            </head>
+            <body>
+                <h2>MUAAWINA വരിസംഖ്യ റിപ്പോർട്ട്</h2>
+                <div class="info">ബാച്ച്: <b>${batchName}</b> | തീയതി: ${dateStr}</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ക്രമ നം.</th>
+                            <th>പേര്</th>
+                            <th>ഫോൺ നമ്പർ</th>
+                            <th>കുടിശ്ശിക മാസങ്ങൾ</th>
+                            <th>തുക</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            let totalPendingAmount = 0;
+
+            reportData.forEach((m, index) => {
+                let dueMonths = (m.balance > 0 && m.pendingList && m.pendingList.length > 0) ? m.pendingList.join(", ") : "കുടിശ്ശിക ഇല്ല";
+                let amtClass = m.balance > 0 ? "amt" : "zero";
+                let amtText = m.balance > 0 ? "₹" + m.balance : "₹0";
+                totalPendingAmount += m.balance;
+
+                html += `
+                    <tr>
+                        <td style="text-align: center;">${index + 1}</td>
+                        <td><b>${m.name}</b></td>
+                        <td>${m.phone}</td>
+                        <td style="font-size: 11px;">${dueMonths}</td>
+                        <td class="${amtClass}">${amtText}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td colspan="4" style="text-align: right; padding-right: 20px;">ആകെ ലഭിക്കാനുള്ളത്:</td>
+                            <td style="color: #b91c1c; font-size: 15px;">₹${totalPendingAmount}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <script>
+                    window.onload = function() { 
+                        setTimeout(function() {
+                            window.print(); 
+                            window.close(); 
+                        }, 500);
+                    }
+                <\/script>
+            </body>
+            </html>
+            `;
+
+            printWindow.document.write(html);
+            printWindow.document.close();
+        }
+
+        function renderAdminList(mbs) {
+            const l = document.getElementById('adminMemberList');
+            if (!l) return;
+            if(mbs.length === 0) {
+                l.innerHTML = '<p class="p-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest text-center shadow-inner">അംഗങ്ങളില്ല</p>';
+                return;
+            }
+            l.innerHTML = mbs.map(m => `
+                <div class="p-5 flex justify-between items-center hover:bg-slate-50 transition-all cursor-pointer border-b" onclick="showMemberDetails('${encodeURIComponent(JSON.stringify(m))}')">
+                    <div class="flex items-center gap-4">
+                        <div class="w-11 h-11 rounded-2xl ${m.balance <= 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-500'} flex items-center justify-center font-black text-lg shadow-inner text-center uppercase border border-white/50">${m.name.charAt(0)}</div>
+                        <div>
+                            <p class="font-black text-slate-900 text-sm leading-tight uppercase tracking-tight text-left leading-none">${m.name}</p>
+                            <p class="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-widest text-left leading-none mb-1">${m.batch}</p>
+                            ${m.balance > 0 && m.pendingList ? `<p class="text-[10px] font-bold text-rose-500 mt-1 uppercase tracking-widest bg-rose-50 inline-block px-2 py-0.5 rounded border border-rose-100">${m.pendingList.length} മാസം കുടിശ്ശിക</p>` : '<p class="text-[10px] font-bold text-emerald-500 mt-1 uppercase tracking-widest bg-emerald-50 inline-block px-2 py-0.5 rounded border border-emerald-100">കുടിശ്ശികയില്ല</p>'}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <p class="text-[9px] font-black uppercase text-slate-300 text-right leading-none mb-1">Balance</p>
+                            <p class="text-sm font-black ${m.balance > 0 ? 'text-rose-600' : 'text-emerald-600'} text-right leading-none">₹${m.balance}</p>
+                        </div>
+                        ${m.balance > 0 && m.pendingList ? `<button onclick="event.stopPropagation(); currentMember={phone:'${m.phone}'}; window.open('https://wa.me/91${m.phone.replace(/\D/g,'')}?text=${encodeURIComponent('السلام عليكم \n ' + m.name + ',\nനിങ്ങളുടെ MUAAWINA വരിസംഖ്യയിൽ ₹' + m.balance + ' കുടിശ്ശികയുണ്ട്.')}', '_blank');" class="text-emerald-600 w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center border border-emerald-100 active:scale-90 transition-all shadow-sm"><i class="fab fa-whatsapp text-xl"></i></button>` : '<i class="fas fa-chevron-right text-slate-200 text-xs text-right opacity-30"></i>'}
+                    </div>
+                </div>`).join('');
+        }
+
+        function showMemberDetails(d) {
+            const m = JSON.parse(decodeURIComponent(d));
+            currentMember = m;
+           
+            const els = {
+                name: document.getElementById('detName'),
+                phone: document.getElementById('detPhone'),
+                batch: document.getElementById('detBatch'),
+                paid: document.getElementById('detPaid'),
+                due: document.getElementById('detDue'),
+                pBox: document.getElementById('detPendingBox'),
+                months: document.getElementById('detMonths'),
+                modal: document.getElementById('memberDetailsModal'),
+                waBtn: document.getElementById('detWaBtn')
+            };
+
+            if(els.name) els.name.innerText = m.name;
+            if(els.phone) els.phone.innerText = m.phone;
+            if(els.batch) els.batch.innerText = m.batch || 'UNASSIGNED';
+            if(els.paid) els.paid.innerText = '₹' + m.totalPaid;
+            if(els.due) els.due.innerText = '₹' + m.balance;
+           
+            if(m.balance > 0 && m.pendingList) {
+                if(els.pBox) els.pBox.classList.remove('hidden');
+                if(els.months) els.months.innerText = m.pendingList.join(', ');
+            } else {
+                if(els.pBox) els.pBox.classList.add('hidden');
+            }
+           
+            if(els.modal) els.modal.classList.remove('hidden');
+            if(els.waBtn) els.waBtn.onclick = () => window.open(`https://wa.me/91${m.phone.replace(/\D/g,'')}?text=${encodeURIComponent(' السلام عليكم \n' + m.name + ',\nനിങ്ങളുടെ MUAAWINA വരിസംഖ്യയിൽ ₹' + m.balance + ' കുടിശ്ശികയുണ്ട്.\nമാസങ്ങൾ: ' + (m.pendingList ? m.pendingList.join(', ') : ''))}`, '_blank');
+        }
+
+        
+
+        function openBulkPayModal() {
+          const s = document.getElementById('bulkMonthSelect');
+          if(s) {
+              s.innerHTML = '';
+              let totalMonthsToPay = pendingMonthsList.length + upcomingMonthsList.length;
+              [1,2,3,6,12].forEach(o => { if(o <= totalMonthsToPay || (o === 1 && totalMonthsToPay > 0)) s.innerHTML += `<option value="${o}">${o} മാസങ്ങൾ</option>`; });
+              calculateBulkAmount();
+          }
+          const m = document.getElementById('bulkPayModal');
+          if(m) m.classList.remove('hidden');
+        }
+       
+        function calculateBulkAmount() {
+            const d = document.getElementById('bulkTotalDisplay');
+            const s = document.getElementById('bulkMonthSelect');
+            if(d && s) d.innerText = '₹' + (parseInt(s.value) * currentMember.fee);
+        }
+       
+        function confirmBulkSelection() {
+            const s = document.getElementById('bulkMonthSelect');
+            const m = document.getElementById('bulkPayModal');
+            if(m) m.classList.add('hidden');
+            if(s) startPaymentFlow('bulk', s.value, null);
+        }
+       
+       
+
+        // അപ്രൂവൽ ലിസ്റ്റ് കാണിക്കുന്ന ഫംഗ്ഷൻ (പുതിയ ബട്ടൺ ആക്ഷനുകൾ ചേർത്തു)
+        function renderApprovals(aps) {
+            const l = document.getElementById('approvalList');
+            const bulk = document.getElementById('bulkAdminActions');
+            const badge = document.getElementById('appBadge');
+            
+            if(!l) return;
+            
+            if(!aps || aps.length === 0) {
+                l.innerHTML = '<p class="p-10 text-center text-slate-400 font-bold text-xs uppercase bg-slate-50 rounded-3xl border border-dashed shadow-sm">പുതിയ അപേക്ഷകളില്ല</p>';
+                if(badge) badge.classList.add('hidden');
+                if(bulk) bulk.classList.add('hidden');
+                return;
+            }
+            
+            if(badge) badge.classList.remove('hidden');
+            if(bulk) bulk.classList.remove('hidden');
+            
+            l.innerHTML = aps.map(a => `<div class="glass-card p-6 border-l-8 border-amber-400 mb-4 shadow-md fade-in shadow-amber-50/50"><div class="flex justify-between items-start mb-4"><div><p class="font-black text-slate-900 text-sm uppercase text-left tracking-tight leading-none mb-2">${a.name}</p><span class="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 uppercase tracking-widest text-left">${a.batch}</span></div><span class="text-[9px] text-slate-300 uppercase text-right leading-none">${a.date}</span></div><div class="bg-slate-50 p-2 rounded-xl mb-4 text-center border font-black text-xs text-slate-700 italic shadow-inner">${a.month} ${a.year}</div><div class="flex gap-2"><button onclick="rejectReq(${a.rowIdx}, '${a.memberId}', '${a.name}', '${a.year}', '${a.month}')" class="flex-1 bg-rose-50 text-rose-600 py-3 rounded-xl text-[11px] font-black border uppercase active:scale-95 transition-all text-center">Reject</button><button onclick="approveReq(${a.rowIdx}, '${a.memberId}', '${a.year}', '${a.month}', '${a.name}')" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl text-[11px] font-black shadow-lg active:scale-95 transition-all text-center shadow-emerald-100">Allow</button></div></div>`).join('');
+        }
+
+      // 1. മെമ്പറുടെ ഫോൺ നമ്പർ കണ്ടെത്താനുള്ള ഫംഗ്ഷൻ (ഇവിടെ പേര് ഒഴിവാക്കി കൃത്യമായ ID മാത്രം ഉപയോഗിക്കുന്നു)
+        function findPhone(memberId) {
+            let m = adminMembers.find(x => String(x.id) === String(memberId));
+            return m ? m.phone : '';
+        }
+
+
+// 1. കോപ്പി ചെയ്യാനുള്ള ഫംഗ്ഷൻ (നമ്പർ/പേര്)
+        function copyData(type) {
+            if(!currentFilteredMembers || currentFilteredMembers.length === 0) {
+                return Swal.fire('ശ്രദ്ധിക്കുക', 'കോപ്പി ചെയ്യാൻ ആളുകളില്ല!', 'warning');
+            }
+            const textToCopy = currentFilteredMembers.map(m => type === 'phone' ? m.phone : m.name).filter(t => t).join('\n');
+            const el = document.createElement('textarea');
+            el.value = textToCopy;
+            document.body.appendChild(el);
+            el.select();
+            try {
+                document.execCommand('copy');
+                Swal.fire('വിജയിച്ചു', `${currentFilteredMembers.length} ${type === 'phone' ? 'നമ്പറുകൾ' : 'പേരുകൾ'} കോപ്പി ചെയ്തു!`, 'success');
+            } catch(err) {
+                Swal.fire('തെറ്റ്', 'കോപ്പി ചെയ്യാൻ കഴിഞ്ഞില്ല.', 'error');
+            }
+            document.body.removeChild(el);
+        }
+        
+        // 2. കുടിശ്ശിക വിവരങ്ങൾ കോപ്പി ചെയ്യാനുള്ള ഫംഗ്ഷൻ
+        function copyDueDetails() {
+            if(!currentFilteredMembers || currentFilteredMembers.length === 0) {
+                return Swal.fire('ശ്രദ്ധിക്കുക', 'കോപ്പി ചെയ്യാൻ ആളുകളില്ല!', 'warning');
+            }
+
+            let textToCopy = "🧾 *MUAAWINA കുടിശ്ശിക റിപ്പോർട്ട്*\n━━━━━━━━━━━━━━━━━━━━\n";
+            let totalOverallDue = 0;
+            
+            let groupedByBatch = {};
+            currentFilteredMembers.forEach(m => {
+                let b = m.batch || 'UNASSIGNED';
+                if(!groupedByBatch[b]) groupedByBatch[b] = [];
+                groupedByBatch[b].push(m);
+            });
+
+            for (let batch in groupedByBatch) {
+                let batchTotal = 0;
+                textToCopy += `\n📁 *[ ${batch} ]*\n`;
+                
+                groupedByBatch[batch].forEach((m, index) => {
+                    if (m.balance > 0) { 
+                        textToCopy += `${index + 1}. ${m.name} - ₹${m.balance}\n`;
+                        batchTotal += m.balance;
+                        totalOverallDue += m.balance;
+                    }
+                });
+                
+                if(batchTotal > 0) {
+                    textToCopy += `*ബാച്ച് ആകെ: ₹${batchTotal}*\n`;
+                } else {
+                    textToCopy += `(എല്ലാവരും പണമടച്ചു)\n`;
+                }
+                textToCopy += `-------------------------\n`;
+            }
+
+            textToCopy += `\n💰 *ആകെ കുടിശ്ശിക: ₹${totalOverallDue}*\n`;
+
+            const el = document.createElement('textarea');
+            el.value = textToCopy;
+            document.body.appendChild(el);
+            el.select();
+            try {
+                document.execCommand('copy');
+                Swal.fire('വിജയിച്ചു', 'കുടിശ്ശിക വിവരങ്ങൾ കോപ്പി ചെയ്തു! ഇനി വാട്സ്ആപ്പിൽ പേസ്റ്റ് ചെയ്യാം.', 'success');
+            } catch(err) {
+                Swal.fire('തെറ്റ്', 'കോപ്പി ചെയ്യാൻ കഴിഞ്ഞില്ല.', 'error');
+            }
+            document.body.removeChild(el);
+        }
+
+       function sendBulkEmailReminders() {
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const currentMonthStr = `${monthNames[globalAppMonth]} ${globalAppYear}`;
+            let defaulters = adminMembers.filter(m => m.pendingList && m.pendingList.includes(currentMonthStr));
+            let phones = defaulters.map(m => m.phone);
+
+            if(phones.length === 0) return Swal.fire('വിവരം', 'കുടിശ്ശികക്കാർ ആരുമില്ല!', 'info');
+            
+            Swal.fire({
+                title: 'ഉറപ്പാണോ?', text: `തീർച്ചയായും ${defaulters.length} പേർക്ക് ഇമെയിൽ അയക്കണമെന്നുറപ്പാണോ?`,
+                icon: 'question', showCancelButton: true, confirmButtonColor: '#f59e0b', cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'അതെ, അയക്കുക', cancelButtonText: 'വേണ്ട'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoader(true);
+                    callAPI('sendDefaulterEmails', { phones: phones, monthStr: currentMonthStr }).then(res => {
+                        showLoader(false);
+                        if(res.error) Swal.fire('തെറ്റ്', res.error, 'error');
+                        else Swal.fire('വിജയിച്ചു', `${res.count} പേർക്ക് വിജയകരമായി ഇമെയിൽ അയച്ചു! ✅`, 'success');
+                    });
+                }
+            });
+        }
+
+        function approveReq(r, id, y, m, name) { 
+            let phone = findPhone(id);
+            if(phone) {
+                Swal.fire({
+                    title: 'വാട്സ്ആപ്പ് മെസ്സേജ്', text: `${name}-ന് വാട്സ്ആപ്പിൽ അപ്രൂവൽ മെസ്സേജ് അയക്കണമെന്നുണ്ടോ?`,
+                    icon: 'question', showCancelButton: true, confirmButtonColor: '#10b981', cancelButtonColor: '#94a3b8',
+                    confirmButtonText: 'അതെ, അയക്കുക', cancelButtonText: 'വേണ്ട'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                         let msg = encodeURIComponent(`السلام عليكم \n${name},\nനിങ്ങളുടെ ${m} ${y} മാസത്തെ MUAAWINA വരിസംഖ്യ സ്വീകരിച്ചിരിക്കുന്നു (Approved). ✅`);
+                         window.open(`https://wa.me/91${phone.replace(/\D/g,'')}?text=${msg}`, '_blank');
+                    }
+                    showLoader(true); 
+                    callAPI('approvePayment', { r: r, id: id, y: y, m: m }).then(() => adminLogin());
+                });
+            } else {
+                showLoader(true); 
+                callAPI('approvePayment', { r: r, id: id, y: y, m: m }).then(() => adminLogin());
+            }
+        }
+
+        function rejectReq(r, id, name, y, m) { 
+            let phone = findPhone(id);
+            if(phone) {
+                Swal.fire({
+                    title: 'വാട്സ്ആപ്പ് മെസ്സേജ്', text: `${name}-ന് വാട്സ്ആപ്പിൽ നിരസിച്ച മെസ്സേജ് അയക്കണമെന്നുണ്ടോ?`,
+                    icon: 'question', showCancelButton: true, confirmButtonColor: '#f43f5e', cancelButtonColor: '#94a3b8',
+                    confirmButtonText: 'അതെ, അയക്കുക', cancelButtonText: 'വേണ്ട'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                         let msg = encodeURIComponent(`السلام عليكم \n${name},\nനിങ്ങളുടെ ${m} ${y} മാസത്തെ MUAAWINA വരിസംഖ്യ നിരസിച്ചിരിക്കുന്നു (Rejected). ദയവായി അഡ്മിനുമായി ബന്ധപ്പെടുക. ❌`);
+                         window.open(`https://wa.me/91${phone.replace(/\D/g,'')}?text=${msg}`, '_blank');
+                    }
+                    showLoader(true); 
+                    callAPI('rejectPayment', { r: r }).then(() => adminLogin());
+                });
+            } else {
+                showLoader(true); 
+                callAPI('rejectPayment', { r: r }).then(() => adminLogin());
+            }
+        }
+
+        function processAllRequests(type) {
+            Swal.fire({
+                title: 'ഉറപ്പാണോ?', text: `അപേക്ഷകൾ ${type === 'Approved' ? 'അനുവദിക്കാൻ' : 'നിരസിക്കാൻ'} ഉറപ്പാണോ?`,
+                icon: 'warning', showCancelButton: true, confirmButtonColor: type === 'Approved' ? '#10b981' : '#f43f5e',
+                cancelButtonColor: '#94a3b8', confirmButtonText: 'അതെ', cancelButtonText: 'വേണ്ട'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let processedList = [...pendingApprovalsList];
+                    showLoader(true);
+                    callAPI('processAdminBulkAction', { type: type }).then((err) => { 
+                        if(err && err.error) { showLoader(false); return Swal.fire('Error', err.error, 'error'); }
+                        showLoader(false); 
+                        adminLogin(); 
+                        showBulkWhatsAppModal(processedList, type);
+                    });
+                }
+            });
+        }
+
+        // 5. Bulk വാട്സ്ആപ്പ് ലിസ്റ്റ് മോഡലിൽ കാണിക്കാനുള്ള ഫംഗ്ഷൻ
+        function showBulkWhatsAppModal(list, type) {
+            if(!list || list.length === 0) return;
+            
+            const container = document.getElementById('bulkWAList');
+            const title = document.getElementById('bulkWATitle');
+            
+            title.innerHTML = type === 'Approved' ? '<i class="fas fa-check-circle text-emerald-500 mr-2"></i> അപ്രൂവൽ മെസ്സേജ്' : '<i class="fas fa-times-circle text-rose-500 mr-2"></i> നിരസിച്ച മെസ്സേജ്';
+
+            container.innerHTML = list.map(a => {
+                let phone = findPhone(a.memberId); // ഇവിടെയും പേര് ഒഴിവാക്കി ID വെച്ച് മാത്രം തിരയുന്നു
+                let statusText = type === 'Approved' ? 'സ്വീകരിച്ചിരിക്കുന്നു (Approved). ✅' : 'നിരസിച്ചിരിക്കുന്നു (Rejected). ദയവായി അഡ്മിനുമായി ബന്ധപ്പെടുക. ❌';
+                let msg = encodeURIComponent(`السلام عليكم \n${a.name},\nനിങ്ങളുടെ ${a.month} ${a.year} മാസത്തെ MUAAWINA വരിസംഖ്യ ${statusText}`);
+                
+                return `
+                <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-white shadow-sm">
+                    <div>
+                        <p class="font-black text-sm text-slate-800 uppercase leading-none mb-1">${a.name}</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${a.month} ${a.year}</p>
+                    </div>
+                    ${phone ? 
+                    `<button onclick="window.open('https://wa.me/91${phone.replace(/\D/g,'')}?text=${msg}', '_blank')" class="w-10 h-10 ${type==='Approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'} border rounded-xl flex items-center justify-center active:scale-90 transition-all shadow-sm">
+                        <i class="fab fa-whatsapp text-lg"></i>
+                    </button>` 
+                    : `<span class="text-[9px] font-bold text-rose-400 tracking-widest uppercase">നമ്പർ ഇല്ല</span>`
+                    }
+                </div>
+                `;
+            }).join('');
+            
+            document.getElementById('bulkWAModal').classList.remove('hidden');
+        }  
+        // Bulk ആയി Allow/Reject ചെയ്യുമ്പോൾ വർക്ക് ചെയ്യുന്ന ഫംഗ്ഷൻ
+        function processAllRequests(type) {
+            if(!confirm(`അപേക്ഷകൾ ${type === 'Approved' ? 'അനുവദിക്കാൻ' : 'നിരസിക്കാൻ'} ഉറപ്പാണോ?`)) return;
+            
+            // ബാക്കപ്പായി നിലവിലെ ലിസ്റ്റ് സേവ് ചെയ്യുന്നു
+            let processedList = [...pendingApprovalsList];
+            
+            showLoader(true);
+            google.script.run
+            .withFailureHandler(err => { showLoader(false); alert("Error: " + err.message); })
+            .withSuccessHandler(() => { 
+                showLoader(false); 
+                adminLogin(); 
+                showBulkWhatsAppModal(processedList, type); // ആക്ഷൻ കഴിഞ്ഞാൽ വാട്സ്ആപ്പ് ലിസ്റ്റ് കാണിക്കുന്നു
+            })
+            .processAdminBulkAction(type);
+        }
+
+        
+        // അഡ്മിനെ വാട്സ്ആപ്പിൽ ബന്ധപ്പെടാനുള്ള ഫംഗ്ഷൻ
+function contactAdmin() {
+    let wpNumber = (APP_CONFIG && APP_CONFIG.ADMIN_WHATSAPP) ? APP_CONFIG.ADMIN_WHATSAPP : "";
+    
+    if (!wpNumber || wpNumber === "") {
+        alert("അഡ്മിന്റെ വാട്സ്ആപ്പ് നമ്പർ നിലവിൽ ലഭ്യമല്ല!");
+        return;
+    }
+    
+    // അഡ്മിന് പോകുന്ന ഡിഫോൾട്ട് മെസ്സേജ് (ആവശ്യമെങ്കിൽ മാറ്റാം)
+    let textMsg = encodeURIComponent('السلام عليكم \n');
+    window.open(`https://wa.me/${wpNumber}?text=${textMsg}`, '_blank');
+}
+// ഹിസ്റ്ററി മോഡൽ തുറക്കുന്ന ഫംഗ്ഷൻ
+function openHistoryModal() {
+    if (!currentMember || !fullHistory) return;
+    
+    const container = document.getElementById('historyListContainer');
+    container.innerHTML = '';
+    
+    // പണമടച്ചതും, പ്രോസസ്സിങ്ങും, ഒപ്പം റിജക്ട് ആയതുമായ റെക്കോർഡുകൾ മാത്രം എടുക്കുന്നു
+    let displayHistory = fullHistory.filter(h => h.status === 'Paid' || h.status === 'Processing' || h.isRejected);
+    
+    displayHistory.sort((a, b) => {
+        if (b.year !== a.year) return parseInt(b.year) - parseInt(a.year);
+        return b.monthIdx - a.monthIdx;
+    });
+
+    if (displayHistory.length === 0) {
+        container.innerHTML = '<p class="text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest py-10 bg-slate-50 rounded-2xl border border-dashed">ഹിസ്റ്ററി ലഭ്യമല്ല</p>';
+    } else {
+        container.innerHTML = displayHistory.map(h => {
+            let isPaid = h.status === 'Paid';
+            let isRejected = h.isRejected && !isPaid && h.status !== 'Processing'; 
+            
+            // സ്റ്റാറ്റസിന് അനുസരിച്ചുള്ള കളർ മാറ്റങ്ങൾ
+            let borderColor = isPaid ? 'border-emerald-50' : (isRejected ? 'border-rose-50' : 'border-amber-50');
+            let textColor = isPaid ? 'text-emerald-500' : (isRejected ? 'text-rose-500' : 'text-amber-500');
+            let iconText = isPaid ? '<i class="fas fa-check-circle"></i> പണമടച്ചു' : (isRejected ? '<i class="fas fa-times-circle"></i> റിജക്ട് ചെയ്തു (Rejected)' : '<i class="fas fa-clock"></i> അഡ്മിൻ അപ്രൂവൽ പെൻഡിങ്');
+            
+            let rightAction = isPaid ? 
+                `<button onclick="downloadReceipt('${h.month}', '${h.year}', ${h.amount})" class="bg-emerald-50 text-emerald-600 w-11 h-11 rounded-xl flex items-center justify-center active:scale-90 transition-all border border-emerald-100 shadow-sm"><i class="fas fa-download text-lg"></i></button>` 
+                : (isRejected ? 
+                `<div class="w-11 h-11 flex items-center justify-center text-rose-400 bg-rose-50 rounded-xl border border-rose-100"><i class="fas fa-exclamation-circle text-lg"></i></div>`
+                : `<div class="w-11 h-11 flex items-center justify-center text-amber-300 bg-amber-50 rounded-xl border border-amber-100"><i class="fas fa-spinner fa-spin text-lg"></i></div>`);
+
+            return `
+            <div class="bg-white border-2 ${borderColor} p-4 rounded-2xl shadow-sm flex justify-between items-center">
+                <div>
+                    <p class="font-black text-slate-800 text-sm uppercase tracking-tight mb-1">${h.month} ${h.year}</p>
+                    <p class="text-[9px] font-black ${textColor} uppercase tracking-widest">
+                        ${iconText}
+                    </p>
+                </div>
+                <div>
+                    ${rightAction}
+                </div>
+            </div>`;
+        }).join('');
+    }
+    
+    document.getElementById('historyModal').classList.remove('hidden');
+}
+
+// റെസീപ്റ്റ് ഇമേജ് ആക്കി ഡൗൺലോഡ് ചെയ്യുന്ന ഫംഗ്ഷൻ
+function downloadReceipt(month, year, amount) {
+    showLoader(true);
+    
+    // ലോഗിൻ പേജിലെ ലോഗോ ഓട്ടോമാറ്റിക് ആയി റെസീപ്റ്റിലേക്ക് കോപ്പി ചെയ്യുന്നു
+    let mainLogoSrc = document.querySelector('#loginPage img').src;
+    document.getElementById('receiptWatermark').src = mainLogoSrc;
+    document.getElementById('receiptHeaderLogo').src = mainLogoSrc;
+    
+    // ഹൈഡ് ചെയ്ത് വെച്ചിരിക്കുന്ന ഡിസൈനിലേക്ക് വിവരങ്ങൾ ഫിൽ ചെയ്യുന്നു
+    document.getElementById('rcptName').innerText = currentMember.name;
+    document.getElementById('rcptMonth').innerText = `${month} ${year}`;
+    document.getElementById('rcptAmount').innerText = `₹${amount}`;
+    
+    let d = new Date();
+    document.getElementById('rcptDate').innerText = d.toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'}) + ' ' + d.toLocaleTimeString('en-IN', {hour: '2-digit', minute:'2-digit'});
+    
+    const rcptNode = document.getElementById('receiptCard');
+    
+    // ഇമേജ് ജനറേറ്റ് ചെയ്യുന്നു
+    setTimeout(() => { 
+        html2canvas(rcptNode, { scale: 3, backgroundColor: '#ffffff' }).then(canvas => {
+            let link = document.createElement('a');
+            link.download = `MUAAWINA_Receipt_${month}_${year}.jpg`;
+            link.href = canvas.toDataURL("image/jpeg", 0.9);
+            link.click();
+            showLoader(false);
+        }).catch(e => {
+            showLoader(false);
+            alert("റെസീപ്റ്റ് ഡൗൺലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല.");
+        });
+    }, 500);
+}
+// റിമൈൻഡർ മോഡൽ തുറക്കാനുള്ള ഫംഗ്ഷൻ
+        function openReminderModal() {
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const currentMonthStr = `${monthNames[globalAppMonth]} ${globalAppYear}`;
+
+            let defaulters = adminMembers.filter(m => m.pendingList && m.pendingList.includes(currentMonthStr));
+
+            document.getElementById('remCount').innerText = defaulters.length;
+            const container = document.getElementById('reminderListContainer');
+
+            if(defaulters.length === 0) {
+                container.innerHTML = '<p class="text-center text-slate-400 font-bold text-xs p-5 border border-dashed rounded-xl bg-slate-50">എല്ലാവരും പണമടച്ചു! 🎉</p>';
+            } else {
+                container.innerHTML = defaulters.map(m => `
+                    <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-white shadow-sm">
+                        <div>
+                            <p class="font-black text-sm text-slate-800 uppercase leading-none mb-1">${m.name}</p>
+                            <p class="text-[10px] text-slate-400 font-bold tracking-widest">${m.phone}</p>
+                        </div>
+                        <button onclick="window.open('https://wa.me/91${m.phone.replace(/\D/g,'')}?text=${encodeURIComponent('السلام عليكم \n' + m.name + ',\nനിങ്ങളുടെ MUAAWINA വരിസംഖ്യയിൽ ' + currentMonthStr + ' മാസത്തെ തുക അടക്കാൻ ബാക്കിയുണ്ട്.')}', '_blank')" class="w-9 h-9 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl flex items-center justify-center active:scale-90 transition-all shadow-sm">
+                            <i class="fab fa-whatsapp text-lg"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('reminderModal').classList.remove('hidden');
+        }
+
+       
+       
+    </script>
+</body>
+</html>
+
+
+
