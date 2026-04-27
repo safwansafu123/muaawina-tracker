@@ -920,7 +920,6 @@ function updateAdminStats(batch) {
     
     let collected = filtered.reduce((sum, m) => sum + m.totalPaid, 0);
     
-    // എല്ലാവരുടെയും കുടിശ്ശിക തീയതി വെച്ച് മാത്രം കണക്കാക്കുന്നു
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     let pending = filtered.reduce((sum, m) => {
         let count = 0;
@@ -930,6 +929,7 @@ function updateAdminStats(batch) {
                 if (parts.length === 2) {
                     let mIdx = monthNames.indexOf(parts[0]);
                     let mYear = parseInt(parts[1]);
+                    // ഗൂഗിൾ ഷീറ്റിലെ Current Date വരെയുള്ള പെൻഡിങ് മാത്രം കൂട്ടുന്നു
                     if (mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth)) {
                         count++;
                     }
@@ -1196,9 +1196,8 @@ function renderAdminList(mbs) {
 
     l.innerHTML = mbs.map(m => {
         let calculatedDueCount = 0;
-        let calculatedAdvanceCount = 0;
         
-        // 1. കുടിശ്ശിക കണക്കാക്കുന്നു (Current Date വരെയുള്ള പെൻഡിങ് മാസങ്ങൾ)
+        // 1. കുടിശ്ശിക തുക കണക്കാക്കുന്നു (Current Date വരെയുള്ള പെൻഡിങ് മാസങ്ങൾ മാത്രം)
         if (m.pendingList) {
             m.pendingList.forEach(pStr => {
                 let parts = pStr.split(" ");
@@ -1206,6 +1205,7 @@ function renderAdminList(mbs) {
                     let mIdx = monthNames.indexOf(parts[0]);
                     let mYear = parseInt(parts[1]);
                     
+                    // ഷീറ്റിലെ Current Date വരെയുള്ള മാസമാണോ എന്ന് നോക്കുന്നു
                     let isPastOrCurrent = mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth);
                     if (isPastOrCurrent) {
                         calculatedDueCount++;
@@ -1214,22 +1214,10 @@ function renderAdminList(mbs) {
             });
         }
 
-        // 2. അഡ്വാൻസ് തുക കണക്കാക്കുന്നു (Current Date-ന് ശേഷമുള്ള പണമടച്ച മാസങ്ങൾ)
-        // ഇതിനായി മെമ്പറുടെ ഹിസ്റ്ററിയിൽ പോയി ഫ്യൂച്ചർ മാസങ്ങൾ പെയ്ഡ് ആണോ എന്ന് നോക്കുന്നു
-        if (m.history) {
-            m.history.forEach(h => {
-                let hIdx = monthNames.indexOf(h.month);
-                let hYear = parseInt(h.year);
-                let isFuture = hYear > globalAppYear || (hYear === globalAppYear && hIdx > globalAppMonth);
-                
-                if (isFuture && h.status === 'Paid') {
-                    calculatedAdvanceCount++;
-                }
-            });
-        }
-
-        let dueAmount = calculatedDueCount * 50;
-        let advanceAmount = calculatedAdvanceCount * 50;
+        let dueAmount = calculatedDueCount * 50; // മാസവരി 50 രൂപ
+        
+        // 2. അഡ്വാൻസ് തുക (സർവറിൽ നിന്ന് വരുന്ന m.advance നേരിട്ട് ഉപയോഗിക്കുന്നു)
+        let advanceAmount = m.advance || 0; 
 
         let displayAmount = "";
         let amountClass = "";
@@ -1237,11 +1225,11 @@ function renderAdminList(mbs) {
 
         if (dueAmount > 0) {
             displayAmount = "₹" + dueAmount;
-            amountClass = "text-rose-600"; // കുടിശ്ശിക ഉണ്ടെങ്കിൽ ചുവപ്പ്
+            amountClass = "text-rose-600"; // കുടിശ്ശികയുണ്ടെങ്കിൽ ചുവപ്പ് (Balance)
             labelText = "Balance";
         } else if (advanceAmount > 0) {
             displayAmount = "₹" + advanceAmount;
-            amountClass = "text-emerald-600"; // അഡ്വാൻസ് ഉണ്ടെങ്കിൽ പച്ച
+            amountClass = "text-emerald-600"; // അഡ്വാൻസ് ഉണ്ടെങ്കിൽ പച്ച (Advance)
             labelText = "Advance";
         } else {
             displayAmount = "₹0";
@@ -1258,7 +1246,7 @@ function renderAdminList(mbs) {
                         <p class="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-widest text-left leading-none mb-1">${m.batch}</p>
                         
                         ${dueAmount > 0 ? 
-                            `<p class="text-[10px] font-bold text-rose-500 mt-1 uppercase tracking-widest bg-rose-50 inline-block px-2 py-0.5 rounded border border-rose-100">${calculatedDueCount} மாസം കുടിശ്ശിക</p>` : 
+                            `<p class="text-[10px] font-bold text-rose-500 mt-1 uppercase tracking-widest bg-rose-50 inline-block px-2 py-0.5 rounded border border-rose-100">${calculatedDueCount} മാസം കുടിശ്ശിക</p>` : 
                             (advanceAmount > 0 ? 
                                 `<p class="text-[10px] font-bold text-emerald-500 mt-1 uppercase tracking-widest bg-emerald-50 inline-block px-2 py-0.5 rounded border border-emerald-100">Advance Paid</p>` : 
                                 `<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest bg-slate-50 inline-block px-2 py-0.5 rounded border border-slate-100">Up-to-date</p>`
