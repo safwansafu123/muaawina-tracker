@@ -13,18 +13,9 @@
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "d5a80102-b162-4a4f-9877-a0d48b307e50",
-      serviceWorkerParam: { scope: "/muaawina-tracker/" }, // / ചിഹ്നം ശ്രദ്ധിക്കുക
-      serviceWorkerPath: "/muaawina-tracker/OneSignalSDKWorker.js",
+      serviceWorkerPath: "OneSignalSDKWorker.js",
     });
   });
-
-  // ബട്ടൺ വർക്ക് ചെയ്യാനുള്ള ഫംഗ്ഷൻ
-  function enableCustomNotifications() {
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(function(OneSignal) {
-          OneSignal.Slidedown.promptPush();
-      });
-  }
 </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -1642,9 +1633,10 @@ function downloadReceipt(month, year, amount) {
                 Swal.fire('പിഴവ്', 'നെറ്റ്‌വർക്ക് കണക്ഷൻ പ്രശ്നം!', 'error');
             });
         }  
-       // --- App Install & Notification Logic ---
+      // --- App Install & Notification Logic ---
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('Install Prompt Detected');
     e.preventDefault();
     deferredPrompt = e;
     const installCard = document.getElementById('appInstallCard');
@@ -1663,15 +1655,16 @@ function installPWA() {
 }
 
 function enableCustomNotifications() {
-            window.OneSignalDeferred = window.OneSignalDeferred || [];
-            OneSignalDeferred.push(function(OneSignal) {
-                OneSignal.Slidedown.promptPush().then(function() {
-                    console.log("Notification Prompt Shown");
-                }).catch(function(err) {
-                    Swal.fire('ശ്രദ്ധിക്കുക', 'നോട്ടിഫിക്കേഷൻ ഓൺ ചെയ്യാൻ കഴിഞ്ഞില്ല അല്ലെങ്കിൽ താങ്കൾ നേരത്തെ തന്നെ ഓൺ ആക്കിയിട്ടുണ്ട്.', 'warning');
-                });
-            });
-        }
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(function(OneSignal) {
+        // ലോഗിൻ പേജിൽ വൺസിഗ്നൽ പോപ്പ്അപ്പ് കാണിക്കുന്നു
+        OneSignal.Slidedown.promptPush().then(() => {
+            console.log("Notification prompted");
+        }).catch(err => {
+            Swal.fire('ശ്രദ്ധിക്കുക', 'നോട്ടിഫിക്കേഷൻ ഇപ്പോൾ ലഭ്യല്ല.', 'warning');
+        });
+    });
+}
     </script>
 </body>
 </html>
