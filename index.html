@@ -7,14 +7,14 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/192/882/882730.png">
     <title>MUAAWINA വരിസംഖ്യ ട്രാക്കർ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+ <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.init({
           appId: "d5a80102-b162-4a4f-9877-a0d48b307e50",
-          serviceWorkerParam: { scope: "/muaawina-tracker/" },
-          serviceWorkerPath: "/muaawina-tracker/OneSignalSDKWorker.js",
+          serviceWorkerParam: { scope: "./" },
+          serviceWorkerPath: "OneSignalSDKWorker.js",
           notifyButton: {
             enable: true,
           },
