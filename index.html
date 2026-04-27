@@ -13,6 +13,22 @@
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "d5a80102-b162-4a4f-9877-a0d48b307e50",
+      notifyButton: {
+        enable: true, /* ഇത് സ്ക്രീനിൽ ബെൽ ഐക്കൺ കൊണ്ടുവരും */
+      },
+      promptOptions: {
+        slidedown: {
+          prompts: [{
+            type: "push",
+            autoPrompt: true,
+            text: {
+              actionMessage: "MUAAWINA അറിയിപ്പുകൾ ലഭിക്കാൻ അനുവദിക്കുക",
+              acceptButton: "അനുവദിക്കുക",
+              cancelButton: "വേണ്ട"
+            }
+          }]
+        }
+      }
     });
   });
 </script>
