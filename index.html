@@ -1195,41 +1195,49 @@ function renderAdminList(mbs) {
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     l.innerHTML = mbs.map(m => {
-        let calculatedDueCount = 0;
+        let currentFee = m.fee || 50;
+        let dueCountUpToNow = 0;
         
-        // 1. കുടിശ്ശിക തുക കണക്കാക്കുന്നു (Current Date വരെയുള്ള പെൻഡിങ് മാസങ്ങൾ മാത്രം)
+        // 1. കറന്റ് ഡേറ്റ് വരെയുള്ള മാസങ്ങളിൽ എത്ര എണ്ണം അടയ്ക്കാൻ ബാക്കിയുണ്ടെന്ന് നോക്കുന്നു
         if (m.pendingList) {
             m.pendingList.forEach(pStr => {
                 let parts = pStr.split(" ");
                 if (parts.length === 2) {
                     let mIdx = monthNames.indexOf(parts[0]);
                     let mYear = parseInt(parts[1]);
-                    
-                    // ഷീറ്റിലെ Current Date വരെയുള്ള മാസമാണോ എന്ന് നോക്കുന്നു
-                    let isPastOrCurrent = mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth);
-                    if (isPastOrCurrent) {
-                        calculatedDueCount++;
+                    // ഗൂഗിൾ ഷീറ്റിലെ Current Date-ന് ഉള്ളിലാണോ എന്ന് നോക്കുന്നു
+                    if (mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth)) {
+                        dueCountUpToNow++;
                     }
                 }
             });
         }
 
-        let dueAmount = calculatedDueCount * 50; // മാസവരി 50 രൂപ
-        
-        // 2. അഡ്വാൻസ് തുക (സർവറിൽ നിന്ന് വരുന്ന m.advance നേരിട്ട് ഉപയോഗിക്കുന്നു)
-        let advanceAmount = m.advance || 0; 
+        let dueAmount = dueCountUpToNow * currentFee;
 
+        // 2. അഡ്വാൻസ് കണക്കാക്കുന്ന പുതിയ രീതി (Calculation)
+        // (ഇതുവരെ അടയ്ക്കേണ്ട മാസം - ബാക്കിയുള്ള മാസം) * ഫീ = ഇതുവരെ അടച്ച തുക
+        // (ആകെ അടച്ച തുക) - (ഇതുവരെ അടച്ച തുക) = അഡ്വാൻസ്
+        let totalMonthsUpToNow = globalAppMonth + 1; // ഉദാഹരണത്തിന് ഏപ്രിൽ ആണെങ്കിൽ 4
+        let expectedToPayUntilNow = totalMonthsUpToNow * currentFee;
+        let paidUntilNow = expectedToPayUntilNow - dueAmount;
+        let advanceAmount = m.totalPaid - paidUntilNow;
+
+        // 0-ൽ താഴെ വരാതിരിക്കാൻ
+        if(advanceAmount < 0) advanceAmount = 0;
+
+        // ഡിസ്‌പ്ലേ സെറ്റിംഗ്സ്
         let displayAmount = "";
         let amountClass = "";
         let labelText = "";
 
         if (dueAmount > 0) {
             displayAmount = "₹" + dueAmount;
-            amountClass = "text-rose-600"; // കുടിശ്ശികയുണ്ടെങ്കിൽ ചുവപ്പ് (Balance)
+            amountClass = "text-rose-600"; // കുടിശ്ശിക (Red)
             labelText = "Balance";
         } else if (advanceAmount > 0) {
             displayAmount = "₹" + advanceAmount;
-            amountClass = "text-emerald-600"; // അഡ്വാൻസ് ഉണ്ടെങ്കിൽ പച്ച (Advance)
+            amountClass = "text-emerald-600"; // അഡ്വാൻസ് (Green)
             labelText = "Advance";
         } else {
             displayAmount = "₹0";
@@ -1246,7 +1254,7 @@ function renderAdminList(mbs) {
                         <p class="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-widest text-left leading-none mb-1">${m.batch}</p>
                         
                         ${dueAmount > 0 ? 
-                            `<p class="text-[10px] font-bold text-rose-500 mt-1 uppercase tracking-widest bg-rose-50 inline-block px-2 py-0.5 rounded border border-rose-100">${calculatedDueCount} മാസം കുടിശ്ശിക</p>` : 
+                            `<p class="text-[10px] font-bold text-rose-500 mt-1 uppercase tracking-widest bg-rose-50 inline-block px-2 py-0.5 rounded border border-rose-100">${dueCountUpToNow} മാസം കുടിശ്ശിക</p>` : 
                             (advanceAmount > 0 ? 
                                 `<p class="text-[10px] font-bold text-emerald-500 mt-1 uppercase tracking-widest bg-emerald-50 inline-block px-2 py-0.5 rounded border border-emerald-100">Advance Paid</p>` : 
                                 `<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest bg-slate-50 inline-block px-2 py-0.5 rounded border border-slate-100">Up-to-date</p>`
