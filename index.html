@@ -1491,25 +1491,7 @@ function copyData(type) {
             
             document.getElementById('bulkWAModal').classList.remove('hidden');
         }  
-        // Bulk ആയി Allow/Reject ചെയ്യുമ്പോൾ വർക്ക് ചെയ്യുന്ന ഫംഗ്ഷൻ
-        function processAllRequests(type) {
-            if(!confirm(`അപേക്ഷകൾ ${type === 'Approved' ? 'അനുവദിക്കാൻ' : 'നിരസിക്കാൻ'} ഉറപ്പാണോ?`)) return;
-            
-            // ബാക്കപ്പായി നിലവിലെ ലിസ്റ്റ് സേവ് ചെയ്യുന്നു
-            let processedList = [...pendingApprovalsList];
-            
-            showLoader(true);
-            google.script.run
-            .withFailureHandler(err => { showLoader(false); alert("Error: " + err.message); })
-            .withSuccessHandler(() => { 
-                showLoader(false); 
-                adminLogin(); 
-                showBulkWhatsAppModal(processedList, type); // ആക്ഷൻ കഴിഞ്ഞാൽ വാട്സ്ആപ്പ് ലിസ്റ്റ് കാണിക്കുന്നു
-            })
-            .processAdminBulkAction(type);
-        }
-
-        
+      
         // അഡ്മിനെ വാട്സ്ആപ്പിൽ ബന്ധപ്പെടാനുള്ള ഫംഗ്ഷൻ
 function contactAdmin() {
     let wpNumber = (APP_CONFIG && APP_CONFIG.ADMIN_WHATSAPP) ? APP_CONFIG.ADMIN_WHATSAPP : "";
