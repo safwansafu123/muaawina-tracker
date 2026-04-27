@@ -1184,7 +1184,7 @@ function updateAdminStats(batch) {
             printWindow.document.close();
         }
 
-   function renderAdminList(mbs) {
+function renderAdminList(mbs) {
     const l = document.getElementById('adminMemberList');
     if (!l) return;
     if(mbs.length === 0) {
@@ -1196,16 +1196,16 @@ function updateAdminStats(batch) {
 
     l.innerHTML = mbs.map(m => {
         let calculatedDueCount = 0;
+        let calculatedAdvanceCount = 0;
         
-        // 1. ഗൂഗിൾ ഷീറ്റിലെ തീയതിക്ക് (Current Date) മുമ്പുള്ള മാസങ്ങൾ മാത്രം കുടിശ്ശികയായി കണക്കാക്കുന്നു
+        // 1. കുടിശ്ശിക കണക്കാക്കുന്നു (Current Date വരെയുള്ള പെൻഡിങ് മാസങ്ങൾ)
         if (m.pendingList) {
             m.pendingList.forEach(pStr => {
-                let parts = pStr.split(" "); // "Jan 2026" -> ["Jan", "2026"]
+                let parts = pStr.split(" ");
                 if (parts.length === 2) {
                     let mIdx = monthNames.indexOf(parts[0]);
                     let mYear = parseInt(parts[1]);
                     
-                    // Current Date വരെയുള്ള മാസമാണോ എന്ന് നോക്കുന്നു
                     let isPastOrCurrent = mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth);
                     if (isPastOrCurrent) {
                         calculatedDueCount++;
@@ -1214,10 +1214,23 @@ function updateAdminStats(batch) {
             });
         }
 
-        let dueAmount = calculatedDueCount * (m.fee || 50);
-        let advanceAmount = m.advance || 0; 
+        // 2. അഡ്വാൻസ് തുക കണക്കാക്കുന്നു (Current Date-ന് ശേഷമുള്ള പണമടച്ച മാസങ്ങൾ)
+        // ഇതിനായി മെമ്പറുടെ ഹിസ്റ്ററിയിൽ പോയി ഫ്യൂച്ചർ മാസങ്ങൾ പെയ്ഡ് ആണോ എന്ന് നോക്കുന്നു
+        if (m.history) {
+            m.history.forEach(h => {
+                let hIdx = monthNames.indexOf(h.month);
+                let hYear = parseInt(h.year);
+                let isFuture = hYear > globalAppYear || (hYear === globalAppYear && hIdx > globalAppMonth);
+                
+                if (isFuture && h.status === 'Paid') {
+                    calculatedAdvanceCount++;
+                }
+            });
+        }
 
-        // തുകയുടെ നിറവും പേരും തീരുമാനിക്കുന്നു
+        let dueAmount = calculatedDueCount * 50;
+        let advanceAmount = calculatedAdvanceCount * 50;
+
         let displayAmount = "";
         let amountClass = "";
         let labelText = "";
@@ -1228,7 +1241,7 @@ function updateAdminStats(batch) {
             labelText = "Balance";
         } else if (advanceAmount > 0) {
             displayAmount = "₹" + advanceAmount;
-            amountClass = "text-emerald-600"; // മുൻകൂട്ടി അടച്ചാൽ പച്ച
+            amountClass = "text-emerald-600"; // അഡ്വാൻസ് ഉണ്ടെങ്കിൽ പച്ച
             labelText = "Advance";
         } else {
             displayAmount = "₹0";
@@ -1245,7 +1258,7 @@ function updateAdminStats(batch) {
                         <p class="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-widest text-left leading-none mb-1">${m.batch}</p>
                         
                         ${dueAmount > 0 ? 
-                            `<p class="text-[10px] font-bold text-rose-500 mt-1 uppercase tracking-widest bg-rose-50 inline-block px-2 py-0.5 rounded border border-rose-100">${calculatedDueCount} മാസം കുടിശ്ശിക</p>` : 
+                            `<p class="text-[10px] font-bold text-rose-500 mt-1 uppercase tracking-widest bg-rose-50 inline-block px-2 py-0.5 rounded border border-rose-100">${calculatedDueCount} மாസം കുടിശ്ശിക</p>` : 
                             (advanceAmount > 0 ? 
                                 `<p class="text-[10px] font-bold text-emerald-500 mt-1 uppercase tracking-widest bg-emerald-50 inline-block px-2 py-0.5 rounded border border-emerald-100">Advance Paid</p>` : 
                                 `<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest bg-slate-50 inline-block px-2 py-0.5 rounded border border-slate-100">Up-to-date</p>`
