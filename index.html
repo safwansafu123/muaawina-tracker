@@ -1456,56 +1456,86 @@ function copyData(type) {
     document.body.removeChild(el);
 }
         
-        // 2. കുടിശ്ശിക വിവരങ്ങൾ കോപ്പി ചെയ്യാനുള്ള ഫംഗ്ഷൻ
-        function copyDueDetails() {
-            if(!currentFilteredMembers || currentFilteredMembers.length === 0) {
-                return Swal.fire('ശ്രദ്ധിക്കുക', 'കോപ്പി ചെയ്യാൻ ആളുകളില്ല!', 'warning');
-            }
+      // കുടിശ്ശിക വിവരങ്ങൾ ബാച്ച് തിരിച്ച് കൃത്യമായി കോപ്പി ചെയ്യാൻ
+function copyDueDetails() {
+    if(!currentFilteredMembers || currentFilteredMembers.length === 0) {
+        return Swal.fire('ശ്രദ്ധിക്കുക', 'കോപ്പി ചെയ്യാൻ ആളുകളില്ല!', 'warning');
+    }
 
-            let textToCopy = "🧾 *MUAAWINA കുടിശ്ശിക റിപ്പോർട്ട്*\n━━━━━━━━━━━━━━━━━━━━\n";
-            let totalOverallDue = 0;
-            
-            let groupedByBatch = {};
-            currentFilteredMembers.forEach(m => {
-                let b = m.batch || 'UNASSIGNED';
-                if(!groupedByBatch[b]) groupedByBatch[b] = [];
-                groupedByBatch[b].push(m);
-            });
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    let textToCopy = "🧾 *MUAAWINA കുടിശ്ശിക റിപ്പോർട്ട്*\n━━━━━━━━━━━━━━━━━━━━\n";
+    let totalOverallDue = 0;
+    
+    // ബാച്ച് തിരിച്ച് ഗ്രൂപ്പ് ചെയ്യുന്നു
+    let groupedByBatch = {};
+    currentFilteredMembers.forEach(m => {
+        let b = m.batch || 'UNASSIGNED';
+        if(!groupedByBatch[b]) groupedByBatch[b] = [];
+        groupedByBatch[b].push(m);
+    });
 
-            for (let batch in groupedByBatch) {
-                let batchTotal = 0;
-                textToCopy += `\n📁 *[ ${batch} ]*\n`;
-                
-                groupedByBatch[batch].forEach((m, index) => {
-                    if (m.balance > 0) { 
-                        textToCopy += `${index + 1}. ${m.name} - ₹${m.balance}\n`;
-                        batchTotal += m.balance;
-                        totalOverallDue += m.balance;
+    for (let batch in groupedByBatch) {
+        let batchTotal = 0;
+        textToCopy += `\n📁 *[ ${batch} ]*\n`;
+        
+        groupedByBatch[batch].forEach((m, index) => {
+            let dueCount = 0;
+            let currentFee = m.fee || 50;
+
+            // 1. Current Date വരെയുള്ള മാസങ്ങൾ മാത്രം കുടിശ്ശികയായി കണക്കാക്കുന്നു
+            if (m.pendingList) {
+                m.pendingList.forEach(pStr => {
+                    let parts = pStr.split(" ");
+                    if (parts.length === 2) {
+                        let mIdx = monthNames.indexOf(parts[0]);
+                        let mYear = parseInt(parts[1]);
+                        if (mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth)) {
+                            dueCount++;
+                        }
                     }
                 });
-                
-                if(batchTotal > 0) {
-                    textToCopy += `*ബാച്ച് ആകെ: ₹${batchTotal}*\n`;
-                } else {
-                    textToCopy += `(എല്ലാവരും പണമടച്ചു)\n`;
-                }
-                textToCopy += `-------------------------\n`;
             }
 
-            textToCopy += `\n💰 *ആകെ കുടിശ്ശിക: ₹${totalOverallDue}*\n`;
+            let dueAmount = dueCount * currentFee;
 
-            const el = document.createElement('textarea');
-            el.value = textToCopy;
-            document.body.appendChild(el);
-            el.select();
-            try {
-                document.execCommand('copy');
-                Swal.fire('വിജയിച്ചു', 'കുടിശ്ശിക വിവരങ്ങൾ കോപ്പി ചെയ്തു! ഇനി വാട്സ്ആപ്പിൽ പേസ്റ്റ് ചെയ്യാം.', 'success');
-            } catch(err) {
-                Swal.fire('തെറ്റ്', 'കോപ്പി ചെയ്യാൻ കഴിഞ്ഞില്ല.', 'error');
+            // 2. അഡ്വാൻസ് തുക കണക്കാക്കുന്നു
+            let expectedToPayUntilNow = (globalAppMonth + 1) * currentFee;
+            let paidUntilNow = expectedToPayUntilNow - dueAmount;
+            let advanceAmount = m.totalPaid - paidUntilNow;
+            if (advanceAmount < 0) advanceAmount = 0;
+
+            // റിപ്പോർട്ടിൽ ചേർക്കുന്നു
+            if (dueAmount > 0) {
+                textToCopy += `${index + 1}. ${m.name} - ₹${dueAmount}\n`;
+                batchTotal += dueAmount;
+                totalOverallDue += dueAmount;
+            } else if (advanceAmount > 0) {
+                // അഡ്വാൻസ് ഉണ്ടെങ്കിൽ + ചിഹ്നം നൽകുന്നു
+                textToCopy += `${index + 1}. ${m.name} - +₹${advanceAmount}\n`;
+            } else {
+                textToCopy += `${index + 1}. ${m.name} - ₹0\n`;
             }
-            document.body.removeChild(el);
-        }
+        });
+        
+        textToCopy += `*ബാച്ച് ആകെ കുടിശ്ശിക: ₹${batchTotal}*\n`;
+        textToCopy += `-------------------------\n`;
+    }
+
+    textToCopy += `\n💰 *ആകെ ലഭിക്കാനുള്ളത്: ₹${totalOverallDue}*\n`;
+
+    // ക്ലിപ്പ്ബോർഡിലേക്ക് കോപ്പി ചെയ്യുന്നു
+    const el = document.createElement('textarea');
+    el.value = textToCopy;
+    document.body.appendChild(el);
+    el.select();
+    try {
+        document.execCommand('copy');
+        Swal.fire('വിജയിച്ചു', 'വിവരങ്ങൾ കൃത്യമായി കോപ്പി ചെയ്തു!', 'success');
+    } catch(err) {
+        Swal.fire('തെറ്റ്', 'കോപ്പി ചെയ്യാൻ കഴിഞ്ഞില്ല.', 'error');
+    }
+    document.body.removeChild(el);
+}
 
        function sendBulkEmailReminders() {
             const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
