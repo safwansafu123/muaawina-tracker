@@ -916,15 +916,15 @@ if (mainPayConfirmBtn) {
             if(monthFilterEl) monthFilterEl.innerHTML = options;
         }
 
-       function updateAdminStats(batch) {
+      function updateAdminStats(batch) {
     let filtered = (batch === 'all' || batch === 'All') ? adminMembers : adminMembers.filter(m => m.batch === batch);
     
     let collected = filtered.reduce((sum, m) => sum + m.totalPaid, 0);
     
-    // സർവറിലെ ബാലൻസിന് പകരം പെൻഡിങ് ലിസ്റ്റ് നോക്കി തുക കണക്കാക്കുന്നു
+    // ഷീറ്റിൽ നിന്നുള്ള pendingList നോക്കി 50 രൂപ വെച്ച് ഗുണിക്കുന്നു
     let pending = filtered.reduce((sum, m) => {
         let count = m.pendingList ? m.pendingList.length : 0;
-        return sum + (count * (m.fee || 500)); // fee ഇല്ലെങ്കിൽ ഡിഫോൾട്ട് 500
+        return sum + (count * (m.fee || 50)); // തുക 50 ആക്കി മാറ്റി
     }, 0);
     
     const totalEl = document.getElementById('admTotal');
@@ -1172,7 +1172,7 @@ if (mainPayConfirmBtn) {
             printWindow.document.close();
         }
 
-       function renderAdminList(mbs) {
+     function renderAdminList(mbs) {
     const l = document.getElementById('adminMemberList');
     if (!l) return;
     if(mbs.length === 0) {
@@ -1180,8 +1180,8 @@ if (mainPayConfirmBtn) {
         return;
     }
     l.innerHTML = mbs.map(m => {
-        // മെമ്പേഴ്സ് പേജിലെ അതേ ലോജിക് ഇവിടെയും ഉപയോഗിക്കുന്നു
-        let calculatedBalance = m.pendingList ? m.pendingList.length * (m.fee || 500) : 0;
+        // കുടിശ്ശിക മാസങ്ങൾ * 50 രൂപ
+        let calculatedBalance = m.pendingList ? m.pendingList.length * (m.fee || 50) : 0;
         
         return `
             <div class="p-5 flex justify-between items-center hover:bg-slate-50 transition-all cursor-pointer border-b" onclick="showMemberDetails('${encodeURIComponent(JSON.stringify(m))}')">
