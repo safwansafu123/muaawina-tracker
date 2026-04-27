@@ -1602,22 +1602,27 @@ function downloadReceipt(month, year, amount) {
             document.getElementById('reminderModal').classList.remove('hidden');
         }
 
-      function broadcastPush() {
-    const msg = document.getElementById('pushMsg').value;
-    if(!msg) return Swal.fire('ശ്രദ്ധിക്കുക', 'സന്ദേശം ടൈപ്പ് ചെയ്യുക!', 'warning');
-    
-    showLoader(true);
-    callAPI('sendPushNotification', { title: "MUAAWINA അറിയിപ്പ്", message: msg }).then(res => {
-        showLoader(false);
-        if(res.success) {
-            Swal.fire('വിജയിച്ചു', 'നോട്ടിഫിക്കേഷൻ അയച്ചു!', 'success');
-            document.getElementById('pushMsg').value = '';
-        } else {
-            Swal.fire('പിഴവ്', 'അയക്കാൻ കഴിഞ്ഞില്ല', 'error');
-        }
-    });
-} 
-       
+// അഡ്മിൻ പാനലിൽ നിന്ന് നോട്ടിഫിക്കേഷൻ അയക്കാനുള്ള ഫംഗ്ഷൻ (Error കാണിക്കാൻ)
+        function broadcastPush() {
+            const msg = document.getElementById('pushMsg').value;
+            if(!msg) return Swal.fire('ശ്രദ്ധിക്കുക', 'സന്ദേശം ടൈപ്പ് ചെയ്യുക!', 'warning');
+            
+            showLoader(true);
+            callAPI('sendPushNotification', { title: "MUAAWINA അറിയിപ്പ്", message: msg }).then(res => {
+                showLoader(false);
+                if(res.error) {
+                    Swal.fire('പിഴവ് എവിടെയാണെന്ന് കണ്ടെത്തി!', res.error, 'error');
+                } else if(res.success) {
+                    Swal.fire('വിജയിച്ചു', 'നോട്ടിഫിക്കേഷൻ അയച്ചു! 🚀', 'success');
+                    document.getElementById('pushMsg').value = '';
+                } else {
+                    Swal.fire('പിഴവ്', 'API ബന്ധിപ്പിക്കാൻ കഴിഞ്ഞില്ല. Code.gs-ൽ doPost അപ്ഡേറ്റ് ആയോ എന്ന് നോക്കുക.', 'error');
+                }
+            }).catch(err => {
+                showLoader(false);
+                Swal.fire('പിഴവ്', 'നെറ്റ്‌വർക്ക് കണക്ഷൻ പ്രശ്നം!', 'error');
+            });
+        }    
     </script>
 </body>
 </html>
