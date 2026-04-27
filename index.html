@@ -1283,24 +1283,45 @@ if (mainPayConfirmBtn) {
         }
 
 
-// 1. കോപ്പി ചെയ്യാനുള്ള ഫംഗ്ഷൻ (നമ്പർ/പേര്)
-        function copyData(type) {
-            if(!currentFilteredMembers || currentFilteredMembers.length === 0) {
-                return Swal.fire('ശ്രദ്ധിക്കുക', 'കോപ്പി ചെയ്യാൻ ആളുകളില്ല!', 'warning');
-            }
-            const textToCopy = currentFilteredMembers.map(m => type === 'phone' ? m.phone : m.name).filter(t => t).join('\n');
-            const el = document.createElement('textarea');
-            el.value = textToCopy;
-            document.body.appendChild(el);
-            el.select();
-            try {
-                document.execCommand('copy');
-                Swal.fire('വിജയിച്ചു', `${currentFilteredMembers.length} ${type === 'phone' ? 'നമ്പറുകൾ' : 'പേരുകൾ'} കോപ്പി ചെയ്തു!`, 'success');
-            } catch(err) {
-                Swal.fire('തെറ്റ്', 'കോപ്പി ചെയ്യാൻ കഴിഞ്ഞില്ല.', 'error');
-            }
-            document.body.removeChild(el);
-        }
+// പേരുകളും നമ്പറുകളും ബാച്ച് അടിസ്ഥാനത്തിൽ നമ്പർ ഇട്ട് കോപ്പി ചെയ്യാൻ
+function copyData(type) {
+    if(!currentFilteredMembers || currentFilteredMembers.length === 0) {
+        return Swal.fire('ശ്രദ്ധിക്കുക', 'കോപ്പി ചെയ്യാൻ ആളുകളില്ല!', 'warning');
+    }
+
+    let textToCopy = `📋 *MUAAWINA ${type === 'phone' ? 'നമ്പറുകൾ' : 'പേരുകൾ'}*\n━━━━━━━━━━━━━━━━━━━━\n`;
+    
+    // ബാച്ച് തിരിച്ച് ഗ്രൂപ്പ് ചെയ്യുന്നു
+    let groupedByBatch = {};
+    currentFilteredMembers.forEach(m => {
+        let b = m.batch || 'UNASSIGNED';
+        if(!groupedByBatch[b]) groupedByBatch[b] = [];
+        groupedByBatch[b].push(m);
+    });
+
+    // ഓരോ ബാച്ചും ലൂപ്പ് ചെയ്ത് ടെക്സ്റ്റ് ഉണ്ടാക്കുന്നു
+    for (let batch in groupedByBatch) {
+        textToCopy += `\n📁 *[ ${batch} ]*\n`;
+        groupedByBatch[batch].forEach((m, index) => {
+            let value = type === 'phone' ? m.phone : m.name;
+            textToCopy += `${index + 1}. ${value}\n`;
+        });
+        textToCopy += `-------------------------\n`;
+    }
+
+    // ക്ലിപ്പ്ബോർഡിലേക്ക് കോപ്പി ചെയ്യുന്നു
+    const el = document.createElement('textarea');
+    el.value = textToCopy;
+    document.body.appendChild(el);
+    el.select();
+    try {
+        document.execCommand('copy');
+        Swal.fire('വിജയിച്ചു', `ബാച്ച് തിരിച്ച് ${currentFilteredMembers.length} ${type === 'phone' ? 'നമ്പറുകൾ' : 'പേരുകൾ'} കോപ്പി ചെയ്തു!`, 'success');
+    } catch(err) {
+        Swal.fire('തെറ്റ്', 'കോപ്പി ചെയ്യാൻ കഴിഞ്ഞില്ല.', 'error');
+    }
+    document.body.removeChild(el);
+}
         
         // 2. കുടിശ്ശിക വിവരങ്ങൾ കോപ്പി ചെയ്യാനുള്ള ഫംഗ്ഷൻ
         function copyDueDetails() {
