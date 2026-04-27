@@ -1273,38 +1273,84 @@ function renderAdminList(mbs) {
     }).join('');
 }
 
-        function showMemberDetails(d) {
-            const m = JSON.parse(decodeURIComponent(d));
-            currentMember = m;
-           
-            const els = {
-                name: document.getElementById('detName'),
-                phone: document.getElementById('detPhone'),
-                batch: document.getElementById('detBatch'),
-                paid: document.getElementById('detPaid'),
-                due: document.getElementById('detDue'),
-                pBox: document.getElementById('detPendingBox'),
-                months: document.getElementById('detMonths'),
-                modal: document.getElementById('memberDetailsModal'),
-                waBtn: document.getElementById('detWaBtn')
-            };
+       function showMemberDetails(d) {
+    const m = JSON.parse(decodeURIComponent(d));
+    currentMember = m;
+    
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    let dueCountUpToNow = 0;
+    let dueMonthsList = [];
 
-            if(els.name) els.name.innerText = m.name;
-            if(els.phone) els.phone.innerText = m.phone;
-            if(els.batch) els.batch.innerText = m.batch || 'UNASSIGNED';
-            if(els.paid) els.paid.innerText = '₹' + m.totalPaid;
-            if(els.due) els.due.innerText = '₹' + m.balance;
-           
-            if(m.balance > 0 && m.pendingList) {
-                if(els.pBox) els.pBox.classList.remove('hidden');
-                if(els.months) els.months.innerText = m.pendingList.join(', ');
-            } else {
-                if(els.pBox) els.pBox.classList.add('hidden');
+    // 1. ഗൂഗിൾ ഷീറ്റിലെ തീയതി (Current Date) വരെയുള്ള കുടിശ്ശിക മാസങ്ങൾ മാത്രം കണ്ടെത്തുന്നു
+    if (m.pendingList) {
+        m.pendingList.forEach(pStr => {
+            let parts = pStr.split(" ");
+            if (parts.length === 2) {
+                let mIdx = monthNames.indexOf(parts[0]);
+                let mYear = parseInt(parts[1]);
+                
+                // Current Date-ന് ഉള്ളിലാണോ എന്ന് പരിശോധിക്കുന്നു
+                if (mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth)) {
+                    dueCountUpToNow++;
+                    dueMonthsList.push(pStr);
+                }
             }
-           
-            if(els.modal) els.modal.classList.remove('hidden');
-            if(els.waBtn) els.waBtn.onclick = () => window.open(`https://wa.me/91${m.phone.replace(/\D/g,'')}?text=${encodeURIComponent(' السلام عليكم \n' + m.name + ',\nനിങ്ങളുടെ MUAAWINA വരിസംഖ്യയിൽ ₹' + m.balance + ' കുടിശ്ശികയുണ്ട്.\nമാസങ്ങൾ: ' + (m.pendingList ? m.pendingList.join(', ') : ''))}`, '_blank');
-        }
+        });
+    }
+
+    let currentFee = m.fee || 50;
+    let dueAmount = dueCountUpToNow * currentFee;
+    
+    // 2. അഡ്വാൻസ് തുക കണക്കാക്കുന്നു
+    let expectedToPayUntilNow = (globalAppMonth + 1) * currentFee;
+    let paidUntilNow = expectedToPayUntilNow - dueAmount;
+    let advanceAmount = m.totalPaid - paidUntilNow;
+    if (advanceAmount < 0) advanceAmount = 0;
+
+    // UI എലമെന്റുകളിലേക്ക് വിവരങ്ങൾ നൽകുന്നു
+    document.getElementById('detName').innerText = m.name;
+    document.getElementById('detPhone').innerText = m.phone;
+    document.getElementById('detBatch').innerText = m.batch || 'UNASSIGNED';
+    document.getElementById('detPaid').innerText = '₹' + m.totalPaid;
+    
+    // Total Expected (ഈ മാസം വരെ അടയ്ക്കേണ്ടിയിരുന്ന ആകെ തുക)
+    const totalExpEl = document.getElementById('detTotalExpected');
+    if(totalExpEl) totalExpEl.innerText = '₹' + expectedToPayUntilNow;
+
+    const dueEl = document.getElementById('detDue');
+    const pBox = document.getElementById('detPendingBox');
+    const monthsEl = document.getElementById('detMonths');
+
+    // തുകയ്ക്ക് അനുസരിച്ച് നിറവും ലേബലും മാറ്റുന്നു
+    if (dueAmount > 0) {
+        dueEl.innerText = '₹' + dueAmount;
+        dueEl.className = "text-2xl font-black text-rose-600 leading-none text-center italic";
+        if(pBox) pBox.classList.remove('hidden');
+        if(monthsEl) monthsEl.innerText = dueMonthsList.join(', ');
+    } else if (advanceAmount > 0) {
+        dueEl.innerText = '₹' + advanceAmount;
+        dueEl.className = "text-2xl font-black text-emerald-600 leading-none text-center italic";
+        if(pBox) pBox.classList.add('hidden');
+    } else {
+        dueEl.innerText = '₹0';
+        dueEl.className = "text-2xl font-black text-slate-400 leading-none text-center italic";
+        if(pBox) pBox.classList.add('hidden');
+    }
+
+    // മോഡൽ കാണിക്കുന്നു
+    document.getElementById('memberDetailsModal').classList.remove('hidden');
+    
+    // വാട്സ്ആപ്പ് റിമൈൻഡർ ബട്ടൺ അപ്ഡേറ്റ് ചെയ്യുന്നു
+    const waBtn = document.getElementById('detWaBtn');
+    if(waBtn) {
+        waBtn.onclick = () => {
+            let msg = dueAmount > 0 ? 
+                `السلام عليكم \n${m.name},\nനിങ്ങളുടെ MUAAWINA വരിസംഖ്യയിൽ ₹${dueAmount} കുടിശ്ശികയുണ്ട്.\nമാസങ്ങൾ: ${dueMonthsList.join(', ')}` : 
+                `السلام عليكم \n${m.name},\nനിങ്ങളുടെ MUAAWINA വരിസംഖ്യ കൃത്യമാണ്.`;
+            window.open(`https://wa.me/91${m.phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`, '_blank');
+        };
+    }
+}
 
         
 
