@@ -915,16 +915,15 @@ if (mainPayConfirmBtn) {
             const monthFilterEl = document.getElementById('monthWiseFilter');
             if(monthFilterEl) monthFilterEl.innerHTML = options;
         }
-
-      function updateAdminStats(batch) {
+function updateAdminStats(batch) {
     let filtered = (batch === 'all' || batch === 'All') ? adminMembers : adminMembers.filter(m => m.batch === batch);
     
     let collected = filtered.reduce((sum, m) => sum + m.totalPaid, 0);
     
-    // ഷീറ്റിൽ നിന്നുള്ള pendingList നോക്കി 50 രൂപ വെച്ച് ഗുണിക്കുന്നു
+    // എല്ലാവരുടെയും കുടിശ്ശിക മാത്രം കൂട്ടുന്നു
     let pending = filtered.reduce((sum, m) => {
         let count = m.pendingList ? m.pendingList.length : 0;
-        return sum + (count * (m.fee || 50)); // തുക 50 ആക്കി മാറ്റി
+        return sum + (count * 50);
     }, 0);
     
     const totalEl = document.getElementById('admTotal');
@@ -1180,23 +1179,52 @@ if (mainPayConfirmBtn) {
         return;
     }
     l.innerHTML = mbs.map(m => {
-        // കുടിശ്ശിക മാസങ്ങൾ * 50 രൂപ
-        let calculatedBalance = m.pendingList ? m.pendingList.length * (m.fee || 50) : 0;
+        // 1. കുടിശ്ശിക തുക കണക്കാക്കുന്നു (Balance)
+        let dueAmount = m.pendingList ? m.pendingList.length * (m.fee || 50) : 0;
         
+        // 2. അഡ്വാൻസ് തുക ഉണ്ടോ എന്ന് നോക്കുന്നു (Advance)
+        let advanceAmount = m.advance || 0; 
+
+        // ഡിസ്‌പ്ലേ ചെയ്യേണ്ട തുകയും നിറവും തീരുമാനിക്കുന്നു
+        let displayAmount = "";
+        let amountClass = "";
+        let labelText = "";
+
+        if (dueAmount > 0) {
+            displayAmount = "₹" + dueAmount;
+            amountClass = "text-rose-600"; // കുടിശ്ശിക ഉണ്ടെങ്കിൽ ചുവപ്പ്
+            labelText = "Balance";
+        } else if (advanceAmount > 0) {
+            displayAmount = "₹" + advanceAmount;
+            amountClass = "text-emerald-600"; // മുൻകൂട്ടി അടച്ചാൽ പച്ച
+            labelText = "Advance";
+        } else {
+            displayAmount = "₹0";
+            amountClass = "text-slate-400";
+            labelText = "Balance";
+        }
+
         return `
             <div class="p-5 flex justify-between items-center hover:bg-slate-50 transition-all cursor-pointer border-b" onclick="showMemberDetails('${encodeURIComponent(JSON.stringify(m))}')">
                 <div class="flex items-center gap-4">
-                    <div class="w-11 h-11 rounded-2xl ${calculatedBalance <= 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-500'} flex items-center justify-center font-black text-lg shadow-inner text-center uppercase border border-white/50">${m.name.charAt(0)}</div>
+                    <div class="w-11 h-11 rounded-2xl ${dueAmount <= 0 ? (advanceAmount > 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400') : 'bg-rose-100 text-rose-500'} flex items-center justify-center font-black text-lg shadow-inner text-center uppercase border border-white/50">${m.name.charAt(0)}</div>
                     <div>
                         <p class="font-black text-slate-900 text-sm leading-tight uppercase tracking-tight text-left leading-none mb-1">${m.name}</p>
                         <p class="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-widest text-left leading-none mb-1">${m.batch}</p>
-                        ${calculatedBalance > 0 ? `<p class="text-[10px] font-bold text-rose-500 mt-1 uppercase tracking-widest bg-rose-50 inline-block px-2 py-0.5 rounded border border-rose-100">${m.pendingList.length} മാസം കുടിശ്ശിക</p>` : '<p class="text-[10px] font-bold text-emerald-500 mt-1 uppercase tracking-widest bg-emerald-50 inline-block px-2 py-0.5 rounded border border-emerald-100">കുടിശ്ശികയില്ല</p>'}
+                        
+                        ${dueAmount > 0 ? 
+                            `<p class="text-[10px] font-bold text-rose-500 mt-1 uppercase tracking-widest bg-rose-50 inline-block px-2 py-0.5 rounded border border-rose-100">${m.pendingList.length} മാസം കുടിശ്ശിക</p>` : 
+                            (advanceAmount > 0 ? 
+                                `<p class="text-[10px] font-bold text-emerald-500 mt-1 uppercase tracking-widest bg-emerald-50 inline-block px-2 py-0.5 rounded border border-emerald-100">Advance Paid</p>` : 
+                                `<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest bg-slate-50 inline-block px-2 py-0.5 rounded border border-slate-100">Up-to-date</p>`
+                            )
+                        }
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
                     <div class="text-right">
-                        <p class="text-[9px] font-black uppercase text-slate-300 text-right leading-none mb-1">Balance</p>
-                        <p class="text-sm font-black ${calculatedBalance > 0 ? 'text-rose-600' : 'text-emerald-600'} text-right leading-none">₹${calculatedBalance}</p>
+                        <p class="text-[9px] font-black uppercase text-slate-300 text-right leading-none mb-1">${labelText}</p>
+                        <p class="text-sm font-black ${amountClass} text-right leading-none">${displayAmount}</p>
                     </div>
                     <i class="fas fa-chevron-right text-slate-200 text-xs text-right opacity-30"></i>
                 </div>
