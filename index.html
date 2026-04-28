@@ -604,6 +604,7 @@
                     let advancePaid = 0; let pendingCount = 0;
                     
 // പുതിയ ഫിൽട്ടറിംഗ് കോഡ്
+          // പുതിയ ഫിൽട്ടറിംഗ് കോഡ് (ഇത് ഇവിടെ പേസ്റ്റ് ചെയ്യുക)
                     fullHistory = (d.history || []).map(hist => {
                         let mIdx = monthNames.indexOf(hist.month);
                         let mYear = parseInt(hist.year);
@@ -611,11 +612,12 @@
 
                         if (isFuture) {
                             if (hist.status === 'Pending') hist.status = 'Upcoming';
-                            else if (hist.status === 'Paid') advancePaid += currentMember.fee;
+                            else if (hist.status === 'Paid') advancePaid += d.fee;
                         } else {
                             if (hist.status === 'Pending') pendingCount++;
                         }
-                        hist.monthIdx = mIdx; return hist;
+                        hist.monthIdx = mIdx; 
+                        return hist;
                     }).filter(hist => {
                         // ജോയിന്റ് ഡേറ്റ് പരിശോധന
                         if (!d.joinedDate) return true;
@@ -623,28 +625,25 @@
                         let joined;
                         let dateStr = String(d.joinedDate).trim();
 
-                        // DD/MM/YYYY അല്ലെങ്കിൽ DD-MM-YYYY ഫോർമാറ്റ് ആണെങ്കിൽ (ഉദാ: 01/06/2024)
+                        // തീയതി മുറിച്ചെടുക്കുന്നു (DD/MM/YYYY അല്ലെങ്കിൽ YYYY-MM-DD)
                         if (dateStr.includes('/') || (dateStr.includes('-') && dateStr.split('-')[0].length <= 2)) {
                             let sep = dateStr.includes('/') ? '/' : '-';
                             let parts = dateStr.split(sep);
-                            // parts[0]=Day, parts[1]=Month, parts[2]=Year
                             joined = new Date(parts[2], parts[1] - 1, 1);
                         } else {
-                            // YYYY-MM-DD ഫോർമാറ്റ് ആണെങ്കിൽ
                             joined = new Date(dateStr);
                         }
 
-                        // ഡേറ്റ് ശരിയല്ലെങ്കിൽ എല്ലാം കാണിക്കും
                         if (isNaN(joined.getTime())) return true;
 
                         let jYear = joined.getFullYear();
                         let jMonth = joined.getMonth();
-                        let mYear = parseInt(hist.year);
-                        let mMonth = hist.monthIdx;
+                        let curMonthYear = parseInt(hist.year);
+                        let curMonthIdx = hist.monthIdx;
 
-                        // വർഷവും മാസവും താരതമ്യം ചെയ്ത് മാത്രം മാസങ്ങൾ കാണിക്കുന്നു
-                        return (mYear > jYear) || (mYear === jYear && mMonth >= jMonth);
-                    });
+                        // മെമ്പർ ജോയിൻ ചെയ്ത മാസം മുതൽ മാത്രം കാണിക്കുന്നു
+                        return (curMonthYear > jYear) || (curMonthYear === jYear && curMonthIdx >= jMonth);
+                    });          
 
                     pendingMonthsList = fullHistory.filter(hist => hist.status === 'Pending');
                     upcomingMonthsList = fullHistory.filter(hist => hist.status === 'Upcoming');
