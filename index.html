@@ -112,7 +112,7 @@
     </div>
 </div>
 
-          <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-6 rounded-b-[40px] shadow-xl text-white mb-6 relative overflow-hidden">
+       <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-6 rounded-b-[40px] shadow-xl text-white mb-6 relative overflow-hidden">
     <div class="flex justify-between items-start mb-6 relative z-10">
         <div>
             <div class="text-[10px] font-black uppercase tracking-[4px] opacity-70 mb-1">MUAAWINA</div>
@@ -541,6 +541,11 @@
             // ഫോൺ നമ്പറും MID-യും ഒരുമിച്ച് ഡാറ്റാബേസിലേക്ക് അയക്കുന്നു
             callAPI('getMemberData', { phone: p, mid: m }).then(d => {
                 showLoader(false);
+                // ഡാറ്റാബേസിൽ നിന്ന് ലഭിക്കുന്ന വിവരങ്ങൾ പേജിലെ ഐഡികളിലേക്ക് നൽകുന്നു
+document.getElementById('userName').innerText = d.name;
+document.getElementById('statTotal').innerText = "₹" + (d.totalExpected || 0);
+document.getElementById('statPaid').innerText = "₹" + (d.totalPaid || 0);
+document.getElementById('statBalance').innerText = "₹" + (d.balance || 0);
                if(d.error) {
                     if (errBox) { errBox.innerText = d.error; errBox.classList.remove('hidden'); }
                     // ലോഗിൻ പരാജയപ്പെട്ടാൽ സേവ് ചെയ്ത വിവരങ്ങൾ കളയുന്നു
