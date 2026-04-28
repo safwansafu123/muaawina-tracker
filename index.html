@@ -925,11 +925,25 @@ if (mainPayConfirmBtn) {
                     confirmButtonText: 'അഡ്മിനെ അറിയിക്കുക (WhatsApp)',
                     confirmButtonColor: '#10b981',
                     allowOutsideClick: false
-                }).then((result) => {
+               }).then((result) => {
                     if (result.isConfirmed) {
-                        let wpNumber = (APP_CONFIG && APP_CONFIG.ADMIN_WHATSAPP) ? APP_CONFIG.ADMIN_WHATSAPP : "";
-                        // വാട്സ്ആപ്പ് ഓപ്പൺ ചെയ്യുന്നു
-                        window.open(`https://wa.me/${wpNumber}?text=${encodeURIComponent('السلام عليكم \n പണമടച്ചിട്ടുണ്ട്.\nപേര്: ' + currentMember.name + '\nതുക: ' + tot)}`, '_blank');
+                        // 1. ഷീറ്റിൽ നിന്നുള്ള ഒറിജിനൽ ഡാറ്റ എടുക്കുന്നു
+                        let rawData = (APP_CONFIG && APP_CONFIG.ADMIN_WHATSAPP) ? String(APP_CONFIG.ADMIN_WHATSAPP) : "";
+                        
+                        // 2. അക്കങ്ങൾ മാത്രം ബാക്കിയാക്കുന്നു
+                        let wpNumber = rawData.replace(/\D/g, '');
+
+                        // 3. നമ്പർ 10 അക്കമാണെങ്കിൽ മാത്രം 91 ചേർക്കുന്നു
+                        if (wpNumber.length === 10) {
+                            wpNumber = '91' + wpNumber;
+                        }
+
+                        if (wpNumber && wpNumber !== "") {
+                            // വാട്സ്ആപ്പ് ഓപ്പൺ ചെയ്യുന്നു
+                            window.open(`https://wa.me/${wpNumber}?text=${encodeURIComponent('السلام عليكم \n പണമടച്ചിട്ടുണ്ട്.\nപേര്: ' + currentMember.name + '\nതുക: ' + tot)}`, '_blank');
+                        } else {
+                            alert("അഡ്മിൻ നമ്പർ ലഭ്യമല്ല!");
+                        }
                         
                         // വിവരങ്ങൾ റീലോഡ് ചെയ്യുന്നു
                         setTimeout(fetchMemberDetails, 1000);
