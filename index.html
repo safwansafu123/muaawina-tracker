@@ -122,6 +122,41 @@
     
     .hidden { display: none; }
 </style>
+    </head>
+<body class="min-h-screen text-slate-800 pb-10">
+    <div class="max-w-md mx-auto" id="mainApp">
+       
+  <div id="loginPage" class="login-wrapper">
+    <div class="login-header fade-in">
+        <img src="logo_white.png" class="w-28 h-28 mb-4 object-contain shadow-2xl" alt="Logo">
+        <h2 class="text-2xl font-black tracking-[0.2em] leading-none">MUAAWINA</h2>
+        <p class="text-[11px] font-bold mt-3 opacity-70 uppercase tracking-[0.3em]">വരിസംഖ്യ ട്രാക്കർ</p>
+    </div>
+
+    <div class="login-card fade-in">
+        <div class="input-group">
+            <i class="fas fa-phone-alt"></i>
+            <input type="tel" id="phoneInput" maxlength="10" placeholder="ഫോൺ നമ്പർ നൽകുക" 
+                   onkeypress="if(event.key === 'Enter') fetchMemberDetails()" 
+                   class="input-field">
+        </div>
+        
+        <div id="loginError" class="hidden error-box mb-3"></div>
+
+        <button onclick="fetchMemberDetails()" class="primary-btn mb-6">തുടരുക</button>
+
+        <div class="space-y-4">
+            <button onclick="enableCustomNotifications()" class="w-full py-3.5 bg-slate-50 text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 border border-slate-100">
+                <i class="fas fa-bell text-amber-500"></i> നോട്ടിഫിക്കേഷൻ ഓൺ ചെയ്യുക
+            </button>
+
+            <button onclick="showAdminModal()" class="w-full text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 py-2">
+                <i class="fas fa-user-shield"></i> അഡ്മിൻ ലോഗിൻ
+            </button>
+        </div>
+    </div>
+</div>
+
 
         <div id="memberPage" class="hidden p-4 sm:p-6 fade-in">
           <div id="announcementBox" class="hidden mb-4 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-2xl flex items-start gap-3 shadow-sm fade-in">
