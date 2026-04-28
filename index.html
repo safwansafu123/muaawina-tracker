@@ -1904,75 +1904,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     const installCard = document.getElementById('appInstallCard');
     if(installCard) installCard.classList.remove('hidden');
 });
-// ഹിസ്റ്ററി പാനൽ തുറക്കാൻ
-function openHistoryModal() {
-    if(!MEMBER_DATA || !MEMBER_DATA.history) return;
 
-    const modal = document.getElementById('historyModal');
-    const card = document.getElementById('historyCard');
-    
-    // ഡാറ്റ ലോഡ് ചെയ്യുന്നു
-    renderHistoryList(MEMBER_DATA.history);
-
-    document.getElementById('histTotalPaid').innerText = "₹" + MEMBER_DATA.totalPaid;
-    document.getElementById('historySearch').value = ""; // സെർച്ച് ക്ലിയർ ചെയ്യുന്നു
-
-    modal.classList.remove('hidden');
-    setTimeout(() => { card.classList.remove('translate-y-full'); }, 10);
-    if(typeof toggleScroll === 'function') toggleScroll(true);
-}
-
-// ഹിസ്റ്ററി ലിസ്റ്റ് റെൻഡർ ചെയ്യാനുള്ള ഫംഗ്ഷൻ
-function renderHistoryList(historyArray) {
-    const container = document.getElementById('historyListContainer');
-    container.innerHTML = "";
-
-    if(historyArray.length === 0) {
-        container.innerHTML = "<div class='text-center py-10 text-slate-400 text-xs font-bold uppercase'>No records found</div>";
-        return;
-    }
-
-    [...historyArray].reverse().forEach(item => {
-        const div = document.createElement('div');
-        div.className = "history-item flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-slate-50/50";
-        
-        let statusIcon = item.status === 'Paid' ? '<i class="fas fa-check-circle"></i>' : 
-                         (item.status === 'Processing' ? '<i class="fas fa-clock"></i>' : '<i class="fas fa-exclamation-circle"></i>');
-        
-        let statusClass = item.status === 'Paid' ? "text-emerald-500 bg-emerald-50" : 
-                          (item.status === 'Processing' ? "text-orange-500 bg-orange-50" : "text-slate-300 bg-white");
-
-        div.innerHTML = `
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-sm ${statusClass}">${statusIcon}</div>
-                <div>
-                    <div class="text-[13px] font-black text-slate-700">${item.month} ${item.year}</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">${item.status}</div>
-                </div>
-            </div>
-            <div class="text-[13px] font-black text-slate-600">₹${MEMBER_DATA.fee}</div>
-        `;
-        container.appendChild(div);
-    });
-}
-
-// സെർച്ച് ഫിൽട്ടർ ഫംഗ്ഷൻ
-function filterHistory() {
-    const query = document.getElementById('historySearch').value.toLowerCase();
-    const filtered = MEMBER_DATA.history.filter(item => 
-        item.month.toLowerCase().includes(query) || 
-        item.year.toString().includes(query)
-    );
-    renderHistoryList(filtered);
-}
-
-function closeHistoryModal() {
-    const modal = document.getElementById('historyModal');
-    const card = document.getElementById('historyCard');
-    card.classList.add('translate-y-full');
-    setTimeout(() => { modal.classList.add('hidden'); }, 300);
-    if(typeof toggleScroll === 'function') toggleScroll(false);
-}
 function installPWA() {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
@@ -1996,35 +1928,7 @@ function enableCustomNotifications() {
             document.documentElement.style.overflow = disable ? 'hidden' : 'auto';
         }
     </script>
-        <div id="historyModal" class="fixed inset-0 z-[10000] hidden">
-    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeHistoryModal()"></div>
-    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] shadow-2xl transition-transform duration-300 translate-y-full" id="historyCard">
-        <div class="p-6 max-w-md mx-auto">
-            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
-            
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-black text-slate-800 uppercase tracking-widest">Payment History</h3>
-                <button onclick="closeHistoryModal()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            <div class="relative mb-4">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                <input type="text" id="historySearch" onkeyup="filterHistory()" placeholder="Search month or year (e.g. 2025)..." 
-                       class="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-10 pr-4 text-xs font-bold focus:outline-none focus:border-blue-300 transition-all">
-            </div>
-
-            <div id="historyListContainer" class="space-y-3 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
-                </div>
-            
-            <div class="mt-6 p-4 bg-blue-50 rounded-2xl flex justify-between items-center border border-blue-100">
-                <span class="text-[11px] font-bold text-blue-600 uppercase">ആകെ അടച്ചത്</span>
-                <span class="text-xl font-black text-blue-700" id="histTotalPaid">₹0</span>
-            </div>
-        </div>
-    </div>
-</div>
+       
 </body>
 </html>
 
