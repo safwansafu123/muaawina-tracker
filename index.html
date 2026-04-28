@@ -1895,6 +1895,11 @@ function enableCustomNotifications() {
         OneSignal.Slidedown.promptPush();
     });
 }
+        // സ്ക്രോളിംഗ് നിയന്ത്രിക്കാനുള്ള ഫംഗ്ഷൻ
+        function toggleScroll(disable) {
+            document.body.style.overflow = disable ? 'hidden' : 'auto';
+            document.documentElement.style.overflow = disable ? 'hidden' : 'auto';
+        }
     </script>
 </body>
 </html>
