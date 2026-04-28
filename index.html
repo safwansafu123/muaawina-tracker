@@ -112,38 +112,38 @@
     </div>
 </div>
 
-            <div class="gradient-bg p-6 rounded-[28px] text-white shadow-xl mb-6 relative overflow-hidden">
-                
-    <div class="flex justify-between items-start mb-6">
-    <div class="pr-2">
-        <p class="text-blue-100 text-[10px] font-black uppercase tracking-widest opacity-80">MUAAWINA</p>
-        <h2 id="mName" class="text-xl font-black leading-tight mt-1 uppercase tracking-tight break-words">...</h2>
-    </div>
-    <div class="flex items-center gap-2 shrink-0">
-        <button onclick="goHome()" class="bg-white/15 w-10 h-10 flex items-center justify-center rounded-xl border border-white/20 shadow-sm active:scale-90 transition-all">
-            <i class="fas fa-home text-[14px]"></i>
+           <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-6 rounded-b-[40px] shadow-xl text-white mb-6 relative overflow-hidden fade-in">
+    <div class="flex justify-between items-start mb-6 relative z-10">
+        <div>
+            <div class="text-[10px] font-black uppercase tracking-[4px] opacity-70 mb-1">MUAAWINA</div>
+            <h2 id="mName" class="text-2xl font-black tracking-tight truncate max-w-[200px]">...</h2>
+        </div>
+        
+        <button onclick="goHome()" class="bg-white/20 hover:bg-white/30 w-11 h-11 flex items-center justify-center rounded-2xl border border-white/30 backdrop-blur-md shadow-lg active:scale-90 transition-all text-white">
+            <i class="fas fa-right-from-bracket text-lg"></i>
         </button>
     </div>
-</div>
-                <div class="grid grid-cols-3 gap-2 text-center relative">
-                    <div class="bg-white/10 p-4 rounded-2xl border border-white/5 backdrop-blur-md shadow-inner"><p class="text-[9px] uppercase font-black opacity-70">ആകെ</p><p id="mTotalExpected" class="text-lg font-black mt-1 leading-none">₹0</p></div>
-                    <div class="bg-white/10 p-4 rounded-2xl border border-white/5 backdrop-blur-md shadow-inner"><p class="text-[9px] uppercase font-black opacity-70 text-emerald-300">അടച്ചത്</p><p id="mPaid" class="text-lg font-black mt-1 leading-none text-emerald-200">₹0</p></div>
-                    <div class="bg-white/10 p-4 rounded-2xl border border-white/5 backdrop-blur-md shadow-inner relative">
-                        <p class="text-[9px] uppercase font-black opacity-70 text-yellow-200">ബാക്കി</p>
-                        <p id="mBalance" class="text-lg font-black mt-1 leading-none text-yellow-300">₹0</p>
-                        <span id="mAdvance" class="hidden absolute -top-2 -right-2 bg-emerald-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold shadow-md">+₹0</span>
-                    </div>
-                </div>
-            </div>
-<div class="flex justify-between mb-4 mt-2 px-1 fade-in">
-                <button onclick="contactAdmin()" class="bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all border border-emerald-100 shadow-sm hover:bg-emerald-100">
-                    <i class="fab fa-whatsapp text-sm"></i> അഡ്മിൻ
-                </button>
 
-                <button onclick="openHistoryModal()" class="bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all border border-blue-100 shadow-sm hover:bg-blue-100">
-                    <i class="fas fa-history text-sm"></i> ഹിസ്റ്ററി
-                </button>
-            </div>
+    <div class="grid grid-cols-3 gap-3 relative z-10">
+        <div class="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 flex flex-col items-center">
+            <span class="text-[8px] font-bold uppercase opacity-60 mb-1">ആകെ</span>
+            <span id="mTotalExpected" class="text-[13px] font-black tracking-tight">₹0</span>
+        </div>
+        <div class="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 flex flex-col items-center">
+            <span class="text-[8px] font-bold uppercase opacity-60 mb-1 text-emerald-300">അടച്ചത്</span>
+            <span id="mPaid" class="text-[13px] font-black tracking-tight text-emerald-200">₹0</span>
+        </div>
+        <div class="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 flex flex-col items-center">
+            <span class="text-[8px] font-bold uppercase opacity-60 mb-1 text-yellow-200">ബാക്കി</span>
+            <span id="mBalance" class="text-[13px] font-black tracking-tight text-yellow-300">₹0</span>
+        </div>
+    </div>
+</div>
+<div class="flex justify-center mb-6 mt-2 px-1 fade-in">
+    <button onclick="contactAdmin()" class="bg-emerald-50 text-emerald-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all border border-emerald-100 shadow-sm hover:bg-emerald-100">
+        <i class="fab fa-whatsapp text-base"></i> അഡ്മിനുമായി ബന്ധപ്പെടുക
+    </button>
+</div>
             <div id="quickPayContainer" class="hidden grid grid-cols-2 gap-3 mb-6">
                 <button onclick="openBulkPayModal()" class="bg-white text-blue-700 py-4 rounded-2xl font-black shadow-md border-2 border-blue-50 active:scale-95 flex items-center justify-center gap-2 text-[10px] uppercase transition-all shadow-blue-50/50">
                     <i class="fas fa-bolt text-yellow-500"></i> Bulk Pay
