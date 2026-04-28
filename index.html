@@ -1774,14 +1774,28 @@ function copyDueDetails() {
       
         // അഡ്മിനെ വാട്സ്ആപ്പിൽ ബന്ധപ്പെടാനുള്ള ഫംഗ്ഷൻ
 function contactAdmin() {
-    let wpNumber = (APP_CONFIG && APP_CONFIG.ADMIN_WHATSAPP) ? APP_CONFIG.ADMIN_WHATSAPP : "";
+    // 1. ഷീറ്റിൽ നിന്നുള്ള ഒറിജിനൽ ഡാറ്റ എടുക്കുന്നു
+    let rawData = (APP_CONFIG && APP_CONFIG.ADMIN_WHATSAPP) ? String(APP_CONFIG.ADMIN_WHATSAPP) : "";
     
+    // 2. അക്കങ്ങൾ മാത്രം ബാക്കിയാക്കുന്നു
+    let wpNumber = rawData.replace(/\D/g, '');
+
+    // 3. പരിശോധനയ്ക്കായി കൺസോളിൽ പ്രിന്റ് ചെയ്യുന്നു (ഇത് പിന്നീട് നോക്കാം)
+    console.log("Original Data:", rawData);
+    console.log("Cleaned Number:", wpNumber);
+
     if (!wpNumber || wpNumber === "") {
-        alert("അഡ്മിന്റെ വാട്സ്ആപ്പ് നമ്പർ നിലവിൽ ലഭ്യമല്ല!");
+        Swal.fire('Error', 'ഷീറ്റിൽ അഡ്മിൻ നമ്പർ കണ്ടെത്തിയില്ല!', 'error');
         return;
     }
+
+    // 4. നമ്പർ 10 അക്കമാണെങ്കിൽ മാത്രം 91 ചേർക്കുന്നു. 
+    // 12 അക്കമുണ്ടെങ്കിൽ (അതായത് ഓൾറെഡി 91 ഉണ്ടെങ്കിൽ) ഒന്നും ചെയ്യുന്നില്ല.
+    if (wpNumber.length === 10) {
+        wpNumber = '91' + wpNumber;
+    }
     
-    // അഡ്മിന് പോകുന്ന ഡിഫോൾട്ട് മെസ്സേജ് (ആവശ്യമെങ്കിൽ മാറ്റാം)
+    // 5. വാട്സ്ആപ്പ് ഓപ്പൺ ചെയ്യുന്നു
     let textMsg = encodeURIComponent('السلام عليكم \n');
     window.open(`https://wa.me/${wpNumber}?text=${textMsg}`, '_blank');
 }
