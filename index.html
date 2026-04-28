@@ -610,12 +610,13 @@
                         let mYear = parseInt(hist.year);
                         let isFuture = mYear > globalAppYear || (mYear === globalAppYear && mIdx > globalAppMonth);
 
-                        if (isFuture) {
-                            if (hist.status === 'Pending') hist.status = 'Upcoming';
-                            else if (hist.status === 'Paid') advancePaid += d.fee;
-                        } else {
-                            if (hist.status === 'Pending') pendingCount++;
-                        }
+                      if (isFuture) {
+      if (hist.status === 'Pending') hist.status = 'Upcoming';
+      else if (hist.status === 'Paid') advancePaid += d.fee;
+  } else {
+      // Pending ഉം Processing ഉം ഒരുപോലെ കൗണ്ട് ചെയ്യുന്നു
+      if (hist.status === 'Pending' || hist.status === 'Processing') pendingCount++;
+  }
                         hist.monthIdx = mIdx; 
                         return hist;
                     }).filter(hist => {
