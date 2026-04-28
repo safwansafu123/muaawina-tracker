@@ -168,7 +168,7 @@
             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">History</span>
         </button>
 
-        <button onclick="Swal.fire({title:'അറിയിപ്പുകൾ', text:'പുതിയ അറിയിപ്പുകൾ ഒന്നുമില്ല', icon:'info', confirmButtonColor:'#1e3a8a'})" class="flex-1 flex flex-col items-center gap-1 p-1">
+        <button onclick="openNoticeModal()" class="flex-1 flex flex-col items-center gap-1 p-1">
             <div class="w-10 h-10 text-slate-400 flex items-center justify-center relative active:scale-90 transition-all">
                 <i class="fas fa-bullhorn text-lg"></i>
                 <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
@@ -360,6 +360,27 @@
         </div>
         <div id="historyListContainer" class="overflow-y-auto no-scrollbar space-y-3 pb-4">
             </div>
+    </div>
+</div>
+        <div id="noticeModal" class="fixed inset-0 z-[10000] hidden">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeNoticeModal()"></div>
+    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] shadow-2xl transition-transform duration-300 translate-y-full" id="noticeCard">
+        <div class="p-6 max-w-md mx-auto">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-black text-slate-800 uppercase tracking-widest">Notice Board</h3>
+                <button onclick="closeNoticeModal()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 active:scale-90"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="bg-amber-50 p-6 rounded-[30px] border border-amber-100 shadow-inner">
+                <div class="text-amber-500 mb-4 text-2xl"><i class="fas fa-bullhorn animate-bounce"></i></div>
+                <p id="noticePanelText" class="text-slate-700 font-bold leading-relaxed text-lg">
+                    പുതിയ അറിയിപ്പുകൾ ഒന്നുമില്ല.
+                </p>
+            </div>
+            
+            <button onclick="closeNoticeModal()" class="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest active:scale-95 transition-all">ശരി</button>
+        </div>
     </div>
 </div>
 
@@ -1928,6 +1949,28 @@ function enableCustomNotifications() {
             document.body.style.overflow = disable ? 'hidden' : 'auto';
             document.documentElement.style.overflow = disable ? 'hidden' : 'auto';
         }
+        // നോട്ടീസ് പാനൽ തുറക്കാൻ
+function openNoticeModal() {
+    const msg = (APP_CONFIG && APP_CONFIG.ANNOUNCEMENT) ? APP_CONFIG.ANNOUNCEMENT : "പുതിയ അറിയിപ്പുകൾ ഒന്നുമില്ല!";
+    document.getElementById('noticePanelText').innerText = msg;
+    
+    const modal = document.getElementById('noticeModal');
+    const card = document.getElementById('noticeCard');
+    
+    modal.classList.remove('hidden');
+    setTimeout(() => card.classList.remove('translate-y-full'), 10);
+    toggleScroll(true);
+}
+
+// നോട്ടീസ് പാനൽ അടയ്ക്കാൻ
+function closeNoticeModal() {
+    const card = document.getElementById('noticeCard');
+    card.classList.add('translate-y-full');
+    setTimeout(() => {
+        document.getElementById('noticeModal').classList.add('hidden');
+        toggleScroll(false);
+    }, 300);
+}
     </script>
 </body>
 </html>
