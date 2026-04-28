@@ -537,10 +537,7 @@
 
      function fetchMemberDetails(isAutoLogin = false) {
             const errBox = document.getElementById('loginError');
-            if (errBox) { errBox.innerText = ''; errBox.classList.add('hidden'); }
-// ഡാറ്റ വന്നയുടനെ ഇത് ചേർക്കുക
-console.log("Full Member Data:", d);
-console.log("Joined Date from Sheet:", d.joinedDate);
+            if (errBox) { errBox.innerText = ''; errBox.classList.add('hidden'); } 
             const pInput = document.getElementById('phoneInput');
             const mInput = document.getElementById('midInput'); // MID ബോക്സ്
             const p = pInput ? pInput.value : '';
