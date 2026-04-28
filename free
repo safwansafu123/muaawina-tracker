@@ -1,0 +1,801 @@
+/**
+ * MUAAWINA Warisankhya Tracker - High-Speed Stable Backend
+ */
+// നിങ്ങളുടെ ഗൂഗിൾ ഷീറ്റ് ഐഡി ഈ കോട്ട്സിനുള്ളിൽ നിർബന്ധമായും നൽകുക
+const SPREADSHEET_ID = "1BEI968vBZE_NMHM4aauZcGToyxJOirFSE5lU-t6SKhw";
+
+function getSS() {
+  if (!SPREADSHEET_ID || SPREADSHEET_ID === "") {
+    throw new Error("SPREADSHEET_ID നൽകിയിട്ടില്ല! ദയവായി Code.gs ഫയലിൽ ഷീറ്റ് ഐഡി നൽകുക.");
+  }
+  return SpreadsheetApp.openById(SPREADSHEET_ID);
+}
+
+
+
+
+function onOpen() {
+  SpreadsheetApp.getUi().createMenu('🚀 Tracker Menu')
+      .addItem('1. സിസ്റ്റം തയ്യാറാക്കുക (Setup)', 'setupTracker')
+      .addItem('2. ⚙️ സെറ്റിംഗ്സ് മാറ്റുക (Settings)', 'updateSettingsViaMenu')
+      .addToUi();
+}
+
+
+
+
+function doGet() {
+  return HtmlService.createTemplateFromFile('index')
+    .evaluate()
+    .setTitle('MUAAWINA വരിസംഖ്യ ട്രാക്കർ')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+
+
+
+// സുരക്ഷിതമായി പ്രോപ്പർട്ടീസിൽ നിന്നും ഷീറ്റിൽ നിന്നും സെറ്റിംഗ്സ് എടുക്കാൻ
+function getAppSettings() {
+  const props = PropertiesService.getDocumentProperties();
+  let config = {
+    ADMIN_PASS: props.getProperty('ADMIN_PASS') || "1234",
+    MONTHLY_FEE: props.getProperty('MONTHLY_FEE') || "50",
+    START_DATE: props.getProperty('START_DATE') || "01/01/2021",
+    UPI_ID: "",
+    ADMIN_WHATSAPP: ""
+  };
+// അനൗൺസ്മെന്റ് എടുക്കാനുള്ള പുതിയ കോഡ്
+    try {
+      var sSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Settings');
+      var sData = sSheet.getDataRange().getValues();
+      // 7-ാമത്തെ വരി (Index 6) ഉണ്ടോ എന്ന് പരിശോധിച്ച് സന്ദേശം എടുക്കുന്നു
+      if(sData.length > 6 && sData[6].length > 1) {
+        config.ANNOUNCEMENT = String(sData[6][1] || "").trim();
+      } else {
+        config.ANNOUNCEMENT = "";
+      }
+    } catch(e) {
+      config.ANNOUNCEMENT = "";
+    }
+  // ഗൂഗിൾ ഷീറ്റിലെ Settings ഷീറ്റിൽ നിന്നും UPI ഉം WhatsApp നമ്പറും എടുക്കുന്നു
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName('Settings');
+    if (sheet) {
+      const data = sheet.getDataRange().getDisplayValues();
+      for (let i = 1; i < data.length; i++) {
+        let key = String(data[i][0]).trim();
+        let val = String(data[i][1]).trim();
+        if (key === 'UPI_ID') config.UPI_ID = val;
+        if (key === 'ADMIN_WHATSAPP') config.ADMIN_WHATSAPP = val;
+      }
+    }
+  } catch(e) {}
+
+
+
+
+  return config;
+}
+
+
+
+
+// മെനു വഴി അഡ്മിൻ പാസ്‌വേഡ്, വരിസംഖ്യ, തുടങ്ങിയ മാസം എന്നിവ മാത്രം മാറ്റാൻ
+function updateSettingsViaMenu() {
+  const ui = SpreadsheetApp.getUi();
+  const props = PropertiesService.getDocumentProperties();
+  let res;
+
+
+
+
+  let curPass = props.getProperty('ADMIN_PASS') || "1234";
+  res = ui.prompt("⚙️ സെറ്റിംഗ്സ് 1/3: അഡ്മിൻ പാസ്‌വേഡ്", `നിലവിലെ പാസ്‌വേഡ്: ${curPass}\nമാറ്റാനുണ്ടെങ്കിൽ പുതിയ പാസ്‌വേഡ് നൽകുക:`, ui.ButtonSet.OK_CANCEL);
+  if (res.getSelectedButton() === ui.Button.OK && res.getResponseText().trim() !== "") {
+    props.setProperty('ADMIN_PASS', res.getResponseText().trim());
+  }
+
+
+
+
+  let curFee = props.getProperty('MONTHLY_FEE') || "50";
+  res = ui.prompt("⚙️ സെറ്റിംഗ്സ് 2/3: മാസവരിസംഖ്യ", `നിലവിലെ വരിസംഖ്യ: ${curFee}\nമാറ്റാനുണ്ടെങ്കിൽ പുതിയ തുക നൽകുക:`, ui.ButtonSet.OK_CANCEL);
+  if (res.getSelectedButton() === ui.Button.OK && res.getResponseText().trim() !== "") {
+    props.setProperty('MONTHLY_FEE', res.getResponseText().trim());
+  }
+
+
+
+
+  let curDate = props.getProperty('START_DATE') || "01/01/2021";
+  res = ui.prompt("⚙️ സെറ്റിംഗ്സ് 3/3: തുടങ്ങിയ മാസം", `നിലവിലെ തീയതി: ${curDate}\nമാറ്റാനുണ്ടെങ്കിൽ പുതിയ തീയതി നൽകുക (മാതൃക: 01/01/2024):`, ui.ButtonSet.OK_CANCEL);
+  if (res.getSelectedButton() === ui.Button.OK && res.getResponseText().trim() !== "") {
+    props.setProperty('START_DATE', res.getResponseText().trim());
+  }
+
+
+
+
+  ui.alert("✅ പൂർത്തിയായി!", "സെറ്റിംഗ്സ് സേവ് ചെയ്തു. (ശ്രദ്ധിക്കുക: UPI ഉം WhatsApp ഉം ഗൂഗിൾ ഷീറ്റിലെ 'Settings' ഷീറ്റിലാണ് മാറ്റേണ്ടത്)", ui.ButtonSet.OK);
+}
+
+
+
+
+function setupTracker() {
+  const ss = getSS();
+  let db = ss.getSheetByName('Member_Database');
+  if (!db) db = ss.insertSheet('Member_Database');
+  db.getRange("A1:H1").setValues([['Member ID', 'Name', 'Phone', 'Batch', 'Join Date', 'Status', 'Email', 'Monthly Fee']]).setBackground('#1e3a8a').setFontColor('white').setFontWeight('bold');
+ 
+  let q = ss.getSheetByName('Approval_Queue');
+  if (!q) q = ss.insertSheet('Approval_Queue');
+  q.getRange("A1:G1").setValues([['Timestamp', 'Member ID', 'Name', 'Phone', 'Year', 'Month', 'Status']]).setBackground('#b91c1c').setFontColor('white').setFontWeight('bold');
+
+
+
+
+  // ഗൂഗിൾ ഷീറ്റിൽ Settings ഷീറ്റ് തയ്യാറാക്കുന്നു
+  let settings = ss.getSheetByName('Settings');
+  if (!settings) {
+    settings = ss.insertSheet('Settings');
+    settings.getRange("A1:B1").setValues([['Key', 'Value']]).setBackground('#1e3a8a').setFontColor('white').setFontWeight('bold');
+    settings.getRange("A2:B3").setValues([
+      ['UPI_ID', 'muaawina@icici'],
+      ['ADMIN_WHATSAPP', '919876543210']
+    ]);
+  }
+
+
+
+
+  // --- പുതിയ ലോഗിൻ ട്രാക്കിംഗ് ഷീറ്റ് ഉണ്ടാക്കുന്നു ---
+  let logs = ss.getSheetByName('Login_Logs');
+  if (!logs) {
+    logs = ss.insertSheet('Login_Logs');
+    logs.getRange("A1:D1").setValues([['Phone', 'Name', 'Last Login', 'Total Logins']]).setBackground('#10b981').setFontColor('white').setFontWeight('bold');
+  }
+ 
+  const props = PropertiesService.getDocumentProperties();
+  if(!props.getProperty('START_DATE')) {
+    props.setProperty('ADMIN_PASS', '1234');
+    props.setProperty('MONTHLY_FEE', '50');
+    props.setProperty('START_DATE', '01/01/2021');
+  }
+
+
+
+
+  SpreadsheetApp.getUi().alert('✅ സിസ്റ്റം തയ്യാറായി! ഗൂഗിൾ ഷീറ്റിലെ "Settings" ഷീറ്റിൽ പോയി UPI, WhatsApp എന്നിവ മാറ്റാം.');
+}
+
+
+
+
+function cleanPhone(p) {
+  if(!p) return "";
+  return String(p).replace(/\D/g, '').slice(-10);
+}
+
+
+
+
+function parseHeaderDate(header, defaultYear) {
+  if (!header) return null;
+  const str = String(header).trim().toLowerCase();
+  const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+  let mIdx = -1;
+  for(let i=0; i<12; i++) {
+      if(str.startsWith(monthNames[i])) { mIdx = i; break; }
+  }
+  if(mIdx === -1) return null;
+
+
+
+
+  let year = defaultYear;
+  let yearMatch = str.match(/\d{2,4}$/);
+  if (yearMatch) {
+      let y = parseInt(yearMatch[0]);
+      year = (y < 100) ? 2000 + y : y;
+  }
+  return { monthIdx: mIdx, year: String(year), monthName: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][mIdx] };
+}
+
+
+
+
+function parseSafeDate(dateVal, fallbackDateStr) {
+  if (dateVal instanceof Date) return dateVal;
+  if (dateVal) {
+    let d = new Date(dateVal);
+    if (!isNaN(d.getTime())) return d;
+  }
+  if (fallbackDateStr) {
+    let parts = fallbackDateStr.split('/');
+    if (parts.length === 3) {
+      let fDate = new Date(parts[2], parts[1] - 1, parts[0]);
+      if (!isNaN(fDate.getTime())) return fDate;
+    }
+  }
+  return new Date(2020, 0, 1);
+}
+
+
+
+
+function checkPendingApprovals() {
+  try {
+    const ss = getSS();
+    const qSheet = ss.getSheetByName('Approval_Queue');
+    if (!qSheet || qSheet.getLastRow() < 2) return false;
+    const data = qSheet.getRange(2, 7, qSheet.getLastRow() - 1, 1).getValues();
+    return data.some(row => row[0] === 'Processing');
+  } catch(e) { return false; }
+}
+
+
+
+
+// IN-MEMORY FAST MEMBER DATA
+function getMemberData(userPhone) {
+  try {
+    const ss = getSS();
+    const config = getAppSettings();
+    const globalFee = Number(config.MONTHLY_FEE) || 50;
+    const globalStartDateStr = config.START_DATE;
+
+
+
+
+    const allSheets = ss.getSheets();
+    let dbData = null, qData = null, trackingSheetsData = [];
+
+
+
+
+    allSheets.forEach(sheet => {
+      let name = sheet.getName();
+      if (name === 'Member_Database') {
+        dbData = sheet.getDataRange().getValues();
+      } else if (name === 'Approval_Queue') {
+        qData = sheet.getDataRange().getValues();
+      } else if (/^\d{4}$/.test(name) || name.toLowerCase().includes('payment')) {
+        let yearVal = name === 'Payment_Tracker' ? new Date().getFullYear().toString() : name;
+        trackingSheetsData.push({ year: yearVal, data: sheet.getDataRange().getValues() });
+      }
+    });
+
+
+
+
+    if (!dbData) return { error: "Member_Database ഷീറ്റ് കാണുന്നില്ല." };
+
+
+
+
+    let memberDataRow = null;
+    let memberId = "";
+    const searchPhone = cleanPhone(userPhone);
+
+
+
+
+    for (let i = 1; i < dbData.length; i++) {
+      if (cleanPhone(dbData[i][2]) === searchPhone) {
+        memberDataRow = dbData[i];
+        memberId = String(dbData[i][0]).trim();
+        break;
+      }
+    }
+
+
+
+
+    if (!memberDataRow) return { error: "ഈ ഫോൺ നമ്പർ ലിസ്റ്റിൽ ഇല്ല." };
+
+
+
+
+    // --- ലോഗിൻ ട്രാക്കിംഗ് (Login Log Update) ---
+    try {
+      let logSheet = ss.getSheetByName('Login_Logs');
+      if (logSheet) {
+        let logData = logSheet.getDataRange().getValues();
+        let found = false;
+        for (let i = 1; i < logData.length; i++) {
+          if (String(logData[i][0]).trim() === String(searchPhone)) {
+            // നിലവിലുള്ള ആളാണെങ്കിൽ തീയതിയും എണ്ണവും അപ്ഡേറ്റ് ചെയ്യുന്നു
+            logSheet.getRange(i + 1, 3).setValue(new Date());
+            logSheet.getRange(i + 1, 4).setValue(Number(logData[i][3] || 0) + 1);
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          // പുതിയ ആളാണെങ്കിൽ ഷീറ്റിലേക്ക് ചേർക്കുന്നു
+          logSheet.appendRow([searchPhone, memberDataRow[1], new Date(), 1]);
+        }
+      }
+    } catch(err) {}
+    // ----------------------------------------------
+
+
+
+
+    let mFee = Number(memberDataRow[7]) || globalFee;
+    let mJoinDate = parseSafeDate(memberDataRow[4], globalStartDateStr);
+    let joinLimit = new Date(mJoinDate.getFullYear(), mJoinDate.getMonth(), 1);
+
+
+
+
+    let processingMonths = [];
+    let rejectedMonths = []; // റിജക്റ്റ് ആയവ കണ്ടുപിടിക്കാൻ
+    if (qData && qData.length > 1) {
+      for (let i = 1; i < qData.length; i++) {
+        if (String(qData[i][1]).trim() === memberId) {
+          if (qData[i][6] === "Processing") processingMonths.push(`${qData[i][5]}-${qData[i][4]}`);
+          else if (qData[i][6] === "Rejected") rejectedMonths.push(`${qData[i][5]}-${qData[i][4]}`);
+        }
+      }
+    }
+
+
+    let history = [];
+    let totalPaid = 0, balance = 0;
+    const monthDisplay = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+
+    trackingSheetsData.forEach(sheetObj => {
+      const data = sheetObj.data;
+      if (data.length < 1) return;
+      const headers = data[0];
+      const memberRow = data.find(row => String(row[0]).trim() === memberId);
+     
+      if (memberRow) {
+        for (let i = 2; i < headers.length; i++) {
+          let parsed = parseHeaderDate(headers[i], sheetObj.year);
+          if (!parsed) continue;
+
+
+          let currentMonthDate = new Date(parseInt(parsed.year), parsed.monthIdx, 1);
+          if (currentMonthDate >= joinLimit) {
+            let val = memberRow[i];
+            let isPaid = (val === true || String(val).toUpperCase() === "TRUE" || Number(val) > 0);
+            let status = isPaid ? "Paid" : (processingMonths.includes(`${parsed.monthName}-${parsed.year}`) ? "Processing" : "Pending");
+            let isRejected = (!isPaid && rejectedMonths.includes(`${parsed.monthName}-${parsed.year}`)); // ഇത് റിജക്റ്റ് ആണോ എന്ന് നോക്കുന്നു
+           
+            if (isPaid) totalPaid += mFee;
+            else balance += mFee;
+
+
+            // isRejected എന്ന പുതിയ പ്രോപ്പർട്ടി കൂടി ചേർക്കുന്നു
+            history.push({ year: parsed.year, month: parsed.monthName, status: status, amount: mFee, isRejected: isRejected });
+          }
+        }
+      }
+    });
+
+
+
+
+    return {
+      id: memberId, name: memberDataRow[1], phone: userPhone, fee: mFee,
+      totalPaid: totalPaid, balance: balance, totalExpected: (totalPaid + balance), history: history,
+      config: config
+    };
+  } catch (e) { return { error: "Server Error: " + e.message }; }
+}
+
+
+
+
+function submitSinglePaymentRequest(memberId, name, phone, year, month) {
+  try {
+    const ss = getSS();
+    let qSheet = ss.getSheetByName('Approval_Queue') || ss.insertSheet('Approval_Queue');
+    qSheet.appendRow([new Date(), memberId, name, phone, year, month, 'Processing']);
+    return { success: true };
+  } catch(e) { return { error: e.message }; }
+}
+
+
+
+
+function submitBulkPaymentRequest(memberId, name, phone, requests) {
+  try {
+    const ss = getSS();
+    let qSheet = ss.getSheetByName('Approval_Queue') || ss.insertSheet('Approval_Queue');
+    requests.forEach(req => {
+      qSheet.appendRow([new Date(), memberId, name, phone, req.year, req.month, 'Processing']);
+    });
+    return { success: true };
+  } catch(e) { return { error: e.message }; }
+}
+
+
+
+
+function processAdminBulkAction(actionType) {
+  try {
+    const ss = getSS();
+    const qSheet = ss.getSheetByName('Approval_Queue');
+    if(!qSheet || qSheet.getLastRow() < 2) return { success: true };
+
+
+
+
+    const trackingSheets = ss.getSheets().filter(s => /^\d{4}$/.test(s.getName()) || s.getName().toLowerCase().includes('payment'));
+    const data = qSheet.getDataRange().getValues();
+   
+    for(let i = 1; i < data.length; i++) {
+      if(data[i][6] === 'Processing') {
+        qSheet.getRange(i + 1, 7).setValue(actionType);
+       
+        if(actionType === 'Approved') {
+          const qYear = String(data[i][4]);
+          const qMonth = String(data[i][5]);
+          const memberId = String(data[i][1]).trim();
+         
+          for(let sheet of trackingSheets) {
+            let sName = sheet.getName();
+            let checkYear = sName === 'Payment_Tracker' ? new Date().getFullYear().toString() : sName;
+            if (checkYear !== qYear) continue;
+
+
+
+
+            const sheetData = sheet.getDataRange().getValues();
+            if(sheetData.length < 1) continue;
+           
+            const rIdx = sheetData.findIndex(r => String(r[0]).trim() === memberId);
+            if(rIdx === -1) continue;
+           
+            const mStr = qMonth.toLowerCase().substring(0, 3);
+            const cIdx = sheetData[0].findIndex(c => String(c).trim().toLowerCase().startsWith(mStr));
+           
+            if(cIdx > -1) {
+              sheet.getRange(rIdx + 1, cIdx + 1).setValue(true);
+            }
+          }
+        }
+      }
+    }
+    return { success: true };
+  } catch(e) { return { error: e.message }; }
+}
+
+
+
+
+// IN-MEMORY FAST ADMIN DATA
+function getAdminData() {
+  try {
+    const ss = getSS();
+    const config = getAppSettings();
+    const globalFee = Number(config.MONTHLY_FEE) || 50;
+    const globalStartDate = parseSafeDate(config.START_DATE, new Date(2020, 0, 1));
+
+
+
+
+    // അഡ്മിൻ പാനലിലേക്ക് ലോഗിൻ വിവരങ്ങൾ ശേഖരിക്കുന്നു
+    let loginDataMap = {};
+    try {
+      let logSheet = ss.getSheetByName('Login_Logs');
+      if (logSheet) {
+        let logData = logSheet.getDataRange().getValues();
+        for (let i = 1; i < logData.length; i++) {
+          loginDataMap[String(logData[i][0]).trim()] = {
+            lastLogin: logData[i][2],
+            count: Number(logData[i][3]) || 0
+          };
+        }
+      }
+    } catch(e) {}
+
+
+
+
+    const allSheets = ss.getSheets();
+    let dbData = null, qData = null, trackingSheetsData = [];
+
+
+
+
+    allSheets.forEach(sheet => {
+      let name = sheet.getName();
+      if (name === 'Member_Database') {
+        dbData = sheet.getDataRange().getValues();
+      } else if (name === 'Approval_Queue') {
+        qData = sheet.getDataRange().getValues();
+      } else if (/^\d{4}$/.test(name) || name.toLowerCase().includes('payment')) {
+        let yearVal = name === 'Payment_Tracker' ? new Date().getFullYear().toString() : name;
+        trackingSheetsData.push({ year: yearVal, data: sheet.getDataRange().getValues() });
+      }
+    });
+   
+    if(!dbData) return { error: "Member_Database ഷീറ്റ് കാണുന്നില്ല. സിസ്റ്റം ആദ്യം സെറ്റപ്പ് ചെയ്യുക." };
+   
+    let membersObj = {};
+    for (let i = 1; i < dbData.length; i++) {
+      let id = String(dbData[i][0]).trim();
+      if (id) {
+        let mFee = Number(dbData[i][7]) || globalFee;
+        let mJoinDate = parseSafeDate(dbData[i][4], config.START_DATE);
+        membersObj[id] = {
+          name: dbData[i][1] || 'Unknown',
+          phone: cleanPhone(dbData[i][2]),
+          batch: dbData[i][3] || 'All',
+          fee: mFee,
+          joinLimit: new Date(mJoinDate.getFullYear(), mJoinDate.getMonth(), 1),
+          paid: 0,
+          balance: 0,
+          pending: []
+        };
+      }
+    }
+
+
+
+
+    const monthDisplay = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+
+
+
+    trackingSheetsData.forEach(sheetObj => {
+      const tData = sheetObj.data;
+      if(tData.length < 1) return;
+     
+      const headers = tData[0];
+      for(let r = 1; r < tData.length; r++) {
+        let mId = String(tData[r][0]).trim();
+        if(!membersObj[mId]) continue;
+
+
+
+
+        for(let c = 2; c < headers.length; c++) {
+          let parsed = parseHeaderDate(headers[c], parseInt(sheetObj.year));
+          if(!parsed) continue;
+
+
+
+
+          let currentMonthDate = new Date(parseInt(parsed.year), parsed.monthIdx, 1);
+          if (currentMonthDate >= membersObj[mId].joinLimit) {
+             let val = tData[r][c];
+             let isPaid = (val === true || String(val).toUpperCase() === "TRUE" || Number(val) > 0);
+
+
+
+
+             if (isPaid) {
+               membersObj[mId].paid += membersObj[mId].fee;
+             } else {
+               membersObj[mId].balance += membersObj[mId].fee;
+               membersObj[mId].pending.push(`${monthDisplay[parsed.monthIdx]} ${parsed.year}`);
+             }
+          }
+        }
+      }
+    });
+
+
+
+
+    let adminMembers = [];
+    let grandTotal = 0, grandPending = 0;
+   
+    for (let id in membersObj) {
+      grandTotal += membersObj[id].paid;
+      grandPending += membersObj[id].balance;
+     
+      // ലോഗിൻ ഡാറ്റ ഇതിലേക്ക് ആഡ് ചെയ്യുന്നു
+      let searchPh = String(membersObj[id].phone).trim();
+      let logInfo = loginDataMap[searchPh] || { lastLogin: "ലോഗിൻ ചെയ്തിട്ടില്ല", count: 0 };
+      let lastLogStr = (logInfo.lastLogin instanceof Date) ? Utilities.formatDate(logInfo.lastLogin, Session.getScriptTimeZone(), "dd MMM yyyy, hh:mm a") : logInfo.lastLogin;
+
+
+
+
+      adminMembers.push({
+        id: id,
+        name: membersObj[id].name,
+        phone: membersObj[id].phone,
+        batch: membersObj[id].batch,
+        totalPaid: membersObj[id].paid,
+        balance: membersObj[id].balance,
+        pendingList: membersObj[id].pending,
+        loginCount: logInfo.count,     // പുതിയത്
+        lastLogin: lastLogStr          // പുതിയത്
+      });
+    }
+
+
+
+
+    let approvals = [];
+    if (qData && qData.length > 1) {
+      for(let i = 1; i < qData.length; i++) {
+        if(qData[i][6] === "Processing") {
+          let reqId = String(qData[i][1]).trim();
+          let dtObj = qData[i][0];
+          let dateStr = (dtObj instanceof Date) ? Utilities.formatDate(dtObj, Session.getScriptTimeZone(), "dd MMM, hh:mm a") : "N/A";
+         
+          approvals.push({
+            rowIdx: i + 1,
+            date: dateStr,
+            memberId: reqId,
+            name: qData[i][2],
+            batch: membersObj[reqId] ? membersObj[reqId].batch : '...',
+            year: qData[i][4],
+            month: qData[i][5]
+          });
+        }
+      }
+    }
+
+
+
+
+    return { totalCollected: grandTotal, totalPending: grandPending, members: adminMembers, approvals: approvals, config: config };
+  } catch(e) {
+    return { error: "അഡ്മിൻ ഡാറ്റ ലഭ്യമാക്കുന്നതിൽ പിഴവ്: " + e.message };
+  }
+}
+
+
+
+
+// ഒരാളുടെ അപേക്ഷ മാത്രം അപ്രൂവ് ചെയ്യാനുള്ള ഫംഗ്ഷൻ
+function approvePayment(rowIdx, memberId, year, month) {
+  try {
+    const ss = getSS();
+    const qSheet = ss.getSheetByName('Approval_Queue');
+    if(!qSheet) return { error: "Approval_Queue sheet not found." };
+
+
+    // 1. ക്യൂവിൽ ആ വ്യക്തിയുടെ അപേക്ഷ മാത്രം 'Approved' എന്ന് മാറ്റുന്നു
+    qSheet.getRange(rowIdx, 7).setValue('Approved');
+
+
+    // 2. ട്രാക്കിംഗ് ഷീറ്റിൽ ആ മാസത്തിൽ ടിക്ക് (TRUE) നൽകുന്നു
+    const trackingSheets = ss.getSheets().filter(s => /^\d{4}$/.test(s.getName()) || s.getName().toLowerCase().includes('payment'));
+
+
+    for(let sheet of trackingSheets) {
+      let sName = sheet.getName();
+      let checkYear = sName === 'Payment_Tracker' ? new Date().getFullYear().toString() : sName;
+
+
+      if (checkYear !== String(year)) continue;
+
+
+      const sheetData = sheet.getDataRange().getValues();
+      if(sheetData.length < 1) continue;
+
+
+      const rIdx = sheetData.findIndex(r => String(r[0]).trim() === String(memberId).trim());
+      if(rIdx === -1) continue;
+
+
+      const mStr = String(month).toLowerCase().substring(0, 3);
+      const cIdx = sheetData[0].findIndex(c => String(c).trim().toLowerCase().startsWith(mStr));
+
+
+      if(cIdx > -1) {
+        sheet.getRange(rIdx + 1, cIdx + 1).setValue(true);
+        break; // കണ്ടെത്തി അപ്ഡേറ്റ് ചെയ്താൽ പിന്നെ ലൂപ്പ് നിർത്തുന്നു
+      }
+    }
+    return { success: true };
+  } catch(e) {
+    return { error: e.message };
+  }
+}
+
+
+
+
+function rejectPayment(rowIdx) {
+  const qSheet = getSS().getSheetByName('Approval_Queue');
+  if(qSheet) qSheet.getRange(rowIdx, 7).setValue('Rejected');
+  return { success: true };
+}
+
+
+// കുടിശ്ശികക്കാർക്ക് ഇമെയിൽ അയക്കാനുള്ള ഫംഗ്ഷൻ
+function sendDefaulterEmails(phonesList, monthStr) {
+  try {
+    const ss = getSS();
+    const dbSheet = ss.getSheetByName('Member_Database');
+    const data = dbSheet.getDataRange().getValues();
+
+
+    let sentCount = 0;
+   
+    // ഡാറ്റാബേസിൽ വരികൾ പരിശോധിച്ച് ഇമെയിൽ അയക്കുന്നു
+    for(let i = 1; i < data.length; i++) {
+      let phone = cleanPhone(data[i][2]);
+      let email = String(data[i][6]).trim(); // ഡാറ്റാബേസിലെ 7-ാമത്തെ കോളം (Email)
+      let name = data[i][1];
+
+
+      // ഫോൺ നമ്പർ കുടിശ്ശികക്കാരുടെ ലിസ്റ്റിൽ ഉണ്ടെന്നും ഇമെയിൽ ഉണ്ടെന്നും ഉറപ്പാക്കുന്നു
+      if(phonesList.includes(phone) && email && email.includes('@')) {
+        let subject = "MUAAWINA - വരിസംഖ്യ റിമൈൻഡർ";
+        let body = `السلام عليكم ${name},\n\nനിങ്ങളുടെ MUAAWINA വരിസംഖ്യയിൽ ${monthStr} മാസത്തെ തുക അടക്കാൻ ബാക്കിയുണ്ട്. ദയവായി എത്രയും വേഗം അടക്കാൻ ശ്രദ്ധിക്കുക.\n\nനന്ദി,\nMUAAWINA Admin.`;
+       
+        // ഇമെയിൽ അയക്കുന്നു
+        MailApp.sendEmail(email, subject, body);
+        sentCount++;
+      }
+    }
+   
+    return { success: true, count: sentCount };
+  } catch(e) {
+    return { error: "ഇമെയിൽ അയക്കുന്നതിൽ പിഴവ്: " + e.message };
+  }
+}
+
+// --- പുതിയ ആപ്പിന് ഡാറ്റ കൈമാറാനുള്ള API (പാലം) ---
+function doPost(e) {
+  var output = ContentService.createTextOutput();
+  output.setMimeType(ContentService.MimeType.JSON);
+  try {
+    var req = JSON.parse(e.postData.contents);
+    var action = req.action;
+    var data = req.data || {};
+    var result = {};
+
+    if (action === 'checkPendingApprovals') { result = checkPendingApprovals(); }
+    else if (action === 'getMemberData') { result = getMemberData(data.phone); }
+    else if (action === 'getAppSettings') { result = getAppSettings(); }
+    else if (action === 'getAdminData') { result = getAdminData(); }
+    else if (action === 'submitSinglePaymentRequest') { result = submitSinglePaymentRequest(data.id, data.name, data.phone, data.year, data.month); }
+    else if (action === 'submitBulkPaymentRequest') { result = submitBulkPaymentRequest(data.id, data.name, data.phone, data.targetData); }
+    else if (action === 'approvePayment') { result = approvePayment(data.r, data.id, data.y, data.m); }
+    else if (action === 'rejectPayment') { result = rejectPayment(data.r); }
+    else if (action === 'processAdminBulkAction') { result = processAdminBulkAction(data.type); }
+    else if (action === 'sendDefaulterEmails') { result = sendDefaulterEmails(data.phones, data.monthStr); }
+    else if (action === 'sendPushNotification') { result = sendPushNotification(data.title, data.message); }
+    else { result = {error: "Unknown Action"}; }
+
+    output.setContent(JSON.stringify(result));
+  } catch(err) {
+    output.setContent(JSON.stringify({error: "API Error: " + err.message}));
+  }
+  return output;
+}
+
+// --- എല്ലാവർക്കും നോട്ടിഫിക്കേഷൻ അയക്കാനുള്ള ഫംഗ്ഷൻ ---
+function sendPushNotification(title, message) {
+  var ONESIGNAL_APP_ID = "d5a80102-b162-4a4f-9877-a0d48b307e50"; 
+  var REST_API_KEY = "os_v2_app_2wuacavrmjfe7gdxudkiwmd6kahuv2hsoccepnvtaktghk7h66h7i2y2nxom2yh3bxxfpsdaecpg3y7u3qg46jdbbud4x4yv74eff7q"; // ഇവിടെ താങ്കളുടെ REST API Key നൽകുക
+  
+ var payload = {
+    "app_id": ONESIGNAL_APP_ID,
+    "included_segments": ["All"],
+    "headings": {"en": title},
+    "contents": {"en": message},
+    "url": "https://safwansafu123.github.io/muaawina-tracker/"
+  };
+  var options = {
+    "method": "post",
+    "contentType": "application/json",
+    "headers": {"Authorization": "Basic " + REST_API_KEY},
+    "payload": JSON.stringify(payload),
+    "muteHttpExceptions": true
+  };
+  try {
+    var response = UrlFetchApp.fetch("https://onesignal.com/api/v1/notifications", options);
+    var json = JSON.parse(response.getContentText());
+    if (json.errors) { return {error: "OneSignal Error: " + JSON.stringify(json.errors)}; }
+    return {success: true};
+  } catch(e) { return {error: "Google API Error: " + e.message}; }
+}
