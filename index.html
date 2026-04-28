@@ -27,16 +27,36 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-   <style>
+ <style>
     @import url('https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&display=swap');
-    body { font-family: 'Manjari', sans-serif; background-color: #f8fafc; margin: 0; }
     
-    /* പുതിയ നീല ഗ്രാഡിയന്റ് പശ്ചാത്തലം */
+    /* സ്ക്രോളിംഗ് പൂർണ്ണമായും ഒഴിവാക്കാൻ */
+    html, body { 
+        height: 100%; 
+        overflow: hidden; 
+        margin: 0; 
+        font-family: 'Manjari', sans-serif; 
+    }
+    
     .login-wrapper { 
-        min-height: 100vh; 
+        height: 100vh; 
+        width: 100%;
         background: linear-gradient(180deg, #1e3a8a 0%, #3b82f6 100%); 
         display: flex; 
         flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* പശ്ചാത്തലത്തിലെ ഡിസൈൻ പാറ്റേൺ */
+    .login-wrapper::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        /* ഒരു ഇസ്ലാമിക് പാറ്റേൺ ഡിസൈൻ ഇവിടെ ചേർക്കുന്നു */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M0 0h80v80H0z'/%3E%3Cpath d='M40 0l40 40-40 40L0 40z'/%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.6;
+        pointer-events: none;
     }
 
     .login-header {
@@ -45,44 +65,37 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 40px 20px;
         color: white;
+        z-index: 1;
+        padding-top: 20px;
     }
 
-    /* വെള്ള നിറത്തിലുള്ള ലോഗിൻ കാർഡ് */
     .login-card { 
         background: white; 
         border-radius: 40px 40px 0 0; 
-        padding: 40px 30px; 
-        box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
+        padding: 35px 30px 40px 30px; 
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
         width: 100%;
         max-width: 450px;
         margin: 0 auto;
+        z-index: 2;
+        box-sizing: border-box;
     }
 
-    .input-group {
-        position: relative;
-        margin-bottom: 20px;
-    }
-
-    .input-group i {
-        position: absolute;
-        left: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #94a3b8;
-    }
+    .input-group { position: relative; margin-bottom: 15px; }
+    .input-group i { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
 
     .input-field {
         width: 100%;
-        padding: 18px 20px 18px 50px;
+        padding: 16px 20px 16px 50px;
         background: #f8fafc;
         border: 2px solid #f1f5f9;
-        border-radius: 20px;
+        border-radius: 18px;
         outline: none;
         font-size: 16px;
         font-weight: bold;
         transition: all 0.3s;
+        box-sizing: border-box;
     }
 
     .input-field:focus { border-color: #3b82f6; background: white; }
@@ -91,20 +104,17 @@
         width: 100%;
         background: #2563eb;
         color: white;
-        padding: 18px;
-        border-radius: 20px;
-        font-weight: black;
+        padding: 16px;
+        border-radius: 18px;
+        font-weight: 900;
         font-size: 16px;
         text-transform: uppercase;
         letter-spacing: 1px;
-        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
         border: none;
+        box-shadow: 0 8px 15px rgba(37, 99, 235, 0.2);
         cursor: pointer;
-        transition: all 0.3s;
     }
 
-    .primary-btn:active { transform: scale(0.98); }
-    
     .fade-in { animation: fadeIn 0.6s ease-out forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
@@ -112,11 +122,11 @@
 <body class="min-h-screen text-slate-800 pb-10">
     <div class="max-w-md mx-auto" id="mainApp">
        
-   <div id="loginPage" class="login-wrapper">
+  <div id="loginPage" class="login-wrapper">
     <div class="login-header fade-in">
-        <img src="logo_white.png" class="w-32 h-32 mb-6 object-contain" alt="MUAAWINA Logo">
-        <h2 class="text-3xl font-black tracking-[0.15em] leading-none">MUAAWINA</h2>
-        <p class="text-blue-100 font-bold mt-3 opacity-80 uppercase tracking-widest">വരിസംഖ്യ ട്രാക്കർ</p>
+        <img src="logo_white.png" class="w-28 h-28 mb-4 object-contain shadow-2xl" alt="Logo">
+        <h2 class="text-2xl font-black tracking-[0.2em] leading-none">MUAAWINA</h2>
+        <p class="text-[11px] font-bold mt-3 opacity-70 uppercase tracking-[0.3em]">വരിസംഖ്യ ട്രാക്കർ</p>
     </div>
 
     <div class="login-card fade-in">
@@ -127,16 +137,16 @@
                    class="input-field">
         </div>
         
-        <div id="loginError" class="hidden error-box mb-4"></div>
+        <div id="loginError" class="hidden error-box mb-3"></div>
 
-        <button onclick="fetchMemberDetails()" class="primary-btn mb-8">തുടരുക</button>
+        <button onclick="fetchMemberDetails()" class="primary-btn mb-6">തുടരുക</button>
 
-        <div class="border-t border-slate-100 pt-6 space-y-4">
-            <button onclick="enableCustomNotifications()" class="w-full py-4 bg-slate-50 text-slate-500 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-3">
+        <div class="space-y-4">
+            <button onclick="enableCustomNotifications()" class="w-full py-3.5 bg-slate-50 text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 border border-slate-100">
                 <i class="fas fa-bell text-amber-500"></i> നോട്ടിഫിക്കേഷൻ ഓൺ ചെയ്യുക
             </button>
 
-            <button onclick="showAdminModal()" class="w-full text-blue-600 text-[12px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+            <button onclick="showAdminModal()" class="w-full text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 py-2">
                 <i class="fas fa-user-shield"></i> അഡ്മിൻ ലോഗിൻ
             </button>
         </div>
