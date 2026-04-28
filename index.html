@@ -436,49 +436,87 @@
                 return { error: "Server connection failed!" };
             }
         }
-
         window.onload = function() {
             callAPI('checkPendingApprovals').then(hasPending => {
                 const badge = document.getElementById('loginNotify');
                 if (hasPending && badge) badge.classList.remove('hidden');
             });
+
+            // Auto-login പരിശോധിക്കുന്നു
+            const savedPhone = localStorage.getItem('muaawina_phone');
+            const savedMid = localStorage.getItem('muaawina_mid');
+            if (savedPhone && savedMid) {
+                const pInput = document.getElementById('phoneInput');
+                const mInput = document.getElementById('midInput');
+                if (pInput) pInput.value = savedPhone;
+                if (mInput) mInput.value = savedMid;
+                fetchMemberDetails(true); // ആപ്പ് തുറക്കുമ്പോൾ തന്നെ ലോഗിൻ ചെയ്യാൻ ശ്രമിക്കുന്നു
+            }
         };
 
         function showLoader(s) {
             const loader = document.getElementById('loader');
             if (loader) { if(s) loader.classList.remove('hidden'); else loader.classList.add('hidden'); }
         }
-       
-        function goHome() {
+       function goHome() {
             document.getElementById('memberPage')?.classList.add('hidden');
             document.getElementById('adminPage')?.classList.add('hidden');
+            
             const pInput = document.getElementById('phoneInput');
+            const mInput = document.getElementById('midInput');
             if (pInput) pInput.value = '';
+            if (mInput) mInput.value = ''; 
+            
             document.getElementById('loginError')?.classList.add('hidden');
             document.getElementById('loginPage')?.classList.remove('hidden');
+            
+            toggleScroll(true);
+            
+            // ലോഗൗട്ട് ചെയ്യുമ്പോൾ ഫോണിൽ സേവ് ചെയ്ത ലോഗിൻ വിവരങ്ങൾ ഡിലീറ്റ് ചെയ്യുന്നു
+            localStorage.removeItem('muaawina_phone');
+            localStorage.removeItem('muaawina_mid');
+            
             currentMember = null; fullHistory = []; pendingMonthsList = []; upcomingMonthsList = []; lastMonthDataGlobal = null;
         }
+       
 
-       function fetchMemberDetails() {
+     function fetchMemberDetails(isAutoLogin = false) {
             const errBox = document.getElementById('loginError');
             if (errBox) { errBox.innerText = ''; errBox.classList.add('hidden'); }
 
             const pInput = document.getElementById('phoneInput');
+            const mInput = document.getElementById('midInput'); // MID ബോക്സ്
             const p = pInput ? pInput.value : '';
+            const m = mInput ? mInput.value.trim().toUpperCase() : '';
+
             if(!p || p.length < 10) {
                 if (errBox) { errBox.innerText = 'സാധുവായ ഫോൺ നമ്പർ നൽകുക!'; errBox.classList.remove('hidden'); }
+                return;
+            }
+            if(!m) {
+                if (errBox) { errBox.innerText = 'ദയവായി MID നൽകുക!'; errBox.classList.remove('hidden'); }
                 return;
             }
             
             showLoader(true);
             
-            callAPI('getMemberData', { phone: p }).then(d => {
+            // ഫോൺ നമ്പറും MID-യും ഒരുമിച്ച് ഡാറ്റാബേസിലേക്ക് അയക്കുന്നു
+            callAPI('getMemberData', { phone: p, mid: m }).then(d => {
                 showLoader(false);
                 if(d.error) {
                     if (errBox) { errBox.innerText = d.error; errBox.classList.remove('hidden'); }
+                    // ലോഗിൻ പരാജയപ്പെട്ടാൽ സേവ് ചെയ്ത വിവരങ്ങൾ കളയുന്നു
+                    if(isAutoLogin) {
+                        localStorage.removeItem('muaawina_phone');
+                        localStorage.removeItem('muaawina_mid');
+                    }
                     return;
                 }
                 try {
+                    // ലോഗിൻ വിജയകരമായാൽ ഫോണിൽ സേവ് ചെയ്യുന്നു (എപ്പോഴും ലോഗിൻ ആയി കിടക്കാൻ)
+                    localStorage.setItem('muaawina_phone', p);
+                    localStorage.setItem('muaawina_mid', m);
+
                     if(d.config) APP_CONFIG = d.config;
                     currentMember = d;
                     
@@ -506,25 +544,27 @@
                     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
                     let advancePaid = 0; let pendingCount = 0;
                     
-                    fullHistory = (d.history || []).map(m => {
-                        let mIdx = monthNames.indexOf(m.month);
-                        let mYear = parseInt(m.year);
+                    fullHistory = (d.history || []).map(hist => {
+                        let mIdx = monthNames.indexOf(hist.month);
+                        let mYear = parseInt(hist.year);
                         let isFuture = mYear > globalAppYear || (mYear === globalAppYear && mIdx > globalAppMonth);
 
                         if (isFuture) {
-                            if (m.status === 'Pending') m.status = 'Upcoming';
-                            else if (m.status === 'Paid') advancePaid += currentMember.fee;
+                            if (hist.status === 'Pending') hist.status = 'Upcoming';
+                            else if (hist.status === 'Paid') advancePaid += currentMember.fee;
                         } else {
-                            if (m.status === 'Pending') pendingCount++;
+                            if (hist.status === 'Pending') pendingCount++;
                         }
-                        m.monthIdx = mIdx; return m;
+                        hist.monthIdx = mIdx; return hist;
                     });
 
-                    pendingMonthsList = fullHistory.filter(m => m.status === 'Pending');
-                    upcomingMonthsList = fullHistory.filter(m => m.status === 'Upcoming');
+                    pendingMonthsList = fullHistory.filter(hist => hist.status === 'Pending');
+                    upcomingMonthsList = fullHistory.filter(hist => hist.status === 'Upcoming');
                     
                     document.getElementById('loginPage')?.classList.add('hidden');
                     document.getElementById('memberPage')?.classList.remove('hidden');
+                    
+                    toggleScroll(false);
                     
                     const mName = document.getElementById('mName');
                     const mTotalExpected = document.getElementById('mTotalExpected');
