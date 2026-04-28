@@ -112,38 +112,38 @@
     </div>
 </div>
 
-    <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-6 rounded-b-[40px] shadow-xl text-white mb-6 relative overflow-hidden fade-in">
+            <div class="gradient-bg p-6 rounded-[28px] text-white shadow-xl mb-6 relative overflow-hidden">
+                
     <div class="flex justify-between items-start mb-6">
-        <div>
-            <div class="text-[10px] font-bold uppercase opacity-60 mb-1">MUAAWINA</div>
-            <h2 id="userName" class="text-2xl font-black tracking-tight">...</h2>
-        </div>
-        
-        <button onclick="goHome()" class="bg-white/20 w-10 h-10 flex items-center justify-center rounded-xl border border-white/20 shadow-sm active:scale-90 transition-all text-white">
-            <i class="fas fa-right-from-bracket text-[14px]"></i>
+    <div class="pr-2">
+        <p class="text-blue-100 text-[10px] font-black uppercase tracking-widest opacity-80">MUAAWINA</p>
+        <h2 id="mName" class="text-xl font-black leading-tight mt-1 uppercase tracking-tight break-words">...</h2>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+        <button onclick="goHome()" class="bg-white/15 w-10 h-10 flex items-center justify-center rounded-xl border border-white/20 shadow-sm active:scale-90 transition-all">
+            <i class="fas fa-home text-[14px]"></i>
         </button>
     </div>
+</div>
+                <div class="grid grid-cols-3 gap-2 text-center relative">
+                    <div class="bg-white/10 p-4 rounded-2xl border border-white/5 backdrop-blur-md shadow-inner"><p class="text-[9px] uppercase font-black opacity-70">ആകെ</p><p id="mTotalExpected" class="text-lg font-black mt-1 leading-none">₹0</p></div>
+                    <div class="bg-white/10 p-4 rounded-2xl border border-white/5 backdrop-blur-md shadow-inner"><p class="text-[9px] uppercase font-black opacity-70 text-emerald-300">അടച്ചത്</p><p id="mPaid" class="text-lg font-black mt-1 leading-none text-emerald-200">₹0</p></div>
+                    <div class="bg-white/10 p-4 rounded-2xl border border-white/5 backdrop-blur-md shadow-inner relative">
+                        <p class="text-[9px] uppercase font-black opacity-70 text-yellow-200">ബാക്കി</p>
+                        <p id="mBalance" class="text-lg font-black mt-1 leading-none text-yellow-300">₹0</p>
+                        <span id="mAdvance" class="hidden absolute -top-2 -right-2 bg-emerald-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold shadow-md">+₹0</span>
+                    </div>
+                </div>
+            </div>
+<div class="flex justify-between mb-4 mt-2 px-1 fade-in">
+                <button onclick="contactAdmin()" class="bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all border border-emerald-100 shadow-sm hover:bg-emerald-100">
+                    <i class="fab fa-whatsapp text-sm"></i> അഡ്മിൻ
+                </button>
 
-    <div class="grid grid-cols-3 gap-3">
-        <div class="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 flex flex-col items-center">
-            <span class="text-[9px] font-bold uppercase opacity-60 mb-1">ആകെ</span>
-            <span id="statTotal" class="text-sm font-black">₹0</span>
-        </div>
-        <div class="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 flex flex-col items-center">
-            <span class="text-[9px] font-bold uppercase opacity-60 mb-1">അടച്ചത്</span>
-            <span id="statPaid" class="text-sm font-black">₹0</span>
-        </div>
-        <div class="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 flex flex-col items-center">
-            <span class="text-[9px] font-bold uppercase opacity-60 mb-1">ബാക്കി</span>
-            <span id="statBalance" class="text-sm font-black">₹0</span>
-        </div>
-    </div>
-</div>
-<div class="flex justify-center mb-4 mt-2 px-1 fade-in">
-    <button onclick="contactAdmin()" class="bg-emerald-50 text-emerald-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all border border-emerald-100 shadow-sm hover:bg-emerald-100">
-        <i class="fab fa-whatsapp text-base"></i> അഡ്മിനുമായി ബന്ധപ്പെടുക
-    </button>
-</div>
+                <button onclick="openHistoryModal()" class="bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all border border-blue-100 shadow-sm hover:bg-blue-100">
+                    <i class="fas fa-history text-sm"></i> ഹിസ്റ്ററി
+                </button>
+            </div>
             <div id="quickPayContainer" class="hidden grid grid-cols-2 gap-3 mb-6">
                 <button onclick="openBulkPayModal()" class="bg-white text-blue-700 py-4 rounded-2xl font-black shadow-md border-2 border-blue-50 active:scale-95 flex items-center justify-center gap-2 text-[10px] uppercase transition-all shadow-blue-50/50">
                     <i class="fas fa-bolt text-yellow-500"></i> Bulk Pay
@@ -541,11 +541,6 @@
             // ഫോൺ നമ്പറും MID-യും ഒരുമിച്ച് ഡാറ്റാബേസിലേക്ക് അയക്കുന്നു
             callAPI('getMemberData', { phone: p, mid: m }).then(d => {
                 showLoader(false);
-                // ഡാറ്റാബേസിൽ നിന്ന് ലഭിക്കുന്ന വിവരങ്ങൾ പേജിലെ ഐഡികളിലേക്ക് നൽകുന്നു
-document.getElementById('userName').innerText = d.name;
-document.getElementById('statTotal').innerText = "₹" + (d.totalExpected || 0);
-document.getElementById('statPaid').innerText = "₹" + (d.totalPaid || 0);
-document.getElementById('statBalance').innerText = "₹" + (d.balance || 0);
                if(d.error) {
                     if (errBox) { errBox.innerText = d.error; errBox.classList.remove('hidden'); }
                     // ലോഗിൻ പരാജയപ്പെട്ടാൽ സേവ് ചെയ്ത വിവരങ്ങൾ കളയുന്നു
@@ -1938,8 +1933,6 @@ function enableCustomNotifications() {
             document.documentElement.style.overflow = disable ? 'hidden' : 'auto';
         }
     </script>
-       
 </body>
 </html>
-
 
