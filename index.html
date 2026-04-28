@@ -146,6 +146,9 @@
         <button onclick="fetchMemberDetails()" class="primary-btn mb-6">തുടരുക</button>
 
         <div class="space-y-4">
+            <button id="installBtn" onclick="installPWA()" class="hidden w-full py-3.5 bg-emerald-50 text-emerald-600 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 border border-emerald-100">
+    <i class="fas fa-download"></i> ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യുക
+</button>
             <button onclick="enableCustomNotifications()" class="w-full py-3.5 bg-slate-50 text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 border border-slate-100">
                 <i class="fas fa-bell text-amber-500"></i> നോട്ടിഫിക്കേഷൻ ഓൺ ചെയ്യുക
             </button>
@@ -1879,11 +1882,14 @@ function downloadReceipt(month, year, amount) {
         }  
    // --- App Install & Notification Logic ---
 let deferredPrompt;
+
+// ബ്രൗസർ ഇൻസ്റ്റാൾ ചെയ്യാൻ തയ്യാറാകുമ്പോൾ
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    const installCard = document.getElementById('appInstallCard');
-    if(installCard) installCard.classList.remove('hidden');
+    // ഐഡി കൃത്യമായി installBtn എന്ന് നൽകുന്നു
+    const installBtn = document.getElementById('installBtn');
+    if(installBtn) installBtn.classList.remove('hidden');
 });
 
 function installPWA() {
@@ -1891,7 +1897,8 @@ function installPWA() {
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then((choiceResult) => {
         if (choiceResult.outcome === 'accepted') {
-            document.getElementById('appInstallCard').classList.add('hidden');
+            const installBtn = document.getElementById('installBtn');
+            if(installBtn) installBtn.classList.add('hidden');
         }
         deferredPrompt = null;
     });
