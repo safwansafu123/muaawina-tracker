@@ -239,155 +239,104 @@ function checkPendingApprovals() {
 
 
 
-// IN-MEMORY FAST MEMBER DATA
-function getMemberData(userPhone) {
+// ഡാറ്റാബേസിൽ നിന്ന് ഫോൺ നമ്പറും MID-യും പരിശോധിക്കുന്ന ഫംഗ്ഷൻ
+function getMemberData(userPhone, inputMid) {
   try {
     const ss = getSS();
     const config = getAppSettings();
     const globalFee = Number(config.MONTHLY_FEE) || 50;
     const globalStartDateStr = config.START_DATE;
 
+    const dbSheet = ss.getSheetByName('Member_Database');
+    const qSheet = ss.getSheetByName('Approval_Queue');
+    const dbData = dbSheet.getDataRange().getValues();
+    const qData = qSheet ? qSheet.getDataRange().getValues() : [];
 
-
-
-    const allSheets = ss.getSheets();
-    let dbData = null, qData = null, trackingSheetsData = [];
-
-
-
-
-    allSheets.forEach(sheet => {
-      let name = sheet.getName();
-      if (name === 'Member_Database') {
-        dbData = sheet.getDataRange().getValues();
-      } else if (name === 'Approval_Queue') {
-        qData = sheet.getDataRange().getValues();
-      } else if (/^\d{4}$/.test(name) || name.toLowerCase().includes('payment')) {
-        let yearVal = name === 'Payment_Tracker' ? new Date().getFullYear().toString() : name;
-        trackingSheetsData.push({ year: yearVal, data: sheet.getDataRange().getValues() });
-      }
-    });
-
-
-
-
-    if (!dbData) return { error: "Member_Database ഷീറ്റ് കാണുന്നില്ല." };
-
-
-
+    const searchPhone = String(userPhone).replace(/\D/g, '').slice(-10);
+    const searchMid = String(inputMid).trim().toUpperCase();
 
     let memberDataRow = null;
-    let memberId = "";
-    const searchPhone = cleanPhone(userPhone);
+    let foundPhone = false;
 
-
-
-
+    // ഷീറ്റിലെ ഓരോ വരിയും പരിശോധിക്കുന്നു
     for (let i = 1; i < dbData.length; i++) {
-      if (cleanPhone(dbData[i][2]) === searchPhone) {
-        memberDataRow = dbData[i];
-        memberId = String(dbData[i][0]).trim();
-        break;
+      let sheetPhone = String(dbData[i][2]).replace(/\D/g, '').slice(-10);
+      let sheetMid = String(dbData[i][0]).trim().toUpperCase();
+
+      if (sheetPhone === searchPhone) {
+        foundPhone = true; // ഫോൺ നമ്പർ ലിസ്റ്റിൽ ഉണ്ടെന്ന് കണ്ടെത്തി
+        
+        // ഇനി MID കൂടി ശരിയാണോ എന്ന് നോക്കുന്നു
+        if (sheetMid === searchMid) {
+          memberDataRow = dbData[i];
+          break;
+        }
       }
     }
 
+    // പരിശോധനാ ഫലം അനുസരിച്ച് എറർ നൽകുന്നു
+    if (!foundPhone) {
+      return { error: "ഈ ഫോൺ നമ്പർ മെമ്പർ ലിസ്റ്റിൽ ഇല്ല!" };
+    }
+    if (!memberDataRow) {
+      return { error: "MID (മെമ്പർ ഐഡി) തെറ്റാണ്! ദയവായി പരിശോധിക്കുക." };
+    }
 
-
-
-    if (!memberDataRow) return { error: "ഈ ഫോൺ നമ്പർ ലിസ്റ്റിൽ ഇല്ല." };
-
-
-
-
-    // --- ലോഗിൻ ട്രാക്കിംഗ് (Login Log Update) ---
+    // ലോഗിൻ സക്സസ് ആയാൽ ബാക്കി ഡാറ്റ ശേഖരിക്കുന്നു
+    const memberId = String(memberDataRow[0]).trim();
+    const mFee = Number(memberDataRow[7]) || globalFee;
+    
+    // ലോഗിൻ ലോഗ് അപ്ഡേറ്റ് ചെയ്യുന്നു
     try {
       let logSheet = ss.getSheetByName('Login_Logs');
       if (logSheet) {
         let logData = logSheet.getDataRange().getValues();
         let found = false;
-        for (let i = 1; i < logData.length; i++) {
-          if (String(logData[i][0]).trim() === String(searchPhone)) {
-            // നിലവിലുള്ള ആളാണെങ്കിൽ തീയതിയും എണ്ണവും അപ്ഡേറ്റ് ചെയ്യുന്നു
-            logSheet.getRange(i + 1, 3).setValue(new Date());
-            logSheet.getRange(i + 1, 4).setValue(Number(logData[i][3] || 0) + 1);
-            found = true;
-            break;
+        for (let j = 1; j < logData.length; j++) {
+          if (String(logData[j][0]).trim().slice(-10) === searchPhone) {
+            logSheet.getRange(j + 1, 3).setValue(new Date());
+            logSheet.getRange(j + 1, 4).setValue(Number(logData[j][3] || 0) + 1);
+            found = true; break;
           }
         }
-        if (!found) {
-          // പുതിയ ആളാണെങ്കിൽ ഷീറ്റിലേക്ക് ചേർക്കുന്നു
-          logSheet.appendRow([searchPhone, memberDataRow[1], new Date(), 1]);
-        }
+        if (!found) logSheet.appendRow([searchPhone, memberDataRow[1], new Date(), 1]);
       }
     } catch(err) {}
-    // ----------------------------------------------
 
-
-
-
-    let mFee = Number(memberDataRow[7]) || globalFee;
-    let mJoinDate = parseSafeDate(memberDataRow[4], globalStartDateStr);
-    let joinLimit = new Date(mJoinDate.getFullYear(), mJoinDate.getMonth(), 1);
-
-
-
-
+    // പേയ്‌മെന്റ് ഹിസ്റ്ററി കണ്ടുപിടിക്കുന്നു
     let processingMonths = [];
-    let rejectedMonths = []; // റിജക്റ്റ് ആയവ കണ്ടുപിടിക്കാൻ
-    if (qData && qData.length > 1) {
-      for (let i = 1; i < qData.length; i++) {
-        if (String(qData[i][1]).trim() === memberId) {
-          if (qData[i][6] === "Processing") processingMonths.push(`${qData[i][5]}-${qData[i][4]}`);
-          else if (qData[i][6] === "Rejected") rejectedMonths.push(`${qData[i][5]}-${qData[i][4]}`);
+    if (qData.length > 1) {
+      for (let k = 1; k < qData.length; k++) {
+        if (String(qData[k][1]).trim() === memberId && qData[k][6] === "Processing") {
+          processingMonths.push(qData[k][5] + "-" + qData[k][4]);
         }
       }
     }
 
-
     let history = [];
-    let totalPaid = 0, balance = 0;
-    const monthDisplay = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-
-    trackingSheetsData.forEach(sheetObj => {
-      const data = sheetObj.data;
-      if (data.length < 1) return;
-      const headers = data[0];
-      const memberRow = data.find(row => String(row[0]).trim() === memberId);
-     
-      if (memberRow) {
-        for (let i = 2; i < headers.length; i++) {
-          let parsed = parseHeaderDate(headers[i], sheetObj.year);
-          if (!parsed) continue;
-
-
-          let currentMonthDate = new Date(parseInt(parsed.year), parsed.monthIdx, 1);
-          if (currentMonthDate >= joinLimit) {
-            let val = memberRow[i];
-            let isPaid = (val === true || String(val).toUpperCase() === "TRUE" || Number(val) > 0);
-            let status = isPaid ? "Paid" : (processingMonths.includes(`${parsed.monthName}-${parsed.year}`) ? "Processing" : "Pending");
-            let isRejected = (!isPaid && rejectedMonths.includes(`${parsed.monthName}-${parsed.year}`)); // ഇത് റിജക്റ്റ് ആണോ എന്ന് നോക്കുന്നു
-           
+    let totalPaid = 0;
+    const trackingSheets = ss.getSheets().filter(s => /^\d{4}$/.test(s.getName()));
+    
+    trackingSheets.forEach(sheet => {
+      const tData = sheet.getDataRange().getValues();
+      const headers = tData[0];
+      const mRow = tData.find(r => String(r[0]).trim() === memberId);
+      if (mRow) {
+        for (let c = 2; c < headers.length; c++) {
+          let p = parseHeaderDate(headers[c], sheet.getName());
+          if (p) {
+            let val = mRow[c];
+            let isPaid = (val === true || Number(val) > 0);
             if (isPaid) totalPaid += mFee;
-            else balance += mFee;
-
-
-            // isRejected എന്ന പുതിയ പ്രോപ്പർട്ടി കൂടി ചേർക്കുന്നു
-            history.push({ year: parsed.year, month: parsed.monthName, status: status, amount: mFee, isRejected: isRejected });
+            history.push({ year: p.year, month: p.monthName, status: isPaid ? "Paid" : (processingMonths.includes(p.monthName+"-"+p.year) ? "Processing" : "Pending") });
           }
         }
       }
     });
 
+    return { id: memberId, name: memberDataRow[1], phone: userPhone, totalPaid: totalPaid, history: history, config: config, fee: mFee };
 
-
-
-    return {
-      id: memberId, name: memberDataRow[1], phone: userPhone, fee: mFee,
-      totalPaid: totalPaid, balance: balance, totalExpected: (totalPaid + balance), history: history,
-      config: config
-    };
-  } catch (e) { return { error: "Server Error: " + e.message }; }
+  } catch (e) { return { error: "Server Error: " + e.toString() }; }
 }
 
 
@@ -754,7 +703,7 @@ function doPost(e) {
     var result = {};
 
     if (action === 'checkPendingApprovals') { result = checkPendingApprovals(); }
-    else if (action === 'getMemberData') { result = getMemberData(data.phone); }
+    else if (action === 'getMemberData') { result = getMemberData(data.phone, data.mid); }
     else if (action === 'getAppSettings') { result = getAppSettings(); }
     else if (action === 'getAdminData') { result = getAdminData(); }
     else if (action === 'submitSinglePaymentRequest') { result = submitSinglePaymentRequest(data.id, data.name, data.phone, data.year, data.month); }
