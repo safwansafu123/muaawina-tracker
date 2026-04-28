@@ -352,17 +352,14 @@
                 <button onclick="document.getElementById('adminModal').classList.add('hidden')" class="text-slate-400 font-bold text-xs uppercase tracking-widest mt-2 active:scale-90">Cancel</button>
             </div>
         </div>
-<div id="historyModal" class="fixed inset-0 z-[10000] hidden">
-    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeHistoryModal()"></div>
-    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] shadow-2xl transition-transform duration-300 translate-y-full" id="historyCard">
-        <div class="p-6 max-w-md mx-auto">
-            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-black text-slate-800 uppercase tracking-widest">Payment History</h3>
-                <button onclick="closeHistoryModal()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 active:scale-90"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="historyListContainer" class="space-y-3 max-h-[50vh] overflow-y-auto pr-2 no-scrollbar"></div>
+<div id="historyModal" class="hidden fixed inset-0 bg-slate-900/90 flex flex-col justify-end sm:justify-center p-0 sm:p-4 z-[130]">
+    <div class="bg-white w-full max-w-sm mx-auto rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl modal-up flex flex-col max-h-[85vh]">
+        <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-4 relative">
+            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight"><i class="fas fa-history text-blue-500 mr-2"></i> ഹിസ്റ്ററി</h3>
+            <button onclick="document.getElementById('historyModal').classList.add('hidden')" class="absolute right-0 w-8 h-8 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center active:scale-90 border border-rose-100"><i class="fas fa-times"></i></button>
         </div>
+        <div id="historyListContainer" class="overflow-y-auto no-scrollbar space-y-3 pb-4">
+            </div>
     </div>
 </div>
 
@@ -1767,47 +1764,55 @@ function contactAdmin() {
     let textMsg = encodeURIComponent('السلام عليكم \n');
     window.open(`https://wa.me/${wpNumber}?text=${textMsg}`, '_blank');
 }
-// പുതിയ ഹിസ്റ്ററി പാനൽ നിയന്ത്രിക്കാൻ
+// ഹിസ്റ്ററി മോഡൽ തുറക്കുന്ന ഫംഗ്ഷൻ
 function openHistoryModal() {
-    if(!currentMember || !fullHistory) return;
+    if (!currentMember || !fullHistory) return;
+    
     const container = document.getElementById('historyListContainer');
-    const modal = document.getElementById('historyModal');
-    const card = document.getElementById('historyCard');
-    container.innerHTML = "";
+    container.innerHTML = '';
+    
+    // പണമടച്ചതും, പ്രോസസ്സിങ്ങും, ഒപ്പം റിജക്ട് ആയതുമായ റെക്കോർഡുകൾ മാത്രം എടുക്കുന്നു
+    let displayHistory = fullHistory.filter(h => h.status === 'Paid' || h.status === 'Processing' || h.isRejected);
+    
+    displayHistory.sort((a, b) => {
+        if (b.year !== a.year) return parseInt(b.year) - parseInt(a.year);
+        return b.monthIdx - a.monthIdx;
+    });
 
-    // അടച്ചതും വെയിറ്റിംഗിലുള്ളതുമായ മാസങ്ങൾ മാത്രം കാണിക്കുന്നു
-    let hData = fullHistory.filter(h => h.status === 'Paid' || h.status === 'Processing').reverse();
-
-    if(hData.length === 0) {
-        container.innerHTML = '<p class="text-center text-slate-400 font-bold text-[10px] uppercase py-10">ഹിസ്റ്ററി ലഭ്യമല്ല</p>';
+    if (displayHistory.length === 0) {
+        container.innerHTML = '<p class="text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest py-10 bg-slate-50 rounded-2xl border border-dashed">ഹിസ്റ്ററി ലഭ്യമല്ല</p>';
     } else {
-        container.innerHTML = hData.map(h => `
-            <div class="flex items-center justify-between p-4 rounded-2xl border border-slate-50 bg-slate-50/50">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center ${h.status === 'Paid' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">
-                        <i class="fas ${h.status === 'Paid' ? 'fa-check-circle' : 'fa-clock'}"></i>
-                    </div>
-                    <div>
-                        <div class="text-[13px] font-black text-slate-700">${h.month} ${h.year}</div>
-                        <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${h.status}</div>
-                    </div>
-                </div>
-                <div class="text-[13px] font-black text-slate-600">₹${currentMember.fee}</div>
-            </div>
-        `).join('');
-    }
-    modal.classList.remove('hidden');
-    setTimeout(() => card.classList.remove('translate-y-full'), 10);
-    toggleScroll(true);
-}
+        container.innerHTML = displayHistory.map(h => {
+            let isPaid = h.status === 'Paid';
+            let isRejected = h.isRejected && !isPaid && h.status !== 'Processing'; 
+            
+            // സ്റ്റാറ്റസിന് അനുസരിച്ചുള്ള കളർ മാറ്റങ്ങൾ
+            let borderColor = isPaid ? 'border-emerald-50' : (isRejected ? 'border-rose-50' : 'border-amber-50');
+            let textColor = isPaid ? 'text-emerald-500' : (isRejected ? 'text-rose-500' : 'text-amber-500');
+            let iconText = isPaid ? '<i class="fas fa-check-circle"></i> പണമടച്ചു' : (isRejected ? '<i class="fas fa-times-circle"></i> റിജക്ട് ചെയ്തു (Rejected)' : '<i class="fas fa-clock"></i> അഡ്മിൻ അപ്രൂവൽ പെൻഡിങ്');
+            
+            let rightAction = isPaid ? 
+                `<button onclick="downloadReceipt('${h.month}', '${h.year}', ${h.amount})" class="bg-emerald-50 text-emerald-600 w-11 h-11 rounded-xl flex items-center justify-center active:scale-90 transition-all border border-emerald-100 shadow-sm"><i class="fas fa-download text-lg"></i></button>` 
+                : (isRejected ? 
+                `<div class="w-11 h-11 flex items-center justify-center text-rose-400 bg-rose-50 rounded-xl border border-rose-100"><i class="fas fa-exclamation-circle text-lg"></i></div>`
+                : `<div class="w-11 h-11 flex items-center justify-center text-amber-300 bg-amber-50 rounded-xl border border-amber-100"><i class="fas fa-spinner fa-spin text-lg"></i></div>`);
 
-function closeHistoryModal() {
-    const card = document.getElementById('historyCard');
-    card.classList.add('translate-y-full');
-    setTimeout(() => {
-        document.getElementById('historyModal').classList.add('hidden');
-        toggleScroll(false);
-    }, 300);
+            return `
+            <div class="bg-white border-2 ${borderColor} p-4 rounded-2xl shadow-sm flex justify-between items-center">
+                <div>
+                    <p class="font-black text-slate-800 text-sm uppercase tracking-tight mb-1">${h.month} ${h.year}</p>
+                    <p class="text-[9px] font-black ${textColor} uppercase tracking-widest">
+                        ${iconText}
+                    </p>
+                </div>
+                <div>
+                    ${rightAction}
+                </div>
+            </div>`;
+        }).join('');
+    }
+    
+    document.getElementById('historyModal').classList.remove('hidden');
 }
 
 // റെസീപ്റ്റ് ഇമേജ് ആക്കി ഡൗൺലോഡ് ചെയ്യുന്ന ഫംഗ്ഷൻ
