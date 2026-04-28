@@ -604,7 +604,7 @@
                     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
                     let advancePaid = 0; let pendingCount = 0;
                     
-                    fullHistory = (d.history || []).map(hist => {
+                   fullHistory = (d.history || []).map(hist => {
                         let mIdx = monthNames.indexOf(hist.month);
                         let mYear = parseInt(hist.year);
                         let isFuture = mYear > globalAppYear || (mYear === globalAppYear && mIdx > globalAppMonth);
@@ -616,6 +616,13 @@
                             if (hist.status === 'Pending') pendingCount++;
                         }
                         hist.monthIdx = mIdx; return hist;
+                    }).filter(hist => {
+                        // ജോയിന്റ് ഡേറ്റിന് മുൻപുള്ള മാസങ്ങൾ കളയുന്നു
+                        if (!d.joinedDate) return true;
+                        let jDate = new Date(d.joinedDate);
+                        let jYear = jDate.getFullYear();
+                        let jMonth = jDate.getMonth();
+                        return (parseInt(hist.year) > jYear) || (parseInt(hist.year) === jYear && hist.monthIdx >= jMonth);
                     });
 
                     pendingMonthsList = fullHistory.filter(hist => hist.status === 'Pending');
