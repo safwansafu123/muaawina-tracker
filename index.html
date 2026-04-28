@@ -436,21 +436,27 @@
                 return { error: "Server connection failed!" };
             }
         }
-        window.onload = function() {
+         window.onload = function() {
             callAPI('checkPendingApprovals').then(hasPending => {
                 const badge = document.getElementById('loginNotify');
                 if (hasPending && badge) badge.classList.remove('hidden');
             });
 
-            // Auto-login പരിശോധിക്കുന്നു
+            // Auto-login സുരക്ഷിതമായി പരിശോധിക്കുന്നു
             const savedPhone = localStorage.getItem('muaawina_phone');
             const savedMid = localStorage.getItem('muaawina_mid');
-            if (savedPhone && savedMid) {
+            
+            // ശരിയായ ഡാറ്റ ഉണ്ടെങ്കിൽ മാത്രം ലോഗിൻ ചെയ്യാൻ ശ്രമിക്കുക
+            if (savedPhone && savedPhone !== "undefined" && savedMid && savedMid !== "undefined") {
                 const pInput = document.getElementById('phoneInput');
                 const mInput = document.getElementById('midInput');
                 if (pInput) pInput.value = savedPhone;
                 if (mInput) mInput.value = savedMid;
-                fetchMemberDetails(true); // ആപ്പ് തുറക്കുമ്പോൾ തന്നെ ലോഗിൻ ചെയ്യാൻ ശ്രമിക്കുന്നു
+                fetchMemberDetails(true); 
+            } else {
+                // തെറ്റായ ഡാറ്റ ആണെങ്കിൽ അത് കളയുന്നു
+                localStorage.removeItem('muaawina_phone');
+                localStorage.removeItem('muaawina_mid');
             }
         };
 
@@ -503,12 +509,17 @@
             // ഫോൺ നമ്പറും MID-യും ഒരുമിച്ച് ഡാറ്റാബേസിലേക്ക് അയക്കുന്നു
             callAPI('getMemberData', { phone: p, mid: m }).then(d => {
                 showLoader(false);
-                if(d.error) {
+               if(d.error) {
                     if (errBox) { errBox.innerText = d.error; errBox.classList.remove('hidden'); }
                     // ലോഗിൻ പരാജയപ്പെട്ടാൽ സേവ് ചെയ്ത വിവരങ്ങൾ കളയുന്നു
                     if(isAutoLogin) {
                         localStorage.removeItem('muaawina_phone');
                         localStorage.removeItem('muaawina_mid');
+                        // എറർ വന്നാൽ നിർബന്ധമായും ലോഗിൻ പേജ് തന്നെ കാണിക്കുക
+                        document.getElementById('memberPage').classList.add('hidden');
+                        document.getElementById('adminPage').classList.add('hidden');
+                        document.getElementById('loginPage').classList.remove('hidden');
+                        toggleScroll(true);
                     }
                     return;
                 }
