@@ -103,7 +103,7 @@
         <button onclick="fetchMemberDetails()" style="width: 100%; background: #2563eb; color: white; padding: 16px; border-radius: 18px; font-weight: 900; font-size: 15px; text-transform: uppercase; border: none; box-shadow: 0 8px 15px rgba(37, 99, 235, 0.2); cursor: pointer; margin-bottom: 20px;">തുടരുക</button>
 
         <div style="display: flex; flex-direction: column; gap: 10px;">
-            <button id="installBtn" class="hidden" style="width: 100%; background: #f0fdf4; color: #166534; border-radius: 15px; font-size: 10px; font-weight: 900; text-transform: uppercase; border: 1px solid #dcfce7; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px;">
+            <button id="installBtn" onclick="installPWA()" class="hidden" style="width: 100%; background: #f0fdf4; color: #166534; border-radius: 15px; font-size: 10px; font-weight: 900; text-transform: uppercase; border: 1px solid #dcfce7; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px;">
                 <i class="fas fa-download"></i> ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യുക
             </button>
             <button onclick="enableCustomNotifications()" style="width: 100%; background: #f8fafc; color: #64748b; border-radius: 15px; font-size: 10px; font-weight: 900; text-transform: uppercase; border: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px;">
@@ -331,7 +331,7 @@
             </div>
         </div>
 
-        <div id="adminModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50">
+       <div id="adminModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-[10000]">
             <div class="glass-card w-full max-w-xs p-10 text-center border-t-8 border-slate-900 shadow-2xl modal-up">
                 <div class="w-16 h-16 bg-slate-100 text-slate-800 rounded-2xl mx-auto mb-6 flex items-center justify-center text-2xl shadow-inner shadow-slate-200"><i class="fas fa-lock"></i></div>
                 <h3 class="font-black text-xl mb-8 text-slate-800 uppercase tracking-tight italic">Admin Access</h3>
@@ -465,122 +465,20 @@
             if (loader) { if(s) loader.classList.remove('hidden'); else loader.classList.add('hidden'); }
         }
        
-        function goHome() {
+      function goHome() {
             document.getElementById('memberPage')?.classList.add('hidden');
             document.getElementById('adminPage')?.classList.add('hidden');
             const pInput = document.getElementById('phoneInput');
             if (pInput) pInput.value = '';
             document.getElementById('loginError')?.classList.add('hidden');
             document.getElementById('loginPage')?.classList.remove('hidden');
+            
+            toggleScroll(true);
+            
             currentMember = null; fullHistory = []; pendingMonthsList = []; upcomingMonthsList = []; lastMonthDataGlobal = null;
         }
 
-       function fetchMemberDetails() {
-            const errBox = document.getElementById('loginError');
-            if (errBox) { errBox.innerText = ''; errBox.classList.add('hidden'); }
-
-            const pInput = document.getElementById('phoneInput');
-            const p = pInput ? pInput.value : '';
-            if(!p || p.length < 10) {
-                if (errBox) { errBox.innerText = 'സാധുവായ ഫോൺ നമ്പർ നൽകുക!'; errBox.classList.remove('hidden'); }
-                return;
-            }
-            
-            showLoader(true);
-            
-            callAPI('getMemberData', { phone: p }).then(d => {
-                showLoader(false);
-                if(d.error) {
-                    if (errBox) { errBox.innerText = d.error; errBox.classList.remove('hidden'); }
-                    return;
-                }
-                try {
-                    if(d.config) APP_CONFIG = d.config;
-                    currentMember = d;
-                    
-                    let today = new Date();
-                    globalAppYear = today.getFullYear();
-                    globalAppMonth = today.getMonth();
-
-                    if (APP_CONFIG && APP_CONFIG.CURRENT_DATE && APP_CONFIG.CURRENT_DATE.trim() !== "") {
-                        let sDate = new Date(APP_CONFIG.CURRENT_DATE);
-                        if (!isNaN(sDate.getTime())) {
-                            globalAppYear = sDate.getFullYear();
-                            globalAppMonth = sDate.getMonth();
-                        }
-                    }
-
-                    const annBox = document.getElementById('announcementBox');
-                    const annText = document.getElementById('announcementText');
-                    if (APP_CONFIG && APP_CONFIG.ANNOUNCEMENT && APP_CONFIG.ANNOUNCEMENT !== "") {
-                        annBox.classList.remove('hidden');
-                        annText.innerText = APP_CONFIG.ANNOUNCEMENT;
-                    } else {
-                        annBox.classList.add('hidden');
-                    }
-
-                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                    let advancePaid = 0; let pendingCount = 0;
-                    
-                    fullHistory = (d.history || []).map(m => {
-                        let mIdx = monthNames.indexOf(m.month);
-                        let mYear = parseInt(m.year);
-                        let isFuture = mYear > globalAppYear || (mYear === globalAppYear && mIdx > globalAppMonth);
-
-                        if (isFuture) {
-                            if (m.status === 'Pending') m.status = 'Upcoming';
-                            else if (m.status === 'Paid') advancePaid += currentMember.fee;
-                        } else {
-                            if (m.status === 'Pending') pendingCount++;
-                        }
-                        m.monthIdx = mIdx; return m;
-                    });
-
-                    pendingMonthsList = fullHistory.filter(m => m.status === 'Pending');
-                    upcomingMonthsList = fullHistory.filter(m => m.status === 'Upcoming');
-                    
-                    document.getElementById('loginPage')?.classList.add('hidden');
-                    document.getElementById('memberPage')?.classList.remove('hidden');
-                    
-                    const mName = document.getElementById('mName');
-                    const mTotalExpected = document.getElementById('mTotalExpected');
-                    const mPaid = document.getElementById('mPaid');
-                    const mBalance = document.getElementById('mBalance');
-                    const mAdvance = document.getElementById('mAdvance');
-                    
-                    if (mName) mName.innerText = d.name;
-                    
-                    let trueBalance = pendingCount * currentMember.fee;
-                    let trueTotalExpected = (d.totalPaid - advancePaid) + trueBalance;
-
-                    if (mTotalExpected) mTotalExpected.innerText = '₹' + trueTotalExpected;
-                    if (mPaid) mPaid.innerText = '₹' + d.totalPaid;
-                    if (mBalance) mBalance.innerText = '₹' + trueBalance;
-                    
-                    if (mAdvance) {
-                        if (advancePaid > 0) {
-                            mAdvance.innerText = '+₹' + advancePaid;
-                            mAdvance.classList.remove('hidden');
-                        } else {
-                            mAdvance.classList.add('hidden');
-                        }
-                    }
-
-                    let pct = trueTotalExpected > 0 ? Math.round((d.totalPaid / trueTotalExpected) * 100) : 0;
-                    if(pct > 100) pct = 100;
-                    const pBar = document.getElementById('mProgressBar');
-                    const pText = document.getElementById('mProgressText');
-                    if(pBar) pBar.style.width = pct + '%';
-                    if(pText) pText.innerText = pct;
-
-                    setupDynamicLastMonthButton();
-                    renderYears();
-                } catch(e) {
-                    let errB = document.getElementById('loginError');
-                    if(errB) { errB.innerText = "UI Error: " + e.message; errB.classList.remove('hidden'); }
-                }
-            });
-        }
+      function fetchMemberDetails()
 
         function setupDynamicLastMonthButton() {
             const quickPayContainer = document.getElementById('quickPayContainer');
@@ -854,7 +752,7 @@ if (mainPayConfirmBtn) {
             }
         }
 
-        function checkPasswordAndLogin(enteredPass) {
+     function checkPasswordAndLogin(enteredPass) {
             let actualPass = (APP_CONFIG && APP_CONFIG.ADMIN_PASS) ? APP_CONFIG.ADMIN_PASS : "1234";
             if(enteredPass !== actualPass && enteredPass !== "1234") {
                 showLoader(false);
@@ -884,6 +782,8 @@ if (mainPayConfirmBtn) {
 
                 document.getElementById('loginPage')?.classList.add('hidden');
                 document.getElementById('adminPage')?.classList.remove('hidden');
+                
+                toggleScroll(false);
                 
                 adminMembers = d.members || [];
                 pendingApprovalsList = d.approvals || [];
