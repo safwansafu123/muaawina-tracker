@@ -2116,16 +2116,18 @@ function contactAdmin() {
     let textMsg = encodeURIComponent('السلام عليكم \n');
     window.open(`https://wa.me/${wpNumber}?text=${textMsg}`, '_blank');
 }
-// ഹിസ്റ്ററി മോഡൽ തുറക്കുന്ന ഫംഗ്ഷൻ
-function openHistoryModal() {
+function renderHistory() {
     if (!currentMember || !fullHistory) return;
     
     const container = document.getElementById('historyListContainer');
+    if(!container) return; // കണ്ടെയ്നർ ഉണ്ടെന്ന് ഉറപ്പുവരുത്തുന്നു
+    
     container.innerHTML = '';
     
-    // പണമടച്ചതും, പ്രോസസ്സിങ്ങും, ഒപ്പം റിജക്ട് ആയതുമായ റെക്കോർഡുകൾ മാത്രം എടുക്കുന്നു
+    // പഴയ ഫംഗ്ഷനിലെ അതേ ഫിൽട്ടറിംഗ് (Paid, Processing, Rejected മാത്രം)
     let displayHistory = fullHistory.filter(h => h.status === 'Paid' || h.status === 'Processing' || h.isRejected);
     
+    // വർഷവും മാസവും അനുസരിച്ചുള്ള സോർട്ടിംഗ്
     displayHistory.sort((a, b) => {
         if (b.year !== a.year) return parseInt(b.year) - parseInt(a.year);
         return b.monthIdx - a.monthIdx;
@@ -2138,7 +2140,7 @@ function openHistoryModal() {
             let isPaid = h.status === 'Paid';
             let isRejected = h.isRejected && !isPaid && h.status !== 'Processing'; 
             
-            // സ്റ്റാറ്റസിന് അനുസരിച്ചുള്ള കളർ മാറ്റങ്ങൾ
+            // സ്റ്റാറ്റസിന് അനുസരിച്ചുള്ള കളർ മാറ്റങ്ങൾ (പഴയ അതേ ലോജിക്)
             let borderColor = isPaid ? 'border-emerald-50' : (isRejected ? 'border-rose-50' : 'border-amber-50');
             let textColor = isPaid ? 'text-emerald-500' : (isRejected ? 'text-rose-500' : 'text-amber-500');
             let iconText = isPaid ? '<i class="fas fa-check-circle"></i> പണമടച്ചു' : (isRejected ? '<i class="fas fa-times-circle"></i> റിജക്ട് ചെയ്തു (Rejected)' : '<i class="fas fa-clock"></i> അഡ്മിൻ അപ്രൂവൽ പെൻഡിങ്');
@@ -2150,7 +2152,7 @@ function openHistoryModal() {
                 : `<div class="w-11 h-11 flex items-center justify-center text-amber-300 bg-amber-50 rounded-xl border border-amber-100"><i class="fas fa-spinner fa-spin text-lg"></i></div>`);
 
             return `
-            <div class="bg-white border-2 ${borderColor} p-4 rounded-2xl shadow-sm flex justify-between items-center">
+            <div class="bg-white border-2 ${borderColor} p-4 rounded-2xl shadow-sm flex justify-between items-center mb-3">
                 <div>
                     <p class="font-black text-slate-800 text-sm uppercase tracking-tight mb-1">${h.month} ${h.year}</p>
                     <p class="text-[9px] font-black ${textColor} uppercase tracking-widest">
@@ -2163,8 +2165,6 @@ function openHistoryModal() {
             </div>`;
         }).join('');
     }
-    
-    document.getElementById('historyModal').classList.remove('hidden');
 }
 
 // റെസീപ്റ്റ് ഇമേജ് ആക്കി ഡൗൺലോഡ് ചെയ്യുന്ന ഫംഗ്ഷൻ
