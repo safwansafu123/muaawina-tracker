@@ -157,7 +157,7 @@
         </div>
             
          <!-- പുതിയ സ്റ്റാൻഡേർഡ് ബോട്ടം നാവിഗേഷൻ ബാർ -->
-<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-[9000]" style="padding-bottom: env(safe-area-inset-bottom);">
+<div id="bottomNav" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-[9000]" style="padding-bottom: env(safe-area-inset-bottom);">
     <div class="flex items-center justify-around p-2 max-w-md mx-auto">
         
         <!-- ഡാഷ്‌ബോർഡ് ബട്ടൺ -->
@@ -650,7 +650,7 @@
             
             document.getElementById('loginError')?.classList.add('hidden');
             document.getElementById('loginPage')?.classList.remove('hidden');
-            
+            document.getElementById('bottomNav').classList.add('hidden');
             toggleScroll(true);
             
             // ലോഗൗട്ട് ചെയ്യുമ്പോൾ ഫോണിൽ സേവ് ചെയ്ത ലോഗിൻ വിവരങ്ങൾ ഡിലീറ്റ് ചെയ്യുന്നു
@@ -658,7 +658,8 @@
             localStorage.removeItem('muaawina_mid');
             
             currentMember = null; fullHistory = []; pendingMonthsList = []; upcomingMonthsList = []; lastMonthDataGlobal = null;
-        }
+        
+       }
        
 
      function fetchMemberDetails(isAutoLogin = false) {
@@ -777,7 +778,7 @@
                     
                    document.getElementById('loginPage')?.classList.add('hidden');
 switchAppTab('home'); // ലോഗിൻ ചെയ്ത ഉടനെ ഹോം പേജ് കാണിക്കാൻ വിളിക്കുന്നു
-                    
+                    document.getElementById('bottomNav').classList.remove('hidden');
                     toggleScroll(false);
                     
                     const mName = document.getElementById('mName');
