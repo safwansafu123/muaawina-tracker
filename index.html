@@ -1531,8 +1531,9 @@ function showMemberDetails(d) {
         pdfBtn.onclick = () => {
             showLoader(true);
             
-            // PDF ഡിസൈനിലേക്ക് ലോഗോയും വാട്ടർമാർക്കും നൽകുന്നു
-            let mainLogoSrc = document.querySelector('#loginPage img').src;
+          
+           // വെള്ള ലോഗോയ്ക്ക് പകരം നിങ്ങൾക്ക് വേണ്ട ലോഗോയുടെ ഫയൽ പേര് ഇവിടെ നൽകുക
+let mainLogoSrc = "logo.png";
             document.getElementById('pdfWatermark').src = mainLogoSrc;
             document.getElementById('pdfHeaderLogo').src = mainLogoSrc;
 
@@ -1983,8 +1984,8 @@ function openHistoryModal() {
 function downloadReceipt(month, year, amount) {
     showLoader(true);
     
-    // ലോഗിൻ പേജിലെ ലോഗോ ഓട്ടോമാറ്റിക് ആയി റെസീപ്റ്റിലേക്ക് കോപ്പി ചെയ്യുന്നു
-    let mainLogoSrc = document.querySelector('#loginPage img').src;
+   // വെള്ള ലോഗോയ്ക്ക് പകരം നിങ്ങൾക്ക് വേണ്ട ലോഗോയുടെ ഫയൽ പേര് ഇവിടെ നൽകുക
+let mainLogoSrc = "logo.png";
     document.getElementById('receiptWatermark').src = mainLogoSrc;
     document.getElementById('receiptHeaderLogo').src = mainLogoSrc;
     
