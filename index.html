@@ -106,13 +106,7 @@
 </div>
 
         <div id="memberPage" class="hidden p-4 sm:p-6 fade-in">
-          <div id="announcementBox" class="hidden mb-4 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-2xl flex items-start gap-3 shadow-sm fade-in">
-    <div class="text-amber-500 mt-0.5"><i class="fas fa-bullhorn text-lg"></i></div>
-    <div class="flex-1">
-        <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">അറിയിപ്പ്</p>
-        <p id="announcementText" class="text-sm font-bold text-slate-700 leading-snug"></p>
-    </div>
-</div>
+
 
             <div class="gradient-bg p-6 rounded-[28px] text-white shadow-xl mb-6 relative overflow-hidden">
                 
@@ -723,14 +717,17 @@
                         }
                     }
 
-                    const annBox = document.getElementById('announcementBox');
-                    const annText = document.getElementById('announcementText');
-                    if (APP_CONFIG && APP_CONFIG.ANNOUNCEMENT && APP_CONFIG.ANNOUNCEMENT !== "") {
-                        annBox.classList.remove('hidden');
-                        annText.innerText = APP_CONFIG.ANNOUNCEMENT;
-                    } else {
-                        annBox.classList.add('hidden');
-                    }
+                  // ഡാഷ്‌ബോർഡിലെ പുതിയ അറിയിപ്പ് ഭാഗത്തേക്ക് മെസ്സേജ് നൽകാൻ
+        const homeNotice = document.getElementById('homeNoticeText');
+        if (homeNotice) {
+            if (APP_CONFIG && APP_CONFIG.ANNOUNCEMENT && APP_CONFIG.ANNOUNCEMENT !== "") {
+                // ഷീറ്റിൽ അറിയിപ്പ് ഉണ്ടെങ്കിൽ അത് കാണിക്കുന്നു
+                homeNotice.innerText = APP_CONFIG.ANNOUNCEMENT;
+            } else {
+                // അറിയിപ്പ് ഇല്ലെങ്കിൽ ഈ മെസ്സേജ് കാണിക്കുന്നു
+                homeNotice.innerText = "പുതിയ അറിയിപ്പുകൾ ഒന്നുമില്ല. അലുമിനി മീറ്റിംഗുകളും മറ്റു വിവരങ്ങളും ഇവിടെ കാണാം.";
+            }
+        }
 
                     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
                     let advancePaid = 0; let pendingCount = 0;
