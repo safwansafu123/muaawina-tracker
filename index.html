@@ -153,29 +153,32 @@
             </div>
             <div id="yearTabs" class="flex w-full justify-between gap-1.5 mb-5"></div>
             <div id="monthsGrid" class="grid grid-cols-3 gap-3"></div>
-           <div class="fixed bottom-5 left-0 right-0 mx-auto w-[92%] max-w-[400px] z-[9000]">
-    <div class="bg-white/95 backdrop-blur-xl border border-slate-200 shadow-[0_10px_40px_rgba(0,0,0,0.15)] rounded-full p-1.5 flex items-center justify-between">
+         <!-- പുതിയ സ്റ്റാൻഡേർഡ് ബോട്ടം നാവിഗേഷൻ ബാർ -->
+<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-[9000]" style="padding-bottom: env(safe-area-inset-bottom);">
+    <div class="flex items-center justify-around p-2 max-w-md mx-auto">
         
-        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex-1 flex flex-col items-center gap-1 p-1">
-            <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-md active:scale-90 transition-all">
-                <i class="fas fa-home text-sm"></i>
-            </div>
-            <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest">Home</span>
+        <!-- ഡാഷ്‌ബോർഡ് ബട്ടൺ -->
+        <button onclick="switchAppTab('home')" id="nav-home" class="flex flex-col items-center p-2 text-slate-400 transition-all active:scale-90">
+            <i class="fas fa-home text-xl mb-1"></i>
+            <span class="text-[9px] font-black uppercase tracking-widest">Home</span>
         </button>
 
-        <button onclick="openHistoryModal()" class="flex-1 flex flex-col items-center gap-1 p-1">
-            <div class="w-10 h-10 text-slate-400 flex items-center justify-center active:scale-90 transition-all">
-                <i class="fas fa-history text-lg"></i>
-            </div>
-            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">History</span>
+        <!-- വരിസംഖ്യ ബട്ടൺ (നിലവിലെ മെയിൻ പേജ്) -->
+        <button onclick="switchAppTab('dues')" id="nav-dues" class="flex flex-col items-center p-2 text-blue-600 transition-all active:scale-90">
+            <i class="fas fa-wallet text-xl mb-1"></i>
+            <span class="text-[9px] font-black uppercase tracking-widest">Dues</span>
         </button>
 
-        <button onclick="openNoticeModal()" class="flex-1 flex flex-col items-center gap-1 p-1">
-            <div class="w-10 h-10 text-slate-400 flex items-center justify-center relative active:scale-90 transition-all">
-                <i class="fas fa-bullhorn text-lg"></i>
-                <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-            </div>
-            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Notice</span>
+        <!-- ഹിസ്റ്ററി ബട്ടൺ -->
+        <button onclick="openHistoryModal()" class="flex flex-col items-center p-2 text-slate-400 transition-all active:scale-90">
+            <i class="fas fa-history text-xl mb-1"></i>
+            <span class="text-[9px] font-black uppercase tracking-widest">History</span>
+        </button>
+
+        <!-- പ്രൊഫൈൽ ബട്ടൺ -->
+        <button onclick="switchAppTab('profile')" id="nav-profile" class="flex flex-col items-center p-2 text-slate-400 transition-all active:scale-90">
+            <i class="fas fa-user-circle text-xl mb-1"></i>
+            <span class="text-[9px] font-black uppercase tracking-widest">Profile</span>
         </button>
 
     </div>
@@ -2124,6 +2127,29 @@ function closeNoticeModal() {
         toggleScroll(false);
     }, 300);
 }
+        // പുതിയ ഡാഷ്‌ബോർഡും പ്രൊഫൈലും മാറാനുള്ള ഫംഗ്ഷൻ (Step 1)
+        function switchAppTab(tabName) {
+            // എല്ലാ ബട്ടണുകളുടെയും നീല നിറം കളഞ്ഞ് ഗ്രേ നിറമാക്കുന്നു
+            document.getElementById('nav-home').classList.replace('text-blue-600', 'text-slate-400');
+            document.getElementById('nav-dues').classList.replace('text-blue-600', 'text-slate-400');
+            document.getElementById('nav-profile').classList.replace('text-blue-600', 'text-slate-400');
+
+            // ക്ലിക്ക് ചെയ്ത ബട്ടണിന് മാത്രം നീല നിറം നൽകുന്നു
+            document.getElementById('nav-' + tabName).classList.replace('text-slate-400', 'text-blue-600');
+
+            // ഭാവിയിൽ നമ്മൾ ഉണ്ടാക്കാൻ പോകുന്ന പേജുകൾ കാണിക്കാനും മറയ്ക്കാനുമുള്ള കോഡ് ഇവിടെ വരും
+            if(tabName === 'home') {
+                console.log("ഡാഷ്‌ബോർഡ് തുറക്കുന്നു...");
+                // Dashboard logic will go here
+            } else if(tabName === 'dues') {
+                console.log("വരിസംഖ്യ പേജ് തുറക്കുന്നു...");
+                // Dues logic will go here
+            } else if(tabName === 'profile') {
+                console.log("പ്രൊഫൈൽ പേജ് തുറക്കുന്നു...");
+                // Profile logic will go here
+            }
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
     </script>
     <div id="pdfTemplateContainer" class="fixed -left-[9999px] top-0 pointer-events-none z-[-1]">
     <div id="pdfCard" class="bg-white relative" style="width: 800px; height: 1131px; font-family: 'Manjari', sans-serif; padding: 60px;">
