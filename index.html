@@ -196,9 +196,9 @@
                     <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">സ്വാഗതം,</p>
                     <h2 id="homeWelcomeName" class="text-xl font-black text-slate-800 uppercase tracking-tight">അംഗം</h2>
                 </div>
-                <div class="w-12 h-12 bg-slate-100 rounded-full border-2 border-white shadow-sm flex items-center justify-center text-slate-400 overflow-hidden">
-                    <!-- ഭാവിയിൽ പ്രൊഫൈൽ ഫോട്ടോ ഇവിടെ വരും -->
-                    <i class="fas fa-user text-xl"></i>
+               <div class="w-12 h-12 bg-slate-100 rounded-full border-2 border-white shadow-sm flex items-center justify-center text-slate-400 overflow-hidden">
+                    <img id="homeProfileImg" src="" class="hidden w-full h-full object-cover">
+                    <i id="homeProfileIcon" class="fas fa-user text-xl"></i>
                 </div>
             </div>
 
@@ -215,9 +215,9 @@
                     <p class="text-[9px] text-slate-400 font-black uppercase mb-1">നിങ്ങളുടെ കുടിശ്ശിക</p>
                     <p id="homeDueAmount" class="text-lg font-black text-rose-500">₹0</p>
                 </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+               <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                     <p class="text-[9px] text-slate-400 font-black uppercase mb-1">ആകെ അംഗങ്ങൾ</p>
-                    <p class="text-lg font-black text-blue-600">...</p>
+                    <p id="homeTotalMembers" class="text-lg font-black text-blue-600">...</p>
                 </div>
             </div>
 
@@ -233,15 +233,18 @@
         <!-- ================= പുതിതായി ചേർത്ത പ്രൊഫൈൽ പേജ് ================= -->
         <div id="profilePage" class="hidden p-4 sm:p-6 fade-in pb-24">
             
-            <h2 class="text-lg font-black text-slate-800 uppercase tracking-tight mb-6">എന്റെ പ്രൊഫൈൽ</h2>
+            <h2 class="text-lg font-black text-slate-800 uppercase tracking-tight mb-6">പ്രൊഫൈൽ</h2>
             
             <!-- പ്രൊഫൈൽ ഫോട്ടോയും പേരും -->
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 text-center mb-6 relative mt-10">
-                <div class="w-24 h-24 bg-slate-100 rounded-full border-4 border-white shadow-md mx-auto -mt-16 flex items-center justify-center text-slate-400 text-3xl relative">
-                    <i class="fas fa-user"></i>
-                    <button class="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-sm border-2 border-white active:scale-90">
+           <div class="w-24 h-24 bg-slate-100 rounded-full border-4 border-white shadow-md mx-auto -mt-16 flex items-center justify-center text-slate-400 text-3xl relative overflow-visible z-10">
+                    <div class="w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-slate-100">
+                        <img id="profImgDisplay" src="" class="hidden w-full h-full object-cover">
+                        <i id="profIconDisplay" class="fas fa-user"></i>
+                    </div>
+                    <label for="profPhotoUpload" class="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-sm border-2 border-white cursor-pointer active:scale-90 transition-all hover:bg-blue-700 z-20">
                         <i class="fas fa-camera text-[10px]"></i>
-                    </button>
+                        <input type="file" id="profPhotoUpload" accept="image/*" class="hidden" onchange="uploadProfilePhoto(event)">
+                    </label>
                 </div>
                 <h3 id="profName" class="text-xl font-black text-slate-800 uppercase mt-4">...</h3>
                 <p id="profBatch" class="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full inline-block mt-2 uppercase tracking-widest">...</p>
@@ -820,6 +823,23 @@ switchAppTab('home'); // ലോഗിൻ ചെയ്ത ഉടനെ ഹോം 
                     document.getElementById('profCompany').value = d.company || '';
                     document.getElementById('profLocation').value = d.location || '';
                     // ==========================================================
+                    // ഡാഷ്‌ബോർഡിലെ ആകെ അംഗങ്ങൾ
+                    const homeTotal = document.getElementById('homeTotalMembers');
+                    if(homeTotal) homeTotal.innerText = d.totalMembers || 0;
+
+                    // ഫോട്ടോ ഉണ്ടെങ്കിൽ കാണിക്കാൻ
+                    const profImg = document.getElementById('profImgDisplay');
+                    const profIcon = document.getElementById('profIconDisplay');
+                    const homeImg = document.getElementById('homeProfileImg');
+                    const homeIcon = document.getElementById('homeProfileIcon');
+
+                    if(d.photoUrl && d.photoUrl !== "") {
+                        if(profImg) { profImg.src = d.photoUrl; profImg.classList.remove('hidden'); profIcon.classList.add('hidden'); }
+                        if(homeImg) { homeImg.src = d.photoUrl; homeImg.classList.remove('hidden'); homeIcon.classList.add('hidden'); }
+                    } else {
+                        if(profImg) { profImg.src = ""; profImg.classList.add('hidden'); profIcon.classList.remove('hidden'); }
+                        if(homeImg) { homeImg.src = ""; homeImg.classList.add('hidden'); homeIcon.classList.remove('hidden'); }
+                    }
                     
                     if (mAdvance) {
                         if (advancePaid > 0) {
@@ -2310,6 +2330,41 @@ function closeNoticeModal() {
                 }
             });
         }
+      // പ്രൊഫൈൽ ഫോട്ടോ ഗൂഗിൾ ഡ്രൈവിലേക്ക് അപ്‌ലോഡ് ചെയ്യാൻ
+        function uploadProfilePhoto(event) {
+            const file = event.target.files[0];
+            if(!file || !currentMember) return;
+            
+            showLoader(true);
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                
+                callAPI('uploadProfilePhoto', {
+                    id: currentMember.id,
+                    base64: base64Data,
+                    mimeType: file.type,
+                    fileName: currentMember.name + "_MUAAWINA.jpg"
+                }).then(res => {
+                    showLoader(false);
+                    if(res.error) {
+                        Swal.fire('Error', res.error, 'error');
+                    } else {
+                        // ഫോട്ടോ അപ്ഡേറ്റ് ചെയ്യുന്നു
+                        document.getElementById('profImgDisplay').src = res.url;
+                        document.getElementById('profImgDisplay').classList.remove('hidden');
+                        document.getElementById('profIconDisplay').classList.add('hidden');
+                        
+                        document.getElementById('homeProfileImg').src = res.url;
+                        document.getElementById('homeProfileImg').classList.remove('hidden');
+                        document.getElementById('homeProfileIcon').classList.add('hidden');
+                        
+                        Swal.fire('വിജയിച്ചു!', 'പ്രൊഫൈൽ ഫോട്ടോ അപ്‌ഡേറ്റ് ചെയ്തു.', 'success');
+                    }
+                });
+            };
+            reader.readAsDataURL(file);
+        }  
     </script>
     <div id="pdfTemplateContainer" class="fixed -left-[9999px] top-0 pointer-events-none z-[-1]">
     <div id="pdfCard" class="bg-white relative" style="width: 800px; height: 1131px; font-family: 'Manjari', sans-serif; padding: 60px;">
