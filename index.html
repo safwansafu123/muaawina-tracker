@@ -23,6 +23,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -325,7 +327,9 @@
                         </div>
                     </div>
                     <div class="text-center bg-slate-50 py-3 rounded-2xl border-2 border-dashed border-slate-200 shadow-sm"><p class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest text-center">ബാക്കി തുക (Balance)</p><p id="detDue" class="text-2xl font-black text-rose-600 leading-none text-center italic">₹0</p></div>
-                   
+                   <button id="detPdfBtn" class="w-full py-4 bg-slate-800 text-white rounded-2xl font-black flex justify-center items-center gap-3 shadow-lg active:scale-95 transition-all mt-4 uppercase tracking-widest text-xs">
+                        <i class="fas fa-file-pdf text-xl text-rose-400"></i> PDF ഡൗൺലോഡ് ചെയ്യുക
+                    </button>
                     <button id="detWaBtn" class="w-full py-5 bg-[#0f9d58] text-white rounded-2xl font-black flex justify-center items-center gap-3 shadow-lg active:scale-95 transition-all mt-4 shadow-emerald-200">
                         <i class="fab fa-whatsapp text-2xl"></i> വാട്സ്ആപ്പ് റിമൈൻഡർ
                     </button>
@@ -471,7 +475,7 @@
         let lastMonthDataGlobal = null;
 
         // --- പുതിയ API സിസ്റ്റം ---
-        const API_URL = "https://script.google.com/macros/s/AKfycbwA2CpRv94EFUldaGatvFiOz8-qYI5W6qeie83HdM6qni4kanNJD7MXKV7idt2BcFZj/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxFmxCWI4I25cmRQdg84NdcpGtA6UfMrGoBYeg62mmvNRnug-h9sgn1LCypR5-SNjE-dg/exec";
 
         async function callAPI(action, data = {}) {
             try {
@@ -1516,6 +1520,89 @@ function showMemberDetails(d) {
             window.open(`https://wa.me/91${m.phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`, '_blank');
         };
     }
+    // ==========================================
+    // PDF ഡൗൺലോഡ് ചെയ്യാനുള്ള കോഡ് ഇവിടെ തുടങ്ങുന്നു
+    // ==========================================
+    let totalPaidMonths = m.totalPaid / currentFee;
+    let expectedMonths = expectedToPayUntilNow / currentFee;
+
+    const pdfBtn = document.getElementById('detPdfBtn');
+    if(pdfBtn) {
+        pdfBtn.onclick = () => {
+            showLoader(true);
+            
+            // PDF ഡിസൈനിലേക്ക് ലോഗോയും വാട്ടർമാർക്കും നൽകുന്നു
+            let mainLogoSrc = document.querySelector('#loginPage img').src;
+            document.getElementById('pdfWatermark').src = mainLogoSrc;
+            document.getElementById('pdfHeaderLogo').src = mainLogoSrc;
+
+            // PDF-ലേക്ക് ഡാറ്റ ഫിൽ ചെയ്യുന്നു
+            document.getElementById('pdfName').innerText = m.name;
+            document.getElementById('pdfMid').innerText = m.id || "N/A";
+            
+            document.getElementById('pdfExpectedMonths').innerText = expectedMonths;
+            document.getElementById('pdfPaidMonths').innerText = totalPaidMonths;
+            document.getElementById('pdfExpectedAmt').innerText = '₹' + expectedToPayUntilNow;
+            document.getElementById('pdfPaidAmt').innerText = '₹' + m.totalPaid;
+
+            // തുകയ്ക്ക് അനുസരിച്ച് നിറവും സ്റ്റാറ്റസും മാറ്റുന്നു
+            let finalBox = document.getElementById('pdfFinalBox');
+            let finalLabel = document.getElementById('pdfFinalLabel');
+            let finalAmt = document.getElementById('pdfFinalAmt');
+            let finalStatus = document.getElementById('pdfFinalStatus');
+
+            if (dueAmount > 0) {
+                finalBox.className = "bg-rose-50 border-2 border-rose-100 p-8 rounded-3xl flex justify-between items-center shadow-sm";
+                finalLabel.innerText = "കുടിശ്ശിക (BALANCE)";
+                finalLabel.className = "text-base font-bold text-rose-500 uppercase tracking-widest mb-1";
+                finalAmt.innerText = '₹' + dueAmount;
+                finalAmt.className = "text-5xl font-black text-rose-600 leading-none";
+                finalStatus.innerText = "PENDING";
+                finalStatus.className = "px-6 py-3 bg-rose-600 text-white font-black uppercase tracking-widest rounded-xl text-lg";
+            } else if (advanceAmount > 0) {
+                finalBox.className = "bg-emerald-50 border-2 border-emerald-100 p-8 rounded-3xl flex justify-between items-center shadow-sm";
+                finalLabel.innerText = "അഡ്വാൻസ് (ADVANCE)";
+                finalLabel.className = "text-base font-bold text-emerald-500 uppercase tracking-widest mb-1";
+                finalAmt.innerText = '₹' + advanceAmount;
+                finalAmt.className = "text-5xl font-black text-emerald-600 leading-none";
+                finalStatus.innerText = "ADVANCE";
+                finalStatus.className = "px-6 py-3 bg-emerald-600 text-white font-black uppercase tracking-widest rounded-xl text-lg";
+            } else {
+                finalBox.className = "bg-slate-50 border-2 border-slate-200 p-8 rounded-3xl flex justify-between items-center shadow-sm";
+                finalLabel.innerText = "ബാക്കി (BALANCE)";
+                finalLabel.className = "text-base font-bold text-slate-500 uppercase tracking-widest mb-1";
+                finalAmt.innerText = '₹0';
+                finalAmt.className = "text-5xl font-black text-slate-600 leading-none";
+                finalStatus.innerText = "CLEAR";
+                finalStatus.className = "px-6 py-3 bg-slate-600 text-white font-black uppercase tracking-widest rounded-xl text-lg";
+            }
+
+            // തീയതിയും സമയവും നൽകുന്നു
+            let d = new Date();
+            document.getElementById('pdfDate').innerText = d.toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'}) + ' ' + d.toLocaleTimeString('en-IN', {hour: '2-digit', minute:'2-digit'});
+
+            // HTML നെ മാറ്റി ഒറിജിനൽ PDF ആക്കി ഡൗൺലോഡ് ചെയ്യുന്നു
+            const pdfNode = document.getElementById('pdfCard');
+            setTimeout(() => {
+                html2canvas(pdfNode, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                    
+                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save(`MUAAWINA_Account_${m.name}.pdf`);
+                    
+                    showLoader(false);
+                }).catch(e => {
+                    showLoader(false);
+                    Swal.fire('Error', 'PDF ഡൗൺലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല.', 'error');
+                });
+            }, 500);
+        };
+    }
 }
 
         
@@ -2028,5 +2115,68 @@ function closeNoticeModal() {
     }, 300);
 }
     </script>
+    <div id="pdfTemplateContainer" class="fixed -left-[9999px] top-0 pointer-events-none z-[-1]">
+    <div id="pdfCard" class="bg-white relative" style="width: 800px; height: 1131px; font-family: 'Manjari', sans-serif; padding: 60px;">
+        <div class="absolute inset-0 flex items-center justify-center opacity-[0.05]">
+            <img id="pdfWatermark" src="" class="w-[500px] h-[500px] object-contain grayscale">
+        </div>
+        
+        <div class="text-center border-b-4 border-blue-900 pb-6 mb-8 relative z-10 flex flex-col items-center">
+            <img id="pdfHeaderLogo" src="" class="w-24 h-24 mb-4 object-contain">
+            <h1 class="text-5xl font-black text-blue-900 tracking-[0.2em] uppercase leading-none">MUAAWINA</h1>
+            <p class="text-lg font-bold text-slate-500 uppercase tracking-widest mt-3">Account Statement (അക്കൗണ്ട് വിവരങ്ങൾ)</p>
+        </div>
+        
+        <div class="relative z-10 px-4">
+            
+            <div class="bg-slate-50 p-6 rounded-2xl border-2 border-slate-200 mb-8 flex justify-between items-center">
+                <div>
+                    <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">പേര് (Name)</p>
+                    <h2 id="pdfName" class="text-3xl font-black text-slate-800 uppercase">...</h2>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">മെമ്പർ ഐഡി (MID)</p>
+                    <h2 id="pdfMid" class="text-2xl font-black text-blue-700 uppercase tracking-wider">...</h2>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-6 mb-8">
+                <div class="border-2 border-slate-100 p-6 rounded-2xl bg-white shadow-sm">
+                    <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">ആകെ അടക്കേണ്ട മാസങ്ങൾ</p>
+                    <p id="pdfExpectedMonths" class="text-3xl font-black text-slate-700">0</p>
+                </div>
+                <div class="border-2 border-emerald-50 p-6 rounded-2xl bg-white shadow-sm">
+                    <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">ആകെ അടച്ച മാസങ്ങൾ</p>
+                    <p id="pdfPaidMonths" class="text-3xl font-black text-emerald-600">0</p>
+                </div>
+                <div class="border-2 border-slate-100 p-6 rounded-2xl bg-white shadow-sm">
+                    <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">ആകെ അടക്കേണ്ട സംഖ്യ</p>
+                    <p id="pdfExpectedAmt" class="text-3xl font-black text-slate-700">₹0</p>
+                </div>
+                <div class="border-2 border-emerald-50 p-6 rounded-2xl bg-white shadow-sm">
+                    <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">ആകെ അടച്ച സംഖ്യ</p>
+                    <p id="pdfPaidAmt" class="text-3xl font-black text-emerald-600">₹0</p>
+                </div>
+            </div>
+            
+            <div id="pdfFinalBox" class="bg-blue-50 border-2 border-blue-100 p-8 rounded-3xl flex justify-between items-center shadow-sm">
+                <div>
+                    <p id="pdfFinalLabel" class="text-base font-bold text-blue-600 uppercase tracking-widest mb-1">ബാക്കി തുക (Balance)</p>
+                    <h2 id="pdfFinalAmt" class="text-5xl font-black text-blue-700 leading-none">₹0</h2>
+                </div>
+                <div id="pdfFinalStatus" class="px-6 py-3 bg-blue-600 text-white font-black uppercase tracking-widest rounded-xl text-lg">
+                    PENDING
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="absolute bottom-10 left-0 right-0 text-center relative z-10 mt-20">
+            <div class="w-1/2 h-1 bg-slate-200 mx-auto mb-4 rounded-full"></div>
+            <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Generated by Muaawina Tracker</p>
+            <p id="pdfDate" class="text-sm font-bold text-slate-500"></p>
+        </div>
+    </div>
+</div>
 </body>
 </html>
