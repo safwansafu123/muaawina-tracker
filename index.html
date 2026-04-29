@@ -795,6 +795,27 @@ switchAppTab('home'); // ലോഗിൻ ചെയ്ത ഉടനെ ഹോം 
                     if (mTotalExpected) mTotalExpected.innerText = '₹' + trueTotalExpected;
                     if (mPaid) mPaid.innerText = '₹' + d.totalPaid;
                     if (mBalance) mBalance.innerText = '₹' + trueBalance;
+                    // === പുതിയ ഡാഷ്‌ബോർഡിലേക്കും പ്രൊഫൈലിലേക്കും ഡാറ്റ നൽകുന്നു ===
+                    const homeName = document.getElementById('homeWelcomeName');
+                    const homeDue = document.getElementById('homeDueAmount');
+                    
+                    const profileName = document.getElementById('profName');
+                    const profileBatch = document.getElementById('profBatch');
+                    const profilePhone = document.getElementById('profPhone');
+
+                    // ഡാഷ്‌ബോർഡിലെ ഡാറ്റ
+                    if (homeName) homeName.innerText = d.name;
+                    if (homeDue) {
+                        homeDue.innerText = '₹' + trueBalance;
+                        // കുടിശ്ശിക ഉണ്ടെങ്കിൽ ചുവപ്പ് നിറം, ഇല്ലെങ്കിൽ പച്ച നിറം
+                        homeDue.className = trueBalance > 0 ? "text-lg font-black text-rose-500" : "text-lg font-black text-emerald-500";
+                    }
+
+                    // പ്രൊഫൈൽ പേജിലെ ഡാറ്റ
+                    if (profileName) profileName.innerText = d.name;
+                    if (profileBatch) profileBatch.innerText = d.batch || 'UNASSIGNED';
+                    if (profilePhone) profilePhone.innerText = d.phone;
+                    // ==========================================================
                     
                     if (mAdvance) {
                         if (advancePaid > 0) {
