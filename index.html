@@ -167,10 +167,10 @@
         </button>
 
         <!-- ഹിസ്റ്ററി ബട്ടൺ -->
-        <button onclick="openHistoryModal()" class="flex flex-col items-center p-2 text-slate-400 transition-all active:scale-90">
-            <i class="fas fa-history text-xl mb-1"></i>
-            <span class="text-[9px] font-black uppercase tracking-widest">History</span>
-        </button>
+       <button onclick="switchAppTab('history')" id="nav-history" class="flex flex-col items-center p-2 text-slate-400 transition-all active:scale-90">
+    <i class="fas fa-history text-xl mb-1"></i>
+    <span class="text-[9px] font-black uppercase tracking-widest">History</span>
+</button>
 
         <!-- പ്രൊഫൈൽ ബട്ടൺ -->
         <button onclick="switchAppTab('profile')" id="nav-profile" class="flex flex-col items-center p-2 text-slate-400 transition-all active:scale-90">
@@ -289,6 +289,13 @@
         
     
         <!-- ================= പ്രൊഫൈൽ പേജ് അവസാനിച്ചു ================= -->
+        <div id="historyPage" class="hidden p-4 sm:p-6 fade-in pb-24">
+    <h2 class="text-lg font-black text-slate-800 uppercase tracking-tight mb-6"><i class="fas fa-history text-blue-500 mr-2"></i> പേയ്‌മെന്റ് ഹിസ്റ്ററി</h2>
+    
+    <div id="historyListContainer" class="space-y-4">
+        </div>
+</div>
+        
         <div id="adminPage" class="hidden p-4 sm:p-6 fade-in">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-lg font-black text-slate-800 tracking-tight italic">അഡ്മിൻ പാനൽ</h2>
@@ -462,16 +469,7 @@
                 <button onclick="document.getElementById('adminModal').classList.add('hidden')" class="text-slate-400 font-bold text-xs uppercase tracking-widest mt-2 active:scale-90">Cancel</button>
             </div>
         </div>
-<div id="historyModal" class="hidden fixed inset-0 bg-slate-900/90 flex flex-col justify-end sm:justify-center p-0 sm:p-4 z-[130]">
-    <div class="bg-white w-full max-w-sm mx-auto rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl modal-up flex flex-col max-h-[85vh]">
-        <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-4 relative">
-            <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight"><i class="fas fa-history text-blue-500 mr-2"></i> ഹിസ്റ്ററി</h3>
-            <button onclick="document.getElementById('historyModal').classList.add('hidden')" class="absolute right-0 w-8 h-8 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center active:scale-90 border border-rose-100"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="historyListContainer" class="overflow-y-auto no-scrollbar space-y-3 pb-4">
-            </div>
-    </div>
-</div>
+
         <div id="noticeModal" class="fixed inset-0 z-[10000] hidden">
     <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeNoticeModal()"></div>
     <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] shadow-2xl transition-transform duration-300 translate-y-full" id="noticeCard">
@@ -2305,52 +2303,37 @@ function closeNoticeModal() {
     }, 300);
 }
   // പേജുകൾ മാറാനുള്ള ഫംഗ്ഷൻ (Updated)
-        function switchAppTab(tabName) {
-            // എല്ലാ ബട്ടണുകളുടെയും നീല നിറം മാറ്റുന്നു
-            document.getElementById('nav-home').classList.replace('text-blue-600', 'text-slate-400');
-            document.getElementById('nav-dues').classList.replace('text-blue-600', 'text-slate-400');
-            document.getElementById('nav-profile').classList.replace('text-blue-600', 'text-slate-400');
+      function switchAppTab(tabName) {
+    // എല്ലാ ബട്ടണുകളുടെയും നിറം മാറ്റുന്നു
+    const tabs = ['home', 'dues', 'history', 'profile'];
+    tabs.forEach(tab => {
+        const btn = document.getElementById('nav-' + tab);
+        if(btn) btn.classList.replace('text-blue-600', 'text-slate-400');
+        
+        const page = (tab === 'home') ? 'homePage' : 
+                     (tab === 'dues') ? 'memberPage' : 
+                     (tab === 'history') ? 'historyPage' : 'profilePage';
+        const pageEl = document.getElementById(page);
+        if(pageEl) pageEl.classList.add('hidden');
+    });
 
-            // ക്ലിക്ക് ചെയ്ത ബട്ടണിന് നീല നിറം നൽകുന്നു
-            document.getElementById('nav-' + tabName).classList.replace('text-slate-400', 'text-blue-600');
+    // ക്ലിക്ക് ചെയ്ത ബട്ടണിനും പേജിനും മാറ്റം വരുത്തുന്നു
+    const activeBtn = document.getElementById('nav-' + tabName);
+    if(activeBtn) activeBtn.classList.replace('text-slate-400', 'text-blue-600');
 
-            // എല്ലാ പേജുകളും ഹൈഡ് ചെയ്യുന്നു
-            document.getElementById('homePage').classList.add('hidden');
-            document.getElementById('memberPage').classList.add('hidden'); // ഇതാണ് നമ്മുടെ പഴയ വരിസംഖ്യ പേജ്
-            document.getElementById('profilePage').classList.add('hidden');
+    const activePage = (tabName === 'home') ? 'homePage' : 
+                       (tabName === 'dues') ? 'memberPage' : 
+                       (tabName === 'history') ? 'historyPage' : 'profilePage';
+    const activePageEl = document.getElementById(activePage);
+    if(activePageEl) activePageEl.classList.remove('hidden');
 
-            // ആവശ്യമുള്ള പേജ് മാത്രം കാണിക്കുന്നു
-            if(tabName === 'home') {
-                document.getElementById('homePage').classList.remove('hidden');
-            } else if(tabName === 'dues') {
-                document.getElementById('memberPage').classList.remove('hidden');
-            } else if(tabName === 'profile') {
-                document.getElementById('profilePage').classList.remove('hidden');
-            }
-            window.scrollTo({top: 0, behavior: 'smooth'});
-        }     
-        // പ്രൊഫൈൽ സേവ് ചെയ്യാനുള്ള ഫംഗ്ഷൻ
-        function saveProfile() {
-            if(!currentMember) return;
-            const email = document.getElementById('profEmail').value;
-            const blood = document.getElementById('profBlood').value;
-            const job = document.getElementById('profJob').value;
-            const company = document.getElementById('profCompany').value;
-            const location = document.getElementById('profLocation').value;
+    // ഹിസ്റ്ററി ടാബ് ആണെങ്കിൽ ഡാറ്റ ലോഡ് ചെയ്യുന്നു
+    if(tabName === 'history') {
+        renderHistory(); 
+    }
 
-            showLoader(true);
-            callAPI('updateProfileData', {
-                id: currentMember.id,
-                email: email, blood: blood, job: job, company: company, location: location
-            }).then(res => {
-                showLoader(false);
-                if(res.error) {
-                    Swal.fire('Error', res.error, 'error');
-                } else {
-                    Swal.fire('വിജയിച്ചു!', 'നിങ്ങളുടെ പ്രൊഫൈൽ സേവ് ചെയ്തു.', 'success');
-                }
-            });
-        }
+    window.scrollTo({top: 0, behavior: 'smooth'});
+}
       // പ്രൊഫൈൽ ഫോട്ടോ ഗൂഗിൾ ഡ്രൈവിലേക്ക് അപ്‌ലോഡ് ചെയ്യാൻ
         function uploadProfilePhoto(event) {
             const file = event.target.files[0];
