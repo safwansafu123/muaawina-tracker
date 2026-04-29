@@ -596,7 +596,7 @@
         let lastMonthDataGlobal = null;
 
         // --- പുതിയ API സിസ്റ്റം ---
-        const API_URL = "https://script.google.com/macros/s/AKfycbzp5YuN09M_lpmWMs-7jPNVYiLKQmbSl-NC2CRpBUeih0JGXmSzP7IvD8Yj6N3yUDDxIw/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxDP6r_olkNhfDOP7AtNfysJGddnsi0PMCUqDD73AlpZFGErpPcYhQCu-6ODYzkvPVf_Q/exec";
 
         async function callAPI(action, data = {}) {
             try {
@@ -858,6 +858,31 @@ switchAppTab('home'); // ലോഗിൻ ചെയ്ത ഉടനെ ഹോം 
                     const pText = document.getElementById('mProgressText');
                     if(pBar) pBar.style.width = pct + '%';
                     if(pText) pText.innerText = pct;
+
+                    // === ഡാഷ്‌ബോർഡിൽ പോസ്റ്ററുകൾ കാണിക്കുന്നു ===
+                    const highlightArea = document.getElementById('homeHighlightsArea');
+                    
+                    if(highlightArea) {
+                        highlightArea.innerHTML = '<h3 class="text-xs font-black text-slate-800 uppercase tracking-widest mb-6 mt-8"><i class="fas fa-star text-amber-500 mr-2"></i> അലുമിനി ഹൈലൈറ്റ്സ്</h3>';
+                        
+                        if(d.highlights && d.highlights.length > 0) {
+                            d.highlights.forEach(h => {
+                                highlightArea.innerHTML += `
+                                    <div class="mb-8">
+                                        ${h.heading ? `<h4 class="text-[10px] font-black text-blue-900 uppercase tracking-[0.2em] mb-3 ml-1">${h.heading}</h4>` : ''}
+                                        
+                                        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden transition-all active:scale-[0.99]">
+                                            <img src="${h.url}" class="w-full h-auto block" alt="Poster">
+                                            
+                                            ${h.desc ? `<div class="p-4 border-t border-slate-50 bg-slate-50/30"><p class="text-[11px] font-bold text-slate-600 leading-relaxed">${h.desc}</p></div>` : ''}
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                        } else {
+                            highlightArea.innerHTML += '<div class="bg-amber-50 p-5 rounded-2xl border border-amber-100 text-center"><p class="text-[10px] font-bold text-amber-600">പുതിയ അപ്ഡേറ്റുകൾ ഉടൻ വരുന്നു...</p></div>';
+                        }
+                    }
 
                     setupDynamicLastMonthButton();
                     renderYears();
