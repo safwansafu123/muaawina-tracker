@@ -56,32 +56,7 @@
         .swal2-popup { font-family: 'Manjari', sans-serif !important; border-radius: 24px !important; }
         .swal2-container { z-index: 20000 !important; }
          /* പഴയ ലോഡർ CSS ഒഴിവാക്കി ഇത് മാത്രം നൽകുക */
-/* എല്ലാ പേജുകളും സ്ക്രോൾ ചെയ്യാൻ സാധിക്കുമെന്ന് ഉറപ്പാക്കാൻ */
-#homePage, #memberPage, #historyPage, #profilePage {
-    min-height: 100vh;
-    padding-bottom: 120px; /* ബോട്ടം ബാറിന് മുകളിൽ ഗ്യാപ്പ് വരാൻ */
-    overflow-y: auto !important;
-}
-}
-
-/* ബോഡിയിൽ അനാവശ്യമായി സ്ക്രോൾ ലോക്ക് വരുന്നത് തടയാൻ */
-body {
-    overflow-x: hidden;
-    overflow-y: auto !important;
-}
-        /* ആക്ടീവ് ബട്ടണിന് പിന്നിലെ നീല വട്ടം */
-.nav-active-bg {
-    background-color: #2563eb; /* Blue-600 */
-    color: white !important;
-    border-radius: 50%;
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
-}
+/* പഴയ ലോഡർ CSS ഒഴിവാക്കി ഇത് മാത്രം നൽകുക */
 #loader {
     background: rgba(255, 255, 255, 0.95); /* ബാക്ക്ഗ്രൗണ്ട് കുറച്ചുകൂടി തെളിച്ചമുള്ളതാക്കി */
     backdrop-filter: blur(8px); /* ബ്ലർ ഇഫക്റ്റ് */
@@ -230,46 +205,37 @@ body {
 <div class="h-28 w-full"></div>
         </div>
             
-   <!-- ഫ്ലോട്ടിംഗ് ബോട്ടം ബാർ -->
-   <div id="bottomNav" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-[9000]" style="padding-bottom: env(safe-area-inset-bottom);">     
-<!-- ഫ്ലോട്ടിംഗ് ബോട്ടം ബാർ (Pointer events fix) -->
-<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-[100] pointer-events-none">
-    <div class="bg-white/90 backdrop-blur-md rounded-[40px] shadow-2xl border border-slate-100 p-2 flex justify-around items-center pointer-events-auto">
-        <!-- ബാക്കി ബട്ടണുകൾ എല്ലാം ഇതിനുള്ളിൽ പഴയപോലെ തന്നെ... -->   
-        <!-- Home -->
-        <button onclick="switchAppTab('home')" id="btn-home" class="flex flex-col items-center gap-1 transition-all group">
-            <div id="icon-bg-home" class="nav-active-bg">
-                <i class="fas fa-home text-lg"></i>
-            </div>
-            <span class="text-[9px] font-black uppercase tracking-widest text-blue-600">Home</span>
+         <!-- പുതിയ സ്റ്റാൻഡേർഡ് ബോട്ടം നാവിഗേഷൻ ബാർ -->
+<div id="bottomNav" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-[9000]" style="padding-bottom: env(safe-area-inset-bottom);">
+    <div class="flex items-center justify-around p-2 max-w-md mx-auto">
+        
+        <!-- ഡാഷ്‌ബോർഡ് ബട്ടൺ -->
+        <button onclick="switchAppTab('home')" id="nav-home" class="flex flex-col items-center p-2 text-slate-400 transition-all active:scale-90">
+            <i class="fas fa-home text-xl mb-1"></i>
+            <span class="text-[9px] font-black uppercase tracking-widest">Home</span>
         </button>
 
-        <!-- Dues -->
-        <button onclick="switchAppTab('dues')" id="btn-dues" class="flex flex-col items-center gap-1 transition-all group">
-            <div id="icon-bg-dues" class="w-[45px] h-[45px] flex items-center justify-center text-slate-400">
-                <i class="fas fa-wallet text-lg"></i>
-            </div>
-            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Dues</span>
+        <!-- വരിസംഖ്യ ബട്ടൺ (നിലവിലെ മെയിൻ പേജ്) -->
+        <button onclick="switchAppTab('dues')" id="nav-dues" class="flex flex-col items-center p-2 text-blue-600 transition-all active:scale-90">
+            <i class="fas fa-wallet text-xl mb-1"></i>
+            <span class="text-[9px] font-black uppercase tracking-widest">Dues</span>
         </button>
 
-        <!-- History -->
-        <button onclick="switchAppTab('history')" id="btn-history" class="flex flex-col items-center gap-1 transition-all group">
-            <div id="icon-bg-history" class="w-[45px] h-[45px] flex items-center justify-center text-slate-400">
-                <i class="fas fa-history text-lg"></i>
-            </div>
-            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">History</span>
-        </button>
+        <!-- ഹിസ്റ്ററി ബട്ടൺ -->
+       <button onclick="switchAppTab('history')" id="nav-history" class="flex flex-col items-center p-2 text-slate-400 transition-all active:scale-90">
+    <i class="fas fa-history text-xl mb-1"></i>
+    <span class="text-[9px] font-black uppercase tracking-widest">History</span>
+</button>
 
-        <!-- Profile -->
-        <button onclick="switchAppTab('profile')" id="btn-profile" class="flex flex-col items-center gap-1 transition-all group">
-            <div id="icon-bg-profile" class="w-[45px] h-[45px] flex items-center justify-center text-slate-400">
-                <i class="fas fa-user text-lg"></i>
-            </div>
-            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Profile</span>
+        <!-- പ്രൊഫൈൽ ബട്ടൺ -->
+        <button onclick="switchAppTab('profile')" id="nav-profile" class="flex flex-col items-center p-2 text-slate-400 transition-all active:scale-90">
+            <i class="fas fa-user-circle text-xl mb-1"></i>
+            <span class="text-[9px] font-black uppercase tracking-widest">Profile</span>
         </button>
 
     </div>
-</div> 
+</div>
+
 <!-- ================= പുതിതായി ചേർത്ത ഡാഷ്‌ബോർഡ് (HOME) പേജ് ================= -->
         <div id="homePage" class="hidden p-4 sm:p-6 fade-in pb-24">
             
@@ -673,7 +639,7 @@ body {
         let lastMonthDataGlobal = null;
 
         // --- പുതിയ API സിസ്റ്റം ---
-        const API_URL = "https://script.google.com/macros/s/AKfycbxDP6r_olkNhfDOP7AtNfysJGddnsi0PMCUqDD73AlpZFGErpPcYhQCu-6ODYzkvPVf_Q/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbz69Jjr49YRHjHBElyw8zFc_zzJHoxCxifQ0LmTkFOKhV0frdohgmbCwP71cCXVdoOD/exec";
 
         async function callAPI(action, data = {}) {
             try {
@@ -711,22 +677,10 @@ body {
             }
         };
 
-      function showLoader(s) {
-    const loader = document.getElementById('loader'); // നിങ്ങളുടെ HTML-ലെ അതേ ID
-    if (!loader) return;
-
-    if (s) {
-        // ലോഡർ കാണിക്കുന്നു
-        loader.classList.remove('hidden');
-        // ലോഡിംഗ് സമയത്ത് ബാക്ക്ഗ്രൗണ്ട് സ്ക്രോൾ ചെയ്യുന്നത് തടയുന്നു
-        document.body.style.overflow = 'hidden';
-    } else {
-        // ലോഡർ മറയ്ക്കുന്നു
-        loader.classList.add('hidden');
-        // ലോഡിംഗ് കഴിഞ്ഞാൽ സ്ക്രോൾ തിരികെ അനുവദിക്കുന്നു
-        document.body.style.overflow = 'auto';
-    }
-}
+        function showLoader(s) {
+            const loader = document.getElementById('loader');
+            if (loader) { if(s) loader.classList.remove('hidden'); else loader.classList.add('hidden'); }
+        }
        function goHome() {
             document.getElementById('memberPage')?.classList.add('hidden');
             document.getElementById('adminPage')?.classList.add('hidden');
@@ -2400,32 +2354,35 @@ function closeNoticeModal() {
     }, 300);
 }
   // പേജുകൾ മാറാനുള്ള ഫംഗ്ഷൻ (Updated)
-function switchAppTab(tabName) {
+      function switchAppTab(tabName) {
+    // എല്ലാ ബട്ടണുകളുടെയും നിറം മാറ്റുന്നു
     const tabs = ['home', 'dues', 'history', 'profile'];
-    
     tabs.forEach(tab => {
-        // പഴയ പേജുകൾ ഹൈഡ് ചെയ്യുന്നു
-        const pageId = (tab === 'home') ? 'homePage' : (tab === 'dues') ? 'memberPage' : (tab === 'history') ? 'historyPage' : 'profilePage';
-        document.getElementById(pageId)?.classList.add('hidden');
-
-        // ഐക്കണുകളുടെ ബാക്ക്ഗ്രൗണ്ട് മാറ്റുന്നു
-        const iconBg = document.getElementById('icon-bg-' + tab);
-        const btnText = document.querySelector(`#btn-${tab} span`);
-
-        if (tab === tabName) {
-            iconBg.className = 'nav-active-bg';
-            btnText.className = 'text-[9px] font-black uppercase tracking-widest text-blue-600';
-        } else {
-            iconBg.className = 'w-[45px] h-[45px] flex items-center justify-center text-slate-400';
-            btnText.className = 'text-[9px] font-black uppercase tracking-widest text-slate-400';
-        }
+        const btn = document.getElementById('nav-' + tab);
+        if(btn) btn.classList.replace('text-blue-600', 'text-slate-400');
+        
+        const page = (tab === 'home') ? 'homePage' : 
+                     (tab === 'dues') ? 'memberPage' : 
+                     (tab === 'history') ? 'historyPage' : 'profilePage';
+        const pageEl = document.getElementById(page);
+        if(pageEl) pageEl.classList.add('hidden');
     });
 
-    // പുതിയ പേജ് കാണിക്കുന്നു
-    const activePageId = (tabName === 'home') ? 'homePage' : (tabName === 'dues') ? 'memberPage' : (tabName === 'history') ? 'historyPage' : 'profilePage';
-    document.getElementById(activePageId)?.classList.remove('hidden');
+    // ക്ലിക്ക് ചെയ്ത ബട്ടണിനും പേജിനും മാറ്റം വരുത്തുന്നു
+    const activeBtn = document.getElementById('nav-' + tabName);
+    if(activeBtn) activeBtn.classList.replace('text-slate-400', 'text-blue-600');
 
-    if(tabName === 'history') renderHistory();
+    const activePage = (tabName === 'home') ? 'homePage' : 
+                       (tabName === 'dues') ? 'memberPage' : 
+                       (tabName === 'history') ? 'historyPage' : 'profilePage';
+    const activePageEl = document.getElementById(activePage);
+    if(activePageEl) activePageEl.classList.remove('hidden');
+
+    // ഹിസ്റ്ററി ടാബ് ആണെങ്കിൽ ഡാറ്റ ലോഡ് ചെയ്യുന്നു
+    if(tabName === 'history') {
+        renderHistory(); 
+    }
+
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
       // പ്രൊഫൈൽ ഫോട്ടോ ഗൂഗിൾ ഡ്രൈവിലേക്ക് അപ്‌ലോഡ് ചെയ്യാൻ
