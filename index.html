@@ -2341,22 +2341,21 @@ function renderHistory(filterType = 'all') {
 function downloadReceipt(month, year, amount) {
     showLoader(true);
     
-   // വെള്ള ലോഗോയ്ക്ക് പകരം നിങ്ങൾക്ക് വേണ്ട ലോഗോയുടെ ഫയൽ പേര് ഇവിടെ നൽകുക
-let mainLogoSrc = "logo.png";
+    let mainLogoSrc = "logo.png";
     document.getElementById('receiptWatermark').src = mainLogoSrc;
     document.getElementById('receiptHeaderLogo').src = mainLogoSrc;
     
-    // ഹൈഡ് ചെയ്ത് വെച്ചിരിക്കുന്ന ഡിസൈനിലേക്ക് വിവരങ്ങൾ ഫിൽ ചെയ്യുന്നു
     document.getElementById('rcptName').innerText = currentMember.name;
     document.getElementById('rcptMonth').innerText = `${month} ${year}`;
-    document.getElementById('rcptAmount').innerText = `₹${amount}`;
+    
+    // തുക ലഭ്യമല്ലെങ്കിൽ 50 എന്ന് കാണിക്കാൻ താഴെ കാണുന്ന വരി മാറ്റുക
+    document.getElementById('rcptAmount').innerText = '₹' + (amount || 50);
     
     let d = new Date();
     document.getElementById('rcptDate').innerText = d.toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'}) + ' ' + d.toLocaleTimeString('en-IN', {hour: '2-digit', minute:'2-digit'});
     
     const rcptNode = document.getElementById('receiptCard');
     
-    // ഇമേജ് ജനറേറ്റ് ചെയ്യുന്നു
     setTimeout(() => { 
         html2canvas(rcptNode, { scale: 3, backgroundColor: '#ffffff' }).then(canvas => {
             let link = document.createElement('a');
