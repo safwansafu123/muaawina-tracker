@@ -183,6 +183,27 @@
 #homePage, #memberPage, #historyPage, #profilePage {
     padding-bottom: 120px !important;
 } 
+        /* ഹിസ്റ്ററി ഫിൽട്ടർ സ്റ്റൈൽ */
+.filter-pill {
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border: 1px solid #f1f5f9;
+    background: white;
+    color: #94a3b8;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.filter-pill.active {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+}
     </style>
 </head>
 <body class="min-h-screen text-slate-800 pb-10">
@@ -418,11 +439,19 @@
         
     
         <!-- ================= പ്രൊഫൈൽ പേജ് അവസാനിച്ചു ================= -->
-        <div id="historyPage" class="hidden p-4 sm:p-6 fade-in pb-24">
-    <h2 class="text-lg font-black text-slate-800 uppercase tracking-tight mb-6"><i class="fas fa-history text-blue-500 mr-2"></i> പേയ്‌മെന്റ് ഹിസ്റ്ററി</h2>
+<div id="historyPage" class="hidden p-4 sm:p-6 fade-in pb-24">
+    <h2 class="text-lg font-black text-slate-800 uppercase tracking-tight mb-6">
+        <i class="fas fa-history text-blue-500 mr-2"></i> പേയ്‌മെന്റ് ഹിസ്റ്ററി
+    </h2>
+
+    <!-- ഫിൽട്ടർ ഓപ്ഷനുകൾ -->
+    <div class="flex gap-2 mb-6 overflow-x-auto no-scrollbar pb-2">
+        <button onclick="renderHistory('all')" class="filter-pill active" id="filter-all">എല്ലാം</button>
+        <button onclick="renderHistory('Paid')" class="filter-pill" id="filter-Paid">അടച്ചത്</button>
+        <button onclick="renderHistory('Processing')" class="filter-pill" id="filter-Processing">പെൻഡിങ്</button>
+    </div>
     
-    <div id="historyListContainer" class="space-y-4">
-        </div>
+    <div id="historyListContainer" class="space-y-4"></div>
 </div>
         
         <div id="adminPage" class="hidden p-4 sm:p-6 fade-in">
@@ -2241,57 +2270,69 @@ function contactAdmin() {
     let textMsg = encodeURIComponent('السلام عليكم \n');
     window.open(`https://wa.me/${wpNumber}?text=${textMsg}`, '_blank');
 }
-function renderHistory() {
+let activeHistoryFilter = 'all';
+
+function renderHistory(filterType = 'all') {
     if (!currentMember || !fullHistory) return;
-    
+    activeHistoryFilter = filterType;
+
+    // ഫിൽട്ടർ ബട്ടണുകളുടെ നിറം മാറ്റുന്നു
+    document.querySelectorAll('.filter-pill').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('filter-' + filterType)?.classList.add('active');
+
     const container = document.getElementById('historyListContainer');
-    if(!container) return; // കണ്ടെയ്നർ ഉണ്ടെന്ന് ഉറപ്പുവരുത്തുന്നു
-    
     container.innerHTML = '';
     
-    // പഴയ ഫംഗ്ഷനിലെ അതേ ഫിൽട്ടറിംഗ് (Paid, Processing, Rejected മാത്രം)
+    // പണമടച്ചതും, പ്രോസസ്സിങ്ങും, റിജക്ട് ആയതും മാത്രം എടുക്കുന്നു
     let displayHistory = fullHistory.filter(h => h.status === 'Paid' || h.status === 'Processing' || h.isRejected);
     
-    // വർഷവും മാസവും അനുസരിച്ചുള്ള സോർട്ടിംഗ്
+    // ഫിൽട്ടർ അപ്ലൈ ചെയ്യുന്നു
+    if (filterType !== 'all') {
+        displayHistory = displayHistory.filter(h => h.status === filterType);
+    }
+    
     displayHistory.sort((a, b) => {
         if (b.year !== a.year) return parseInt(b.year) - parseInt(a.year);
         return b.monthIdx - a.monthIdx;
     });
 
     if (displayHistory.length === 0) {
-        container.innerHTML = '<p class="text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest py-10 bg-slate-50 rounded-2xl border border-dashed">ഹിസ്റ്ററി ലഭ്യമല്ല</p>';
-    } else {
-        container.innerHTML = displayHistory.map(h => {
-            let isPaid = h.status === 'Paid';
-            let isRejected = h.isRejected && !isPaid && h.status !== 'Processing'; 
-            
-            // സ്റ്റാറ്റസിന് അനുസരിച്ചുള്ള കളർ മാറ്റങ്ങൾ (പഴയ അതേ ലോജിക്)
-            let borderColor = isPaid ? 'border-emerald-50' : (isRejected ? 'border-rose-50' : 'border-amber-50');
-            let textColor = isPaid ? 'text-emerald-500' : (isRejected ? 'text-rose-500' : 'text-amber-500');
-            let iconText = isPaid ? '<i class="fas fa-check-circle"></i> പണമടച്ചു' : (isRejected ? '<i class="fas fa-times-circle"></i> റിജക്ട് ചെയ്തു (Rejected)' : '<i class="fas fa-clock"></i> അഡ്മിൻ അപ്രൂവൽ പെൻഡിങ്');
-            
-            let rightAction = isPaid ? 
-                `<button onclick="downloadReceipt('${h.month}', '${h.year}', ${h.amount})" class="bg-emerald-50 text-emerald-600 w-11 h-11 rounded-xl flex items-center justify-center active:scale-90 transition-all border border-emerald-100 shadow-sm"><i class="fas fa-download text-lg"></i></button>` 
-                : (isRejected ? 
-                `<div class="w-11 h-11 flex items-center justify-center text-rose-400 bg-rose-50 rounded-xl border border-rose-100"><i class="fas fa-exclamation-circle text-lg"></i></div>`
-                : `<div class="w-11 h-11 flex items-center justify-center text-amber-300 bg-amber-50 rounded-xl border border-amber-100"><i class="fas fa-spinner fa-spin text-lg"></i></div>`);
+        container.innerHTML = `
+            <div class="text-center py-20 opacity-40">
+                <i class="fas fa-layer-group text-4xl mb-4"></i>
+                <p class="font-bold text-[10px] uppercase tracking-widest">വിവരങ്ങൾ ലഭ്യമല്ല</p>
+            </div>`;
+        return;
+    }
 
-            return `
-            <div class="bg-white border-2 ${borderColor} p-4 rounded-2xl shadow-sm flex justify-between items-center mb-3">
+    container.innerHTML = displayHistory.map(h => {
+        const isPaid = h.status === 'Paid';
+        const isRejected = h.isRejected && !isPaid && h.status !== 'Processing';
+        
+        const bgColor = isPaid ? 'bg-emerald-50/30' : (isRejected ? 'bg-rose-50/30' : 'bg-amber-50/30');
+        const borderColor = isPaid ? 'border-emerald-100' : (isRejected ? 'border-rose-100' : 'border-amber-100');
+        const textColor = isPaid ? 'text-emerald-600' : (isRejected ? 'text-rose-600' : 'text-amber-600');
+        
+        return `
+        <div class="bg-white border ${borderColor} ${bgColor} p-4 rounded-[24px] shadow-sm flex justify-between items-center transition-all hover:shadow-md">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-white shadow-sm text-slate-400">
+                    <i class="fas ${isPaid ? 'fa-file-invoice text-emerald-500' : 'fa-clock'}"></i>
+                </div>
                 <div>
-                    <p class="font-black text-slate-800 text-sm uppercase tracking-tight mb-1">${h.month} ${h.year}</p>
-                    <p class="text-[9px] font-black ${textColor} uppercase tracking-widest">
-                        ${iconText}
+                    <p class="font-black text-slate-800 text-sm uppercase tracking-tight">${h.month} ${h.year}</p>
+                    <p class="text-[9px] font-black ${textColor} uppercase tracking-widest mt-1">
+                        ${isPaid ? 'പണമടച്ചു' : (isRejected ? 'Rejected' : 'Pending Approval')}
                     </p>
                 </div>
-                <div>
-                    ${rightAction}
-                </div>
-            </div>`;
-        }).join('');
-    }
+            </div>
+            ${isPaid ? `
+                <button onclick="downloadReceipt('${h.month}', '${h.year}', ${h.amount})" class="w-10 h-10 bg-white text-blue-600 rounded-full flex items-center justify-center shadow-sm active:scale-90 border border-slate-100">
+                    <i class="fas fa-download text-xs"></i>
+                </button>` : ''}
+        </div>`;
+    }).join('');
 }
-
 // റെസീപ്റ്റ് ഇമേജ് ആക്കി ഡൗൺലോഡ് ചെയ്യുന്ന ഫംഗ്ഷൻ
 function downloadReceipt(month, year, amount) {
     showLoader(true);
