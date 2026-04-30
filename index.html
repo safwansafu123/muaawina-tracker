@@ -961,7 +961,7 @@ switchAppTab('home'); // ലോഗിൻ ചെയ്ത ഉടനെ ഹോം 
 
                     // പ്രൊഫൈൽ പേജിലെ ഡാറ്റ
                     if (profileName) profileName.innerText = d.name;
-                    if (profileBatch) profileBatch.innerText = d.batch || 'UNASSIGNED';
+                    if (profileBatch) profileBatch.innerText = d.id || 'N/A';
                     if (profilePhone) profilePhone.innerText = d.phone;
                     
                     // പ്രൊഫൈലിലെ മറ്റ് വിവരങ്ങൾ ബോക്സുകളിൽ കാണിക്കാൻ
