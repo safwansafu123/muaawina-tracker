@@ -56,7 +56,18 @@
         .swal2-popup { font-family: 'Manjari', sans-serif !important; border-radius: 24px !important; }
         .swal2-container { z-index: 20000 !important; }
          /* പഴയ ലോഡർ CSS ഒഴിവാക്കി ഇത് മാത്രം നൽകുക */
-/* പഴയ ലോഡർ CSS ഒഴിവാക്കി ഇത് മാത്രം നൽകുക */
+/* എല്ലാ പേജുകളും സ്ക്രോൾ ചെയ്യാൻ സാധിക്കുമെന്ന് ഉറപ്പാക്കാൻ */
+#homePage, #memberPage, #historyPage, #profilePage {
+    min-height: 100vh;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ബോഡിയിൽ അനാവശ്യമായി സ്ക്രോൾ ലോക്ക് വരുന്നത് തടയാൻ */
+body {
+    overflow-x: hidden;
+    overflow-y: auto !important;
+}
         /* ആക്ടീവ് ബട്ടണിന് പിന്നിലെ നീല വട്ടം */
 .nav-active-bg {
     background-color: #2563eb; /* Blue-600 */
@@ -220,9 +231,10 @@
             
    <!-- ഫ്ലോട്ടിംഗ് ബോട്ടം ബാർ -->
    <div id="bottomNav" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-[9000]" style="padding-bottom: env(safe-area-inset-bottom);">     
-<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-[100]">
-    <div class="bg-white/90 backdrop-blur-md rounded-[40px] shadow-2xl border border-slate-100 p-2 flex justify-around items-center">
-        
+<!-- ഫ്ലോട്ടിംഗ് ബോട്ടം ബാർ (Pointer events fix) -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-[100] pointer-events-none">
+    <div class="bg-white/90 backdrop-blur-md rounded-[40px] shadow-2xl border border-slate-100 p-2 flex justify-around items-center pointer-events-auto">
+        <!-- ബാക്കി ബട്ടണുകൾ എല്ലാം ഇതിനുള്ളിൽ പഴയപോലെ തന്നെ... -->   
         <!-- Home -->
         <button onclick="switchAppTab('home')" id="btn-home" class="flex flex-col items-center gap-1 transition-all group">
             <div id="icon-bg-home" class="nav-active-bg">
@@ -698,10 +710,22 @@
             }
         };
 
-        function showLoader(s) {
-            const loader = document.getElementById('loader');
-            if (loader) { if(s) loader.classList.remove('hidden'); else loader.classList.add('hidden'); }
-        }
+      function showLoader(s) {
+    const loader = document.getElementById('loader'); // നിങ്ങളുടെ HTML-ലെ അതേ ID
+    if (!loader) return;
+
+    if (s) {
+        // ലോഡർ കാണിക്കുന്നു
+        loader.classList.remove('hidden');
+        // ലോഡിംഗ് സമയത്ത് ബാക്ക്ഗ്രൗണ്ട് സ്ക്രോൾ ചെയ്യുന്നത് തടയുന്നു
+        document.body.style.overflow = 'hidden';
+    } else {
+        // ലോഡർ മറയ്ക്കുന്നു
+        loader.classList.add('hidden');
+        // ലോഡിംഗ് കഴിഞ്ഞാൽ സ്ക്രോൾ തിരികെ അനുവദിക്കുന്നു
+        document.body.style.overflow = 'auto';
+    }
+}
        function goHome() {
             document.getElementById('memberPage')?.classList.add('hidden');
             document.getElementById('adminPage')?.classList.add('hidden');
