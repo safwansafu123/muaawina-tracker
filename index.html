@@ -2506,6 +2506,45 @@ function switchAppTab(tabName) {
     // ഹിസ്റ്ററി ആണെങ്കിൽ റെൻഡർ ചെയ്യുന്നു
     if (tabName === 'history') renderHistory();
 }
+        // പ്രൊഫൈൽ സേവ് ചെയ്യാനുള്ള ഫംഗ്ഷൻ
+function saveProfile() {
+    if (!currentMember || !currentMember.id) {
+        Swal.fire('പിഴവ്', 'ലോഗിൻ വിവരങ്ങൾ ലഭ്യമല്ല!', 'error');
+        return;
+    }
+
+    // നിങ്ങളുടെ ഇൻപുട്ട് ബോക്സുകളിൽ നിന്ന് വിവരങ്ങൾ എടുക്കുന്നു
+    let emailVal = document.getElementById('emailInput') ? document.getElementById('emailInput').value : '';
+    let bloodVal = document.getElementById('bloodInput') ? document.getElementById('bloodInput').value : '';
+    let jobVal = document.getElementById('jobInput') ? document.getElementById('jobInput').value : '';
+    let companyVal = document.getElementById('companyInput') ? document.getElementById('companyInput').value : '';
+    let locationVal = document.getElementById('locationInput') ? document.getElementById('locationInput').value : '';
+
+    showLoader(true);
+    
+    // API വഴി ഗൂഗിൾ ഷീറ്റിലേക്ക് ഡാറ്റ അയക്കുന്നു
+    callAPI('updateProfileData', { 
+        id: currentMember.id, 
+        email: emailVal, 
+        blood: bloodVal, 
+        job: jobVal, 
+        company: companyVal, 
+        location: locationVal 
+    }).then(res => {
+        showLoader(false);
+        if(res.error) {
+            Swal.fire('പിഴവ്', res.error, 'error');
+        } else {
+            Swal.fire('വിജയിച്ചു!', 'പ്രൊഫൈൽ അപ്ഡേറ്റ് ചെയ്തു.', 'success').then(() => {
+                // സേവ് ചെയ്ത ശേഷം ഡാറ്റ റീഫ്രഷ് ചെയ്യാൻ
+                fetchMemberDetails(true); 
+            });
+        }
+    }).catch(err => {
+        showLoader(false);
+        Swal.fire('പിഴവ്', 'നെറ്റ്‌വർക്ക് പ്രശ്നം!', 'error');
+    });
+}
       // പ്രൊഫൈൽ ഫോട്ടോ ഗൂഗിൾ ഡ്രൈവിലേക്ക് അപ്‌ലോഡ് ചെയ്യാൻ
         function uploadProfilePhoto(event) {
             const file = event.target.files[0];
