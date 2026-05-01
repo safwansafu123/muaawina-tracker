@@ -416,109 +416,129 @@
         
 
     <!-- ================= പുതിതായി ചേർത്ത പ്രൊഫൈൽ പേജ് ================= -->
+<!-- ================= പുതിതായി ചേർത്ത പ്രൊഫൈൽ പേജ് (New Design) ================= -->
 <div id="profilePage" class="hidden p-4 sm:p-6 fade-in pb-24">
     
-    <h2 class="text-lg font-black text-slate-800 uppercase tracking-tight mb-6 text-center">പ്രൊഫൈൽ</h2>
+    <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight mb-8 text-center drop-shadow-sm">പ്രൊഫൈൽ</h2>
     
     <!-- പ്രൊഫൈൽ അപൂർണ്ണമാണെങ്കിൽ കാണിക്കുന്ന മെസ്സേജ് -->
-    <div id="profileWarning" class="hidden bg-amber-50 p-4 rounded-2xl border border-amber-200 mb-2 flex items-start gap-3 shadow-sm">
-        <i class="fas fa-exclamation-triangle text-amber-500 text-xl mt-1"></i>
+    <div id="profileWarning" class="hidden bg-amber-50 p-4 rounded-2xl border-2 border-amber-200 mb-4 flex items-start gap-3 shadow-sm">
+        <i class="fas fa-exclamation-triangle text-amber-500 text-xl mt-1 animate-pulse"></i>
         <div>
             <p class="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-1">പ്രൊഫൈൽ പൂർണ്ണമല്ല!</p>
             <p class="text-[11px] font-bold text-amber-600 leading-tight">നിങ്ങളുടെ എല്ലാ വിവരങ്ങളും നൽകിയിട്ടില്ല. ദയവായി താഴെ കാണുന്ന വിവരങ്ങൾ പൂരിപ്പിച്ച് സേവ് ചെയ്യുക.</p>
         </div>
     </div>
 
-    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center mb-6 relative mt-12">
-        <div class="w-24 h-24 bg-slate-100 rounded-full border-4 border-white shadow-md -mt-16 flex items-center justify-center text-slate-400 text-3xl relative overflow-visible z-10">
-            <div class="w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-slate-100">
+    <!-- പ്രൊഫൈൽ ഹെഡർ കാർഡ് -->
+    <div class="bg-white p-6 rounded-[32px] shadow-xl shadow-blue-900/5 border-2 border-blue-50 flex flex-col items-center justify-center text-center mb-8 relative mt-12">
+        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-blue-300 rounded-t-[32px]"></div>
+        <div class="w-28 h-28 bg-blue-50 rounded-full border-4 border-white shadow-lg -mt-16 flex items-center justify-center text-blue-300 text-4xl relative overflow-visible z-10">
+            <div class="w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-blue-50">
                 <img id="profImgDisplay" src="" class="hidden w-full h-full object-cover">
                 <i id="profIconDisplay" class="fas fa-user"></i>
             </div>
-            <label for="profPhotoUpload" class="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-sm border-2 border-white cursor-pointer active:scale-90 transition-all hover:bg-blue-700 z-20">
-                <i class="fas fa-camera text-[10px]"></i>
+            <label for="profPhotoUpload" class="absolute bottom-0 right-0 w-9 h-9 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-md border-4 border-white cursor-pointer active:scale-90 transition-all hover:bg-blue-700 z-20">
+                <i class="fas fa-camera text-[11px]"></i>
                 <input type="file" id="profPhotoUpload" accept="image/*" class="hidden" onchange="uploadProfilePhoto(event)">
             </label>
         </div>
-        <!-- ഇവിടെ കാണിക്കുന്നത് എഡിറ്റ് ചെയ്യാൻ പറ്റാത്ത ഹെഡിങ് മാത്രം -->
-        <h3 id="profName" class="text-xl font-black text-slate-800 uppercase mt-4 w-full text-center">...</h3>
-        <p id="profBatch" class="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full inline-block mt-2 uppercase tracking-widest text-center mx-auto">...</p>
+        <h3 id="profName" class="text-2xl font-black text-slate-800 uppercase mt-5 w-full text-center tracking-tight">...</h3>
+        <p id="profBatch" class="text-[10px] font-black text-blue-600 bg-blue-50 px-4 py-1.5 rounded-full inline-block mt-3 uppercase tracking-[0.2em] text-center mx-auto border border-blue-100 shadow-sm">...</p>
     </div>
 
-    <!-- അടിസ്ഥാന വിവരങ്ങൾ (എഡിറ്റ് ചെയ്യാവുന്നവ) -->
-    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-4 text-left">
-        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b pb-2">അടിസ്ഥാന വിവരങ്ങൾ</h4>
+    <!-- അടിസ്ഥാന വിവരങ്ങൾ -->
+    <div class="bg-white p-6 rounded-[28px] shadow-lg shadow-blue-900/5 border border-blue-100 mb-6 text-left relative overflow-hidden group hover:border-blue-300 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-full h-1.5 bg-blue-500 opacity-80"></div>
+        <h4 class="text-[11px] font-black text-blue-900 uppercase tracking-widest mb-6 flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-blue-500"><i class="fas fa-address-card text-xs"></i></div> അടിസ്ഥാന വിവരങ്ങൾ</h4>
+        
         <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase ml-1 mb-1">പേര് (Name)</p>
+                    <input type="text" id="profNameInput" class="w-full p-3.5 border-2 border-blue-50 rounded-xl text-xs font-black text-slate-700 outline-none focus:border-blue-500 focus:bg-white bg-slate-50/50 transition-all uppercase shadow-inner">
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase ml-1 mb-1">ഫോൺ നമ്പർ</p>
+                    <input type="tel" id="profPhoneInput" maxlength="10" class="w-full p-3.5 border-2 border-blue-50 rounded-xl text-xs font-black text-slate-700 outline-none focus:border-blue-500 focus:bg-white bg-slate-50/50 transition-all shadow-inner">
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase ml-1 mb-1">ജനനത്തീയതി (DOB)</p>
+                    <input type="date" id="profDob" class="w-full p-3.5 border-2 border-blue-50 rounded-xl text-xs font-black text-slate-700 outline-none focus:border-blue-500 focus:bg-white bg-slate-50/50 transition-all shadow-inner uppercase tracking-wider">
+                </div>
+            </div>
+            
             <div>
-                <p class="text-[9px] text-slate-400 font-bold uppercase">പേര് (Name)</p>
-                <input type="text" id="profNameInput" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50 uppercase">
+                <p class="text-[9px] text-slate-400 font-bold uppercase ml-1 mb-1">സ്ഥലം (Place)</p>
+                <input type="text" id="profPlace" placeholder="സ്വന്തം സ്ഥലം" class="w-full p-3.5 border-2 border-blue-50 rounded-xl text-xs font-black text-slate-700 outline-none focus:border-blue-500 focus:bg-white bg-slate-50/50 transition-all shadow-inner">
             </div>
             <div>
-                <p class="text-[9px] text-slate-400 font-bold uppercase">ഫോൺ നമ്പർ</p>
-                <input type="tel" id="profPhoneInput" maxlength="10" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
+                <p class="text-[9px] text-slate-400 font-bold uppercase ml-1 mb-1">വിലാസം (Address)</p>
+                <textarea id="profAddress" placeholder="മുഴുവൻ വിലാസം" rows="2" class="w-full p-3.5 border-2 border-blue-50 rounded-xl text-xs font-black text-slate-700 outline-none focus:border-blue-500 focus:bg-white bg-slate-50/50 transition-all shadow-inner resize-none"></textarea>
             </div>
-            <div>
-                <p class="text-[9px] text-slate-400 font-bold uppercase">ജനനത്തീയതി (DOB)</p>
-                <input type="date" id="profDob" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
-            </div>
-            <div>
-                <p class="text-[9px] text-slate-400 font-bold uppercase">സ്ഥലം (Place)</p>
-                <input type="text" id="profPlace" placeholder="സ്വന്തം സ്ഥലം" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
-            </div>
-            <div>
-                <p class="text-[9px] text-slate-400 font-bold uppercase">വിലാസം (Address)</p>
-                <textarea id="profAddress" placeholder="മുഴുവൻ വിലാസം" rows="2" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50"></textarea>
-            </div>
-            <div>
-                <p class="text-[9px] text-slate-400 font-bold uppercase">ഈമെയിൽ (Email)</p>
-                <input type="email" id="profEmail" placeholder="email@example.com" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
-            </div>
-            <div>
-                <p class="text-[9px] text-slate-400 font-bold uppercase">രക്ത ഗ്രൂപ്പ് (Blood Group)</p>
-                <select id="profBlood" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
-                    <option value="">തിരഞ്ഞെടുക്കുക</option>
-                    <option value="A+">A+</option><option value="O+">O+</option><option value="B+">B+</option><option value="AB+">AB+</option>
-                    <option value="A-">A-</option><option value="O-">O-</option><option value="B-">B-</option><option value="AB-">AB-</option>
-                </select>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase ml-1 mb-1">ഈമെയിൽ (Email)</p>
+                    <input type="email" id="profEmail" placeholder="email@example.com" class="w-full p-3.5 border-2 border-blue-50 rounded-xl text-xs font-black text-slate-700 outline-none focus:border-blue-500 focus:bg-white bg-slate-50/50 transition-all shadow-inner">
+                </div>
+                <div class="col-span-2">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase ml-1 mb-1">രക്ത ഗ്രൂപ്പ് (Blood Group)</p>
+                    <select id="profBlood" class="w-full p-3.5 border-2 border-blue-50 rounded-xl text-xs font-black text-slate-700 outline-none focus:border-blue-500 focus:bg-white bg-slate-50/50 transition-all shadow-inner appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%233b82f6%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_16px_center] bg-no-repeat pr-10">
+                        <option value="">തിരഞ്ഞെടുക്കുക</option>
+                        <option value="A+">A+</option><option value="O+">O+</option><option value="B+">B+</option><option value="AB+">AB+</option>
+                        <option value="A-">A-</option><option value="O-">O-</option><option value="B-">B-</option><option value="AB-">AB-</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- പ്രൊഫഷണൽ വിവരങ്ങൾ -->
-    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-4 text-left">
-        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b pb-2">പ്രൊഫഷണൽ വിവരങ്ങൾ</h4>
+    <div class="bg-white p-6 rounded-[28px] shadow-lg shadow-blue-900/5 border border-blue-100 mb-6 text-left relative overflow-hidden group hover:border-blue-300 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-full h-1.5 bg-blue-500 opacity-80"></div>
+        <h4 class="text-[11px] font-black text-blue-900 uppercase tracking-widest mb-6 flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-blue-500"><i class="fas fa-briefcase text-xs"></i></div> പ്രൊഫഷണൽ വിവരങ്ങൾ</h4>
+        
         <div class="space-y-4">
             <div>
-                <p class="text-[9px] text-slate-400 font-bold uppercase">നിലവിലെ ജോലി / സ്ഥാനം</p>
-                <input type="text" id="profJob" placeholder="ഉദാ: Muallim" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
+                <p class="text-[9px] text-slate-400 font-bold uppercase ml-1 mb-1">നിലവിലെ ജോലി / സ്ഥാനം</p>
+                <input type="text" id="profJob" placeholder="ഉദാ: Muallim" class="w-full p-3.5 border-2 border-blue-50 rounded-xl text-xs font-black text-slate-700 outline-none focus:border-blue-500 focus:bg-white bg-slate-50/50 transition-all shadow-inner">
             </div>
             <div>
-                <p class="text-[9px] text-slate-400 font-bold uppercase">കമ്പനി / സ്ഥാപനം</p>
-                <input type="text" id="profCompany" placeholder="ഉദാ: Madrassa" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
+                <p class="text-[9px] text-slate-400 font-bold uppercase ml-1 mb-1">കമ്പനി / സ്ഥാപനം</p>
+                <input type="text" id="profCompany" placeholder="ഉദാ: Madrassa" class="w-full p-3.5 border-2 border-blue-50 rounded-xl text-xs font-black text-slate-700 outline-none focus:border-blue-500 focus:bg-white bg-slate-50/50 transition-all shadow-inner">
             </div>
             <div>
-                <p class="text-[9px] text-slate-400 font-bold uppercase">ജോലി ചെയ്യുന്ന സ്ഥലം</p>
-                <input type="text" id="profLocation" placeholder="Nilambur" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
+                <p class="text-[9px] text-slate-400 font-bold uppercase ml-1 mb-1">ജോലി ചെയ്യുന്ന സ്ഥലം</p>
+                <input type="text" id="profLocation" placeholder="Nilambur" class="w-full p-3.5 border-2 border-blue-50 rounded-xl text-xs font-black text-slate-700 outline-none focus:border-blue-500 focus:bg-white bg-slate-50/50 transition-all shadow-inner">
             </div>
         </div>
     </div>
 
     <!-- സുരക്ഷാ വിവരങ്ങൾ -->
-    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-6 text-left border-t-4 border-t-blue-500">
-        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b pb-2">സുരക്ഷാ വിവരങ്ങൾ</h4>
+    <div class="bg-white p-6 rounded-[28px] shadow-lg shadow-slate-900/5 border border-slate-200 mb-8 text-left relative overflow-hidden group hover:border-slate-400 transition-colors duration-300">
+        <div class="absolute top-0 left-0 w-full h-1.5 bg-slate-800 opacity-80"></div>
+        <h4 class="text-[11px] font-black text-slate-800 uppercase tracking-widest mb-6 flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fas fa-shield-alt text-xs"></i></div> സുരക്ഷാ വിവരങ്ങൾ</h4>
+        
         <div class="space-y-4">
             <div>
-                <p class="text-[9px] text-slate-400 font-bold uppercase">പാസ്‌വേഡ് മാറ്റുക (Password)</p>
-                <input type="text" id="profPassword" placeholder="പാസ്‌വേഡ് നൽകുക" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50" style="font-family: monospace; letter-spacing: 2px;">
-                <p class="text-[9px] text-slate-400 mt-1">ലോഗിൻ ചെയ്യാൻ ഉപയോഗിക്കുന്ന പാസ്‌വേഡ് (MID).</p>
+                <p class="text-[9px] text-slate-400 font-bold uppercase ml-1 mb-1">പാസ്‌വേഡ് മാറ്റുക (Password)</p>
+                <input type="text" id="profPassword" placeholder="പാസ്‌വേഡ് നൽകുക" class="w-full p-3.5 border-2 border-slate-100 rounded-xl text-xs font-black text-slate-700 outline-none focus:border-slate-800 focus:bg-white bg-slate-50/50 transition-all shadow-inner" style="font-family: monospace; letter-spacing: 2px;">
+                <p class="text-[9px] text-slate-400 mt-2 ml-1 flex items-center gap-1.5"><i class="fas fa-info-circle text-blue-400"></i> ലോഗിൻ ചെയ്യാൻ ഉപയോഗിക്കുന്ന പാസ്‌വേഡ് (MID).</p>
             </div>
         </div>
     </div>
 
-    <button onclick="saveProfile()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-md active:scale-95 transition-all uppercase tracking-widest text-[11px] mb-3">Save Profile</button>
-    <button onclick="goHome()" class="w-full bg-rose-50 text-rose-600 py-4 rounded-2xl font-black active:scale-95 transition-all uppercase tracking-widest text-[11px] border border-rose-100">ലോഗൗട്ട് ചെയ്യുക</button>
+    <div class="flex flex-col gap-3">
+        <button onclick="saveProfile()" class="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl font-black shadow-xl shadow-blue-600/30 active:scale-95 transition-all uppercase tracking-widest text-[11px] border border-blue-500 flex items-center justify-center gap-2">
+            <i class="fas fa-save text-sm"></i> Save Profile
+        </button>
+        <button onclick="goHome()" class="w-full py-4 bg-white text-rose-600 rounded-2xl font-black active:scale-95 transition-all uppercase tracking-widest text-[11px] border-2 border-rose-100 shadow-sm flex items-center justify-center gap-2">
+            <i class="fas fa-sign-out-alt"></i> ലോഗൗട്ട് ചെയ്യുക
+        </button>
+    </div>
 
-</div> 
+</div>
        
         
     
