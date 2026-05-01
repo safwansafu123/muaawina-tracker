@@ -367,6 +367,12 @@
             <span>History</span>
         </button>
 
+<!-- പുതിയ Members ബട്ടൺ -->
+        <button onclick="switchAppTab('directory')" id="nav-directory" class="nav-btn">
+            <div class="icon-circle"><i class="fas fa-users text-lg"></i></div>
+            <span>Members</span>
+        </button>
+
         <!-- Profile -->
         <button onclick="switchAppTab('profile')" id="nav-profile" class="nav-btn">
             <div class="icon-circle"><i class="fas fa-user-circle text-lg"></i></div>
@@ -417,7 +423,32 @@
         </div>
         
 
-    <!-- ================= പുതിതായി ചേർത്ത പ്രൊഫൈൽ പേജ് ================= -->
+<!-- ================= പുതിയ മെമ്പേഴ്സ് ഡയറക്ടറി പേജ് ================= -->
+<div id="directoryPage" class="hidden p-4 sm:p-6 fade-in pb-24">
+    
+    <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight mb-6 text-center drop-shadow-sm">അംഗങ്ങൾ</h2>
+    
+    <!-- തിരയാനുള്ള സെർച്ച് ബോക്സ് -->
+    <div class="bg-white p-4 rounded-[24px] shadow-sm border border-slate-100 mb-6 sticky top-2 z-30">
+        <div class="relative mb-3">
+            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-400"></i>
+            <input type="text" id="dirSearchInput" onkeyup="filterDirectory()" placeholder="പേരോ സ്ഥലമോ തിരയുക..." class="w-full pl-10 pr-4 py-3 bg-slate-50/50 border-2 border-slate-100 rounded-xl text-xs font-black text-slate-700 outline-none focus:border-blue-400 transition-all shadow-inner">
+        </div>
+        
+        <!-- ബാച്ച് അടിസ്ഥാനത്തിൽ ഫിൽട്ടർ ചെയ്യാനുള്ള ബട്ടണുകൾ -->
+        <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1" id="dirBatchFilters">
+            <button onclick="filterDirBatch('all')" class="dir-filter-btn active px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 border-blue-500 bg-blue-500 text-white shadow-md transition-all whitespace-nowrap">എല്ലാവരും</button>
+            <!-- ബാക്കിവരുന്ന ബാച്ചുകൾ ജാവാസ്ക്രിപ്റ്റ് വഴി ഇവിടെ തനിയെ വരും -->
+        </div>
+    </div>
+
+    <!-- അംഗങ്ങളുടെ ലിസ്റ്റ് കാണിക്കുന്ന സ്ഥലം -->
+    <div id="directoryListContainer" class="space-y-3">
+        <!-- ഡാറ്റ ലോഡ് ആകുന്നത് വരെ കാണിക്കാൻ -->
+        <p class="text-center text-slate-400 font-bold text-xs p-5 uppercase tracking-widest animate-pulse mt-10">ഡാറ്റ ലോഡ് ചെയ്യുന്നു...</p>
+    </div>
+
+</div>
 <!-- ================= പുതിതായി ചേർത്ത പ്രൊഫൈൽ പേജ് (New Design) ================= -->
 <div id="profilePage" class="hidden p-4 sm:p-6 fade-in pb-24">
     
@@ -2626,9 +2657,10 @@ function closeNoticeModal() {
         toggleScroll(false);
     }, 300);
 }
-  // പേജുകൾ മാറാനുള്ള ഫംഗ്ഷൻ (Updated)
+// പേജുകൾ മാറാനുള്ള ഫംഗ്ഷൻ (Directory ഉൾപ്പെടുത്തിയത്)
 function switchAppTab(tabName) {
-    const tabs = ['home', 'dues', 'history', 'profile'];
+    // ഇപ്പോൾ 5 ടാബുകൾ ഉണ്ട്
+    const tabs = ['home', 'dues', 'history', 'directory', 'profile'];
     
     tabs.forEach(tab => {
         // 1. ബട്ടണുകളിലെ ആക്ടീവ് സ്റ്റൈൽ മാറ്റുന്നു
@@ -2638,7 +2670,9 @@ function switchAppTab(tabName) {
         // 2. എല്ലാ പേജുകളും ഹൈഡ് ചെയ്യുന്നു
         const page = (tab === 'home') ? 'homePage' : 
                      (tab === 'dues') ? 'memberPage' : 
-                     (tab === 'history') ? 'historyPage' : 'profilePage';
+                     (tab === 'history') ? 'historyPage' : 
+                     (tab === 'directory') ? 'directoryPage' : 'profilePage';
+                     
         const pageEl = document.getElementById(page);
         if (pageEl) pageEl.classList.add('hidden');
     });
@@ -2650,16 +2684,20 @@ function switchAppTab(tabName) {
     // 4. ക്ലിക്ക് ചെയ്ത പേജ് കാണിക്കുന്നു
     const activePage = (tabName === 'home') ? 'homePage' : 
                        (tabName === 'dues') ? 'memberPage' : 
-                       (tabName === 'history') ? 'historyPage' : 'profilePage';
+                       (tabName === 'history') ? 'historyPage' : 
+                       (tabName === 'directory') ? 'directoryPage' : 'profilePage';
+                       
     const activePageEl = document.getElementById(activePage);
     if (activePageEl) {
         activePageEl.classList.remove('hidden');
-        // പേജ് മാറുമ്പോൾ സ്ക്രോൾ ടോപ്പിലേക്ക് മാറ്റുന്നു
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
-    // ഹിസ്റ്ററി ആണെങ്കിൽ റെൻഡർ ചെയ്യുന്നു
+    // പേജുകൾക്കനുസരിച്ച് ഡാറ്റ ലോഡ് ചെയ്യാൻ
     if (tabName === 'history') renderHistory();
+    if (tabName === 'directory') {
+        if(typeof fetchDirectoryData === 'function') fetchDirectoryData();
+    }
 }
         // പ്രൊഫൈൽ സേവ് ചെയ്യാനുള്ള ഫംഗ്ഷൻ
 // പ്രൊഫൈൽ സേവ് ചെയ്യാനുള്ള ഫംഗ്ഷൻ
