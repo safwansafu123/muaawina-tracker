@@ -2751,6 +2751,10 @@ function installPWA() {
     deferredPrompt.userChoice.then((choiceResult) => {
         if (choiceResult.outcome === 'accepted') {
             document.getElementById('appInstallCard').classList.add('hidden');
+            // ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്താൽ അത് സർവറിൽ അറിയിക്കുന്നു
+            if(currentMember && currentMember.id) {
+                callAPI('markAppInstalled', { id: currentMember.id });
+            }
         }
         deferredPrompt = null;
     });
