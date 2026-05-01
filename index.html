@@ -673,30 +673,34 @@
                 </div>
             </div>
 
-            <div id="sectionLogins" class="hidden space-y-4">
-               <!-- sectionLogins എന്നതിലെ പഴയ ഫിൽട്ടർ ബോക്സ് മാറ്റി ഇത് നൽകുക -->
-<div class="glass-card p-4 space-y-3 shadow-lg border border-slate-100">
-    <input type="text" id="searchLoginInput" onkeyup="filterLogins()" placeholder="പേര് തിരയുക..." class="w-full p-3.5 rounded-xl border-2 border-slate-100 outline-none focus:border-blue-400 transition-all text-xs font-bold bg-white shadow-inner">
-    
-    <div class="grid grid-cols-1 gap-2">
-        <select id="loginStatusFilter" onchange="filterLogins()" class="custom-select w-full p-3.5 rounded-xl border-2 border-slate-100 bg-white font-black text-slate-700 text-xs outline-none shadow-sm">
-            <option value="all">എല്ലാവരും (All Members)</option>
-            <option value="active">ലോഗിൻ ചെയ്തവർ (Active)</option>
-            <option value="never">ലോഗിൻ ചെയ്യാത്തവർ (0 Logins)</option>
-            <option value="installed">ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്തവർ</option>
-            <option value="not_installed">ഇൻസ്റ്റാൾ ചെയ്യാത്തവർ</option>
-            <option value="profile_done">പ്രൊഫൈൽ സെറ്റ് ചെയ്തവർ</option>
-            <option value="profile_pending">പ്രൊഫൈൽ ചെയ്യാത്തവർ</option>
-        </select>
+          <div id="sectionLogins" class="hidden space-y-4">
+    <div class="glass-card p-4 space-y-3 shadow-lg border border-slate-100">
+        <!-- സെർച്ച് ബോക്സ് -->
+        <input type="text" id="searchLoginInput" onkeyup="filterLogins()" placeholder="പേര് തിരയുക..." class="w-full p-3.5 rounded-xl border-2 border-slate-100 outline-none focus:border-blue-400 transition-all text-xs font-bold bg-white shadow-inner">
+        
+        <div class="grid grid-cols-1 gap-2">
+            <!-- വിപുലീകരിച്ച ഫിൽട്ടർ ഓപ്ഷനുകൾ -->
+            <select id="loginStatusFilter" onchange="filterLogins()" class="custom-select w-full p-3.5 rounded-xl border-2 border-slate-100 bg-white font-black text-slate-700 text-xs outline-none shadow-sm">
+                <option value="all">എല്ലാവരും (All Members)</option>
+                <option value="active">ലോഗിൻ ചെയ്തവർ (Active)</option>
+                <option value="never">ലോഗിൻ ചെയ്യാത്തവർ (0 Logins)</option>
+                <option value="installed">ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്തവർ ✅</option>
+                <option value="not_installed">ഇൻസ്റ്റാൾ ചെയ്യാത്തവർ ❌</option>
+                <option value="profile_done">പ്രൊഫൈൽ പൂർത്തിയാക്കിയവർ ✨</option>
+                <option value="profile_pending">പ്രൊഫൈൽ അപൂർണ്ണമായവർ ⚠️</option>
+            </select>
+        </div>
+
+        <!-- ഫിൽട്ടർ ചെയ്ത ലിസ്റ്റ് കോപ്പി ചെയ്യാനുള്ള ബട്ടൺ -->
+        <button onclick="copyLoginListData()" class="w-full bg-blue-50 text-blue-700 py-3 rounded-xl font-black text-[10px] uppercase shadow-sm border border-blue-100 active:scale-95 flex items-center justify-center gap-2">
+            <i class="fas fa-copy"></i> ഈ ലിസ്റ്റിലെ പേരുകൾ ബാച്ച് തിരിച്ച് കോപ്പി ചെയ്യുക
+        </button>
     </div>
 
-    <!-- പുതിയ കോപ്പി ബട്ടൺ -->
-    <button onclick="copyLoginListData()" class="w-full bg-blue-50 text-blue-700 py-3 rounded-xl font-black text-[10px] uppercase shadow-sm border border-blue-100 active:scale-95 flex items-center justify-center gap-2">
-        <i class="fas fa-copy"></i> ഈ ലിസ്റ്റിലെ പേരുകൾ കോപ്പി ചെയ്യുക
-    </button>
+    <div class="glass-card overflow-hidden shadow-xl border border-slate-100">
+        <div id="adminLoginList" class="divide-y divide-slate-100 max-h-[400px] overflow-y-auto no-scrollbar bg-white shadow-inner shadow-slate-50"></div>
+    </div>
 </div>
-
-        </div>
 
         <div id="paymentModal" class="hidden fixed inset-0 bg-slate-900/95 flex items-center justify-center p-4 z-[110]">
             <div class="glass-card w-full max-w-sm text-center border-t-8 border-blue-600 p-8 shadow-2xl modal-up">
@@ -1731,7 +1735,7 @@ function filterLogins() {
     const sStatus = statusFilter ? statusFilter.value : 'all';
 
     let filtered = adminMembers.filter(m => {
-        const matchSearch = m.name.toLowerCase().includes(q) || m.phone.includes(q);
+        const matchSearch = m.name.toLowerCase().includes(q) || (m.phone && m.phone.includes(q));
         
         let matchStatus = true;
         if(sStatus === 'never') matchStatus = (m.loginCount === 0);
@@ -1745,52 +1749,54 @@ function filterLogins() {
     });
 
     filtered.sort((a, b) => b.loginCount - a.loginCount);
-    currentFilteredLogins = filtered; // കോപ്പി ചെയ്യാൻ വേണ്ടി ഡാറ്റ സേവ് ചെയ്യുന്നു
+    currentFilteredLogins = filtered; // കോപ്പി ചെയ്യാൻ ഈ ലിസ്റ്റ് ഉപയോഗിക്കുന്നു
     renderLoginList(filtered);
 }
 
-     function renderLoginList(mbs) {
+   function renderLoginList(mbs) {
     const l = document.getElementById('adminLoginList');
     if (!l) return;
     if(mbs.length === 0) {
-        l.innerHTML = '<p class="p-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest text-center shadow-inner">ആരെയും കണ്ടെത്തിയില്ല</p>';
+        l.innerHTML = '<p class="p-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest">ആരെയും കണ്ടെത്തിയില്ല</p>';
         return;
     }
     l.innerHTML = mbs.map(m => `
         <div class="p-5 flex justify-between items-center hover:bg-slate-50 transition-all border-b">
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-4 text-left">
                 <div class="w-11 h-11 rounded-2xl ${m.loginCount > 0 ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'} flex items-center justify-center font-black text-lg shadow-inner border border-white/50">
-                    <i class="fas fa-user"></i>
+                    <i class="fas fa-user text-sm"></i>
                 </div>
                 <div>
-                    <p class="font-black text-slate-900 text-sm leading-tight uppercase tracking-tight text-left mb-1">${m.name}</p>
-                    <div class="flex gap-2 items-center">
-                        <!-- ഇൻസ്റ്റാൾ ബാഡ്ജ് -->
-                        <span class="text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${m.isInstalled ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' : 'bg-slate-100 text-slate-400 border border-slate-200'}">
-                            <i class="fas fa-download"></i> ${m.isInstalled ? 'Installed' : 'No App'}
+                    <p class="font-black text-slate-900 text-sm leading-tight uppercase tracking-tight mb-1.5 text-left leading-none">${m.name}</p>
+                    <div class="flex gap-1.5 flex-wrap">
+                        <!-- App Install ബാഡ്ജ് -->
+                        <span class="text-[7px] font-black uppercase px-1.5 py-0.5 rounded ${m.isInstalled ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' : 'bg-slate-100 text-slate-400 border border-slate-200'}">
+                            <i class="fas fa-mobile-alt"></i> ${m.isInstalled ? 'Installed' : 'No App'}
                         </span>
-                        <!-- പ്രൊഫൈൽ ബാഡ്ജ് -->
-                        <span class="text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${m.isProfileComplete ? 'bg-blue-100 text-blue-600 border border-blue-200' : 'bg-amber-100 text-amber-600 border border-amber-200'}">
-                            <i class="fas fa-user-check"></i> ${m.isProfileComplete ? 'Profile Set' : 'Incomplete'}
+                        <!-- Profile Status ബാഡ്ജ് -->
+                        <span class="text-[7px] font-black uppercase px-1.5 py-0.5 rounded ${m.isProfileComplete ? 'bg-blue-100 text-blue-600 border border-blue-200' : 'bg-amber-100 text-amber-600 border border-amber-200'}">
+                            <i class="fas fa-user-check"></i> ${m.isProfileComplete ? 'Set' : 'Pending'}
                         </span>
                     </div>
                 </div>
             </div>
-            <div class="text-right">
-                <p class="text-[9px] font-black uppercase text-slate-400 text-right leading-none mb-1">ലോഗിനുകൾ</p>
-                <p class="text-lg font-black ${m.loginCount > 0 ? 'text-blue-600' : 'text-slate-400'} text-right leading-none">${m.loginCount}</p>
+            <div class="text-right shrink-0">
+                <p class="text-[9px] font-black uppercase text-slate-400 leading-none mb-1">ലോഗിനുകൾ</p>
+                <p class="text-lg font-black ${m.loginCount > 0 ? 'text-blue-600' : 'text-slate-400'} leading-none">${m.loginCount}</p>
             </div>
         </div>`).join('');
 }
 
-// ലോഗിൻ ലിസ്റ്റിലെ പേരുകൾ ബാച്ച് തിരിച്ച് കോപ്പി ചെയ്യാൻ
 function copyLoginListData() {
-    if(!currentFilteredLogins || currentFilteredLogins.length === 0) return;
+    if(!currentFilteredLogins || currentFilteredLogins.length === 0) {
+        Swal.fire('ശ്രദ്ധിക്കുക', 'ലിസ്റ്റ് ശൂന്യമാണ്!', 'warning');
+        return;
+    }
     
-    let textToCopy = `📋 *MUAAWINA Login List*\n━━━━━━━━━━━━━━━━━━━━\n`;
+    let textToCopy = `📋 *MUAAWINA ലോഗിൻ റിപ്പോർട്ട്*\n━━━━━━━━━━━━━━━━━━━━\n`;
     let grouped = {};
     currentFilteredLogins.forEach(m => {
-        let b = m.batch || 'All';
+        let b = m.batch || 'Other';
         if(!grouped[b]) grouped[b] = [];
         grouped[b].push(m.name);
     });
@@ -1806,8 +1812,8 @@ function copyLoginListData() {
     el.select();
     document.execCommand('copy');
     document.body.removeChild(el);
-    Swal.fire('വിജയിച്ചു', 'പേരുകൾ കോപ്പി ചെയ്തു!', 'success');
-}   
+    Swal.fire('വിജയിച്ചു', 'പേരുകൾ ബാച്ച് തിരിച്ച് കോപ്പി ചെയ്തു!', 'success');
+}  
 
         
         // ഗ്രാഫ് ശതമാനത്തോടെ വരക്കുന്ന ഭാഗം
@@ -3119,7 +3125,7 @@ function confirmCrop() {
                 </div>
             </div>
             
-        </div>
+        </div> 
         
         <div class="absolute bottom-10 left-0 right-0 text-center relative z-10 mt-20">
             <div class="w-1/2 h-1 bg-slate-200 mx-auto mb-4 rounded-full"></div>
