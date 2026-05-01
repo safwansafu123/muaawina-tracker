@@ -899,7 +899,7 @@
         // ആപ്പ് ഏത് മാസത്തിലാണ് നിൽക്കുന്നത് എന്നതിന്റെ വേരിയബിൾ
         let globalAppYear = new Date().getFullYear();
         let globalAppMonth = new Date().getMonth();
-
+        let currentFilteredLogins = [];
         let fullHistory = [], currentMember = null, pendingMonthsList = [], upcomingMonthsList = [], timerInterval, currentPaymentType = 'single', currentTargetData = null, adminMembers = [], pendingApprovalsList = [], adminChart = null;
         let directoryMembers = [];
         let currentDirBatch = 'all';
@@ -1508,19 +1508,40 @@ if (mainPayConfirmBtn) {
 
 
        function adminLogin() {
-            const passInput = document.getElementById('adminPass');
-            const p = passInput ? passInput.value : '';
-            showLoader(true);
-            
-            if(APP_CONFIG) {
-                 checkPasswordAndLogin(p);
-            } else {
-                callAPI('getAppSettings').then(config => {
-                    if(config && !config.error) APP_CONFIG = config;
-                    checkPasswordAndLogin(p);
-                });
-            }
+    const passInput = document.getElementById('adminPass');
+    const p = passInput ? passInput.value : '';
+    
+    showLoader(true); // ലോഡർ കാണിക്കുന്നു
+    
+    // സർവറിൽ നിന്ന് ഡാറ്റ എടുക്കുന്നു
+    callAPI('getAdminData').then(d => {
+        showLoader(false); // ഡാറ്റ വന്നാലുടൻ ലോഡർ നിർത്തുന്നു
+        
+        if(d.error) {
+            return Swal.fire('തെറ്റ്', d.error, 'error');
         }
+        
+        // അഡ്മിൻ പാനൽ കാണിക്കുന്നു
+        const aModal = document.getElementById('adminModal');
+        if (aModal) aModal.classList.add('hidden');
+        
+        document.getElementById('loginPage')?.classList.add('hidden');
+        document.getElementById('adminPage')?.classList.remove('hidden');
+        
+        adminMembers = d.members || [];
+        pendingApprovalsList = d.approvals || [];
+        
+        renderBatchDropdowns();
+        populateMonthFilter();
+        updateAdminStats('all');
+        renderApprovals(pendingApprovalsList);
+        switchAdminTab('overview');
+        
+    }).catch(err => {
+        showLoader(false); // എറർ വന്നാലും ലോഡർ നിർത്തുന്നു
+        Swal.fire('Error', 'സർവറുമായി ബന്ധപ്പെടാൻ കഴിഞ്ഞില്ല!', 'error');
+    });
+}
 
         function checkPasswordAndLogin(enteredPass) {
             let actualPass = (APP_CONFIG && APP_CONFIG.ADMIN_PASS) ? APP_CONFIG.ADMIN_PASS : "1234";
@@ -1700,7 +1721,7 @@ function updateAdminStats(batch) {
     renderAdminList(filtered);
 }
 
-let currentFilteredLogins = []; // കോപ്പി ചെയ്യാൻ വേണ്ടി ഒരു വേരിയബിൾ കൂടി വെക്കുന്നു
+ // കോപ്പി ചെയ്യാൻ വേണ്ടി ഒരു വേരിയബിൾ കൂടി വെക്കുന്നു
 
 function filterLogins() {
     const searchInput = document.getElementById('searchLoginInput');
