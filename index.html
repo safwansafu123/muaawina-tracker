@@ -24,7 +24,9 @@
 </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <!-- Cropper.js for Image Cropping -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1816,6 +1818,7 @@ function updateAdminStats(batch) {
                         }, 500);
                     }
                 <\/script>
+                
             </body>
             </html>
             `;
@@ -2702,41 +2705,97 @@ function saveProfile() {
     });
 }
 
-      // പ്രൊഫൈൽ ഫോട്ടോ ഗൂഗിൾ ഡ്രൈവിലേക്ക് അപ്‌ലോഡ് ചെയ്യാൻ
-        function uploadProfilePhoto(event) {
-            const file = event.target.files[0];
-            if(!file || !currentMember) return;
+// ക്രോപ്പർ ഉപയോഗിക്കാനുള്ള വേരിയബിൾ
+let cropper = null;
+
+// ഫോട്ടോ സെലക്ട് ചെയ്യുമ്പോൾ ക്രോപ്പർ ഓപ്പൺ ആകാൻ
+function uploadProfilePhoto(event) {
+    const file = event.target.files[0];
+    if (!file || !currentMember) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const cropModal = document.getElementById('cropModal');
+        const cropImage = document.getElementById('cropImage');
+        
+        // തിരഞ്ഞെടുത്ത ഫോട്ടോ ക്രോപ്പറിൽ കാണിക്കുന്നു
+        cropImage.src = e.target.result;
+        cropModal.classList.remove('hidden');
+
+        // പഴയ ക്രോപ്പർ ഉണ്ടെങ്കിൽ അത് കളയുന്നു
+        if (cropper) { cropper.destroy(); }
+
+        // പുതിയ ക്രോപ്പർ സെറ്റ് ചെയ്യുന്നു (പ്രൊഫൈൽ ഫോട്ടോ ആയതിനാൽ 1:1 അനുപാതത്തിൽ)
+        cropper = new Cropper(cropImage, {
+            aspectRatio: 1, 
+            viewMode: 1,
+            autoCropArea: 1,
+            background: false
+        });
+    };
+    reader.readAsDataURL(file);
+    
+    // ഒരേ ഫോട്ടോ വീണ്ടും സെലക്ട് ചെയ്യാൻ വേണ്ടി ഇൻപുട്ട് റീസെറ്റ് ചെയ്യുന്നു
+    event.target.value = ''; 
+}
+
+// ക്രോപ്പർ ക്ലോസ് ചെയ്യാൻ
+function closeCropper() {
+    document.getElementById('cropModal').classList.add('hidden');
+    if (cropper) { 
+        cropper.destroy(); 
+        cropper = null; 
+    }
+}
+
+// ക്രോപ്പ് ചെയ്ത ഫോട്ടോ അപ്‌ലോഡ് ചെയ്യാൻ
+function confirmCrop() {
+    if (!cropper) return;
+    
+    showLoader(true);
+    
+    // ക്രോപ്പർ ഹൈഡ് ചെയ്യുന്നു
+    closeCropper(); 
+
+    // ക്രോപ്പ് ചെയ്ത ഭാഗം മാത്രം ക്യാൻവാസ് ആക്കി മാറ്റുന്നു
+    const canvas = cropper.getCroppedCanvas({
+        width: 400, // പ്രൊഫൈൽ ഫോട്ടോയ്ക്ക് ഈ വലിപ്പം മതിയാകും
+        height: 400
+    });
+    
+    // ക്യാൻവാസ് ബേസ്64 (Base64) രൂപത്തിലാക്കുന്നു
+    const base64Data = canvas.toDataURL('image/jpeg', 0.9);
+
+    // API വഴി ഗൂഗിൾ ഡ്രൈവിലേക്ക് അയക്കുന്നു
+    callAPI('uploadProfilePhoto', {
+        id: currentMember.id,
+        base64: base64Data,
+        mimeType: 'image/jpeg',
+        fileName: currentMember.name + "_MUAAWINA.jpg"
+    }).then(res => {
+        showLoader(false);
+        if(res.error) {
+            Swal.fire('പിഴവ്', res.error, 'error');
+        } else {
+            // പ്രൊഫൈൽ പേജിലെ ഫോട്ടോ അപ്ഡേറ്റ് ചെയ്യുന്നു
+            document.getElementById('profImgDisplay').src = res.url;
+            document.getElementById('profImgDisplay').classList.remove('hidden');
+            document.getElementById('profIconDisplay').classList.add('hidden');
             
-            showLoader(true);
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64Data = e.target.result;
-                
-                callAPI('uploadProfilePhoto', {
-                    id: currentMember.id,
-                    base64: base64Data,
-                    mimeType: file.type,
-                    fileName: currentMember.name + "_MUAAWINA.jpg"
-                }).then(res => {
-                    showLoader(false);
-                    if(res.error) {
-                        Swal.fire('Error', res.error, 'error');
-                    } else {
-                        // ഫോട്ടോ അപ്ഡേറ്റ് ചെയ്യുന്നു
-                        document.getElementById('profImgDisplay').src = res.url;
-                        document.getElementById('profImgDisplay').classList.remove('hidden');
-                        document.getElementById('profIconDisplay').classList.add('hidden');
-                        
-                        document.getElementById('homeProfileImg').src = res.url;
-                        document.getElementById('homeProfileImg').classList.remove('hidden');
-                        document.getElementById('homeProfileIcon').classList.add('hidden');
-                        
-                        Swal.fire('വിജയിച്ചു!', 'പ്രൊഫൈൽ ഫോട്ടോ അപ്‌ഡേറ്റ് ചെയ്തു.', 'success');
-                    }
-                });
-            };
-            reader.readAsDataURL(file);
-        }  
+            // ഹോം പേജിലെ ഫോട്ടോ അപ്ഡേറ്റ് ചെയ്യുന്നു
+            if(document.getElementById('homeProfileImg')) {
+                document.getElementById('homeProfileImg').src = res.url;
+                document.getElementById('homeProfileImg').classList.remove('hidden');
+                document.getElementById('homeProfileIcon').classList.add('hidden');
+            }
+            
+            Swal.fire('വിജയിച്ചു!', 'പ്രൊഫൈൽ ഫോട്ടോ അപ്‌ഡേറ്റ് ചെയ്തു.', 'success');
+        }
+    }).catch(err => {
+        showLoader(false);
+        Swal.fire('പിഴവ്', 'നെറ്റ്‌വർക്ക് പ്രശ്നം! ഒന്നുകൂടി ശ്രമിക്കുക.', 'error');
+    });
+}
     </script>
     <div id="pdfTemplateContainer" class="fixed -left-[9999px] top-0 pointer-events-none z-[-1]">
     <div id="pdfCard" class="bg-white relative" style="width: 800px; height: 1131px; font-family: 'Manjari', sans-serif; padding: 60px;">
@@ -2801,5 +2860,6 @@ function saveProfile() {
         </div>
     </div>
 </div>
+
 </body>
 </html>
