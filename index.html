@@ -415,74 +415,111 @@
         </div>
         
 
-        <!-- ================= പുതിതായി ചേർത്ത പ്രൊഫൈൽ പേജ് ================= -->
-       <div id="profilePage" class="hidden p-4 sm:p-6 fade-in pb-24">
-            
-            <h2 class="text-lg font-black text-slate-800 uppercase tracking-tight mb-8 text-center">പ്രൊഫൈൽ</h2>
-            
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center mb-6 relative mt-10">
-                
-                <div class="w-24 h-24 bg-slate-100 rounded-full border-4 border-white shadow-md -mt-16 flex items-center justify-center text-slate-400 text-3xl relative overflow-visible z-10">
-                    <div class="w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-slate-100">
-                        <img id="profImgDisplay" src="" class="hidden w-full h-full object-cover">
-                        <i id="profIconDisplay" class="fas fa-user"></i>
-                    </div>
-                    <label for="profPhotoUpload" class="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-sm border-2 border-white cursor-pointer active:scale-90 transition-all hover:bg-blue-700 z-20">
-                        <i class="fas fa-camera text-[10px]"></i>
-                        <input type="file" id="profPhotoUpload" accept="image/*" class="hidden" onchange="uploadProfilePhoto(event)">
-                    </label>
-                </div>
-
-                <h3 id="profName" class="text-xl font-black text-slate-800 uppercase mt-4 w-full text-center">...</h3>
-                <p id="profBatch" class="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full inline-block mt-2 uppercase tracking-widest text-center mx-auto">...</p>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-4 text-left">
-                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b pb-2">അടിസ്ഥാന വിവരങ്ങൾ</h4>
-                
-                <div class="space-y-4">
-                    <div>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase">ഫോൺ നമ്പർ</p>
-                        <p id="profPhone" class="text-sm font-black text-slate-800">...</p>
-                    </div>
-                    <div>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase">ഈമെയിൽ (Email)</p>
-                        <input type="email" id="profEmail" placeholder="email@example.com" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
-                    </div>
-                    <div>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase">രക്ത ഗ്രൂപ്പ് (Blood Group)</p>
-                        <select id="profBlood" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
-                            <option value="">തിരഞ്ഞെടുക്കുക</option>
-                            <option value="A+">A+</option><option value="O+">O+</option><option value="B+">B+</option><option value="AB+">AB+</option>
-                            <option value="A-">A-</option><option value="O-">O-</option><option value="B-">B-</option><option value="AB-">AB-</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-6 text-left">
-                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b pb-2">പ്രൊഫഷണൽ വിവരങ്ങൾ</h4>
-                
-                <div class="space-y-4">
-                    <div>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase">നിലവിലെ ജോലി / സ്ഥാനം</p>
-                        <input type="text" id="profJob" placeholder="ഉദാ: Muallim" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
-                    </div>
-                    <div>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase">കമ്പനി / സ്ഥാപനം</p>
-                        <input type="text" id="profCompany" placeholder="ഉദാ: Madrassa" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
-                    </div>
-                    <div>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase">ജോലി ചെയ്യുന്ന സ്ഥലം</p>
-                        <input type="text" id="profLocation" placeholder="Nilambur" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="saveProfile()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-md active:scale-95 transition-all uppercase tracking-widest text-[11px] mb-3">Save Profile</button>
-            <button onclick="goHome()" class="w-full bg-rose-50 text-rose-600 py-4 rounded-2xl font-black active:scale-95 transition-all uppercase tracking-widest text-[11px] border border-rose-100">Logout</button>
-
+    <!-- ================= പുതിതായി ചേർത്ത പ്രൊഫൈൽ പേജ് ================= -->
+<div id="profilePage" class="hidden p-4 sm:p-6 fade-in pb-24">
+    
+    <h2 class="text-lg font-black text-slate-800 uppercase tracking-tight mb-6 text-center">പ്രൊഫൈൽ</h2>
+    
+    <!-- പ്രൊഫൈൽ അപൂർണ്ണമാണെങ്കിൽ കാണിക്കുന്ന മെസ്സേജ് -->
+    <div id="profileWarning" class="hidden bg-amber-50 p-4 rounded-2xl border border-amber-200 mb-2 flex items-start gap-3 shadow-sm">
+        <i class="fas fa-exclamation-triangle text-amber-500 text-xl mt-1"></i>
+        <div>
+            <p class="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-1">പ്രൊഫൈൽ പൂർണ്ണമല്ല!</p>
+            <p class="text-[11px] font-bold text-amber-600 leading-tight">നിങ്ങളുടെ എല്ലാ വിവരങ്ങളും നൽകിയിട്ടില്ല. ദയവായി താഴെ കാണുന്ന വിവരങ്ങൾ പൂരിപ്പിച്ച് സേവ് ചെയ്യുക.</p>
         </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center mb-6 relative mt-12">
+        <div class="w-24 h-24 bg-slate-100 rounded-full border-4 border-white shadow-md -mt-16 flex items-center justify-center text-slate-400 text-3xl relative overflow-visible z-10">
+            <div class="w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-slate-100">
+                <img id="profImgDisplay" src="" class="hidden w-full h-full object-cover">
+                <i id="profIconDisplay" class="fas fa-user"></i>
+            </div>
+            <label for="profPhotoUpload" class="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-sm border-2 border-white cursor-pointer active:scale-90 transition-all hover:bg-blue-700 z-20">
+                <i class="fas fa-camera text-[10px]"></i>
+                <input type="file" id="profPhotoUpload" accept="image/*" class="hidden" onchange="uploadProfilePhoto(event)">
+            </label>
+        </div>
+        <!-- ഇവിടെ കാണിക്കുന്നത് എഡിറ്റ് ചെയ്യാൻ പറ്റാത്ത ഹെഡിങ് മാത്രം -->
+        <h3 id="profName" class="text-xl font-black text-slate-800 uppercase mt-4 w-full text-center">...</h3>
+        <p id="profBatch" class="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full inline-block mt-2 uppercase tracking-widest text-center mx-auto">...</p>
+    </div>
+
+    <!-- അടിസ്ഥാന വിവരങ്ങൾ (എഡിറ്റ് ചെയ്യാവുന്നവ) -->
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-4 text-left">
+        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b pb-2">അടിസ്ഥാന വിവരങ്ങൾ</h4>
+        <div class="space-y-4">
+            <div>
+                <p class="text-[9px] text-slate-400 font-bold uppercase">പേര് (Name)</p>
+                <input type="text" id="profNameInput" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50 uppercase">
+            </div>
+            <div>
+                <p class="text-[9px] text-slate-400 font-bold uppercase">ഫോൺ നമ്പർ</p>
+                <input type="tel" id="profPhoneInput" maxlength="10" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
+            </div>
+            <div>
+                <p class="text-[9px] text-slate-400 font-bold uppercase">ജനനത്തീയതി (DOB)</p>
+                <input type="date" id="profDob" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
+            </div>
+            <div>
+                <p class="text-[9px] text-slate-400 font-bold uppercase">സ്ഥലം (Place)</p>
+                <input type="text" id="profPlace" placeholder="സ്വന്തം സ്ഥലം" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
+            </div>
+            <div>
+                <p class="text-[9px] text-slate-400 font-bold uppercase">വിലാസം (Address)</p>
+                <textarea id="profAddress" placeholder="മുഴുവൻ വിലാസം" rows="2" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50"></textarea>
+            </div>
+            <div>
+                <p class="text-[9px] text-slate-400 font-bold uppercase">ഈമെയിൽ (Email)</p>
+                <input type="email" id="profEmail" placeholder="email@example.com" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
+            </div>
+            <div>
+                <p class="text-[9px] text-slate-400 font-bold uppercase">രക്ത ഗ്രൂപ്പ് (Blood Group)</p>
+                <select id="profBlood" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
+                    <option value="">തിരഞ്ഞെടുക്കുക</option>
+                    <option value="A+">A+</option><option value="O+">O+</option><option value="B+">B+</option><option value="AB+">AB+</option>
+                    <option value="A-">A-</option><option value="O-">O-</option><option value="B-">B-</option><option value="AB-">AB-</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- പ്രൊഫഷണൽ വിവരങ്ങൾ -->
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-4 text-left">
+        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b pb-2">പ്രൊഫഷണൽ വിവരങ്ങൾ</h4>
+        <div class="space-y-4">
+            <div>
+                <p class="text-[9px] text-slate-400 font-bold uppercase">നിലവിലെ ജോലി / സ്ഥാനം</p>
+                <input type="text" id="profJob" placeholder="ഉദാ: Muallim" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
+            </div>
+            <div>
+                <p class="text-[9px] text-slate-400 font-bold uppercase">കമ്പനി / സ്ഥാപനം</p>
+                <input type="text" id="profCompany" placeholder="ഉദാ: Madrassa" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
+            </div>
+            <div>
+                <p class="text-[9px] text-slate-400 font-bold uppercase">ജോലി ചെയ്യുന്ന സ്ഥലം</p>
+                <input type="text" id="profLocation" placeholder="Nilambur" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50">
+            </div>
+        </div>
+    </div>
+
+    <!-- സുരക്ഷാ വിവരങ്ങൾ -->
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-6 text-left border-t-4 border-t-blue-500">
+        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b pb-2">സുരക്ഷാ വിവരങ്ങൾ</h4>
+        <div class="space-y-4">
+            <div>
+                <p class="text-[9px] text-slate-400 font-bold uppercase">പാസ്‌വേഡ് മാറ്റുക (Password)</p>
+                <input type="text" id="profPassword" placeholder="പാസ്‌വേഡ് നൽകുക" class="w-full p-3 mt-1 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-blue-500 bg-slate-50" style="font-family: monospace; letter-spacing: 2px;">
+                <p class="text-[9px] text-slate-400 mt-1">ലോഗിൻ ചെയ്യാൻ ഉപയോഗിക്കുന്ന പാസ്‌വേഡ് (MID).</p>
+            </div>
+        </div>
+    </div>
+
+    <button onclick="saveProfile()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-md active:scale-95 transition-all uppercase tracking-widest text-[11px] mb-3">Save Profile</button>
+    <button onclick="goHome()" class="w-full bg-rose-50 text-rose-600 py-4 rounded-2xl font-black active:scale-95 transition-all uppercase tracking-widest text-[11px] border border-rose-100">ലോഗൗട്ട് ചെയ്യുക</button>
+
+</div> 
+       
         
     
         <!-- ================= പ്രൊഫൈൽ പേജ് അവസാനിച്ചു ================= -->
@@ -790,7 +827,7 @@
         let lastMonthDataGlobal = null;
 
         // --- പുതിയ API സിസ്റ്റം ---
-        const API_URL = "https://script.google.com/macros/s/AKfycbxDP6r_olkNhfDOP7AtNfysJGddnsi0PMCUqDD73AlpZFGErpPcYhQCu-6ODYzkvPVf_Q/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycby3WrrE8H4r1JJzVqDdw4xccP9LO9Z8sTRvUAPNPObw_e9atSG13Mo_kRcC_lf5nf1Imw/exec";
 
         async function callAPI(action, data = {}) {
             try {
@@ -1012,12 +1049,29 @@ switchAppTab('home'); // ലോഗിൻ ചെയ്ത ഉടനെ ഹോം 
                     if (profileBatch) profileBatch.innerText = d.id || 'N/A';
                     if (profilePhone) profilePhone.innerText = d.phone;
                     
-                    // പ്രൊഫൈലിലെ മറ്റ് വിവരങ്ങൾ ബോക്സുകളിൽ കാണിക്കാൻ
-                    document.getElementById('profEmail').value = d.email || '';
-                    document.getElementById('profBlood').value = d.blood || '';
-                    document.getElementById('profJob').value = d.job || '';
-                    document.getElementById('profCompany').value = d.company || '';
-                    document.getElementById('profLocation').value = d.location || '';
+                    // പ്രൊഫൈലിലെ വിവരങ്ങൾ ബോക്സുകളിൽ കാണിക്കാൻ
+if(document.getElementById('profNameInput')) document.getElementById('profNameInput').value = d.name || '';
+if(document.getElementById('profPhoneInput')) document.getElementById('profPhoneInput').value = d.phone || '';
+if(document.getElementById('profEmail')) document.getElementById('profEmail').value = d.email || '';
+if(document.getElementById('profBlood')) document.getElementById('profBlood').value = d.blood || '';
+if(document.getElementById('profJob')) document.getElementById('profJob').value = d.job || '';
+if(document.getElementById('profCompany')) document.getElementById('profCompany').value = d.company || '';
+if(document.getElementById('profLocation')) document.getElementById('profLocation').value = d.location || '';
+if(document.getElementById('profDob')) document.getElementById('profDob').value = d.dob || '';
+if(document.getElementById('profPlace')) document.getElementById('profPlace').value = d.place || '';
+if(document.getElementById('profAddress')) document.getElementById('profAddress').value = d.address || '';
+if(document.getElementById('profPassword')) document.getElementById('profPassword').value = d.password || d.id || '';
+
+// പ്രൊഫൈൽ പൂർണ്ണമാണോ എന്ന് പരിശോധിക്കുന്നു (Warning Box Logic)
+const warningBox = document.getElementById('profileWarning');
+if (warningBox) {
+    let isComplete = d.email && d.blood && d.job && d.location && d.dob && d.place && d.address;
+    if (!isComplete || isComplete === "") {
+        warningBox.classList.remove('hidden');
+    } else {
+        warningBox.classList.add('hidden');
+    }
+}
                     // ==========================================================
                     // ഡാഷ്‌ബോർഡിലെ ആകെ അംഗങ്ങൾ
                     const homeTotal = document.getElementById('homeTotalMembers');
@@ -2562,31 +2616,50 @@ function saveProfile() {
         return;
     }
 
-    // HTML-ൽ ഉള്ള യഥാർത്ഥ ID-കൾ വെച്ച് വിവരങ്ങൾ എടുക്കുന്നു
+    // എല്ലാ ഇൻപുട്ട് ഫീൽഡുകളിൽ നിന്നുമുള്ള വിവരങ്ങൾ എടുക്കുന്നു
+    let nameVal = document.getElementById('profNameInput') ? document.getElementById('profNameInput').value.trim() : currentMember.name;
+    let phoneVal = document.getElementById('profPhoneInput') ? document.getElementById('profPhoneInput').value.trim() : currentMember.phone;
     let emailVal = document.getElementById('profEmail') ? document.getElementById('profEmail').value : '';
     let bloodVal = document.getElementById('profBlood') ? document.getElementById('profBlood').value : '';
     let jobVal = document.getElementById('profJob') ? document.getElementById('profJob').value : '';
     let companyVal = document.getElementById('profCompany') ? document.getElementById('profCompany').value : '';
     let locationVal = document.getElementById('profLocation') ? document.getElementById('profLocation').value : '';
+    let dobVal = document.getElementById('profDob') ? document.getElementById('profDob').value : '';
+    let placeVal = document.getElementById('profPlace') ? document.getElementById('profPlace').value : '';
+    let addressVal = document.getElementById('profAddress') ? document.getElementById('profAddress').value : '';
+    let passwordVal = document.getElementById('profPassword') ? document.getElementById('profPassword').value : '';
+
+    if(nameVal === "" || phoneVal === "") {
+        Swal.fire('ശ്രദ്ധിക്കുക', 'പേരും ഫോൺ നമ്പറും നിർബന്ധമായും നൽകണം.', 'warning');
+        return;
+    }
 
     showLoader(true);
     
-    // API വഴി ഗൂഗിൾ ഷീറ്റിലേക്ക് ഡാറ്റ അയക്കുന്നു
     callAPI('updateProfileData', { 
         id: currentMember.id, 
+        name: nameVal,          // എഡിറ്റ് ചെയ്ത പേര്
+        phone: phoneVal,        // എഡിറ്റ് ചെയ്ത നമ്പർ
         email: emailVal, 
         blood: bloodVal, 
         job: jobVal, 
         company: companyVal, 
-        location: locationVal 
+        location: locationVal,
+        dob: dobVal,          
+        place: placeVal,      
+        address: addressVal,  
+        password: passwordVal 
     }).then(res => {
         showLoader(false);
         if(res.error) {
             Swal.fire('പിഴവ്', res.error, 'error');
         } else {
+            // ഫോൺ നമ്പറോ പാസ്‌വേഡോ മാറ്റിയിട്ടുണ്ടെങ്കിൽ ബ്രൗസറിൽ അത് അപ്ഡേറ്റ് ചെയ്യുന്നു (അടുത്ത ലോഗിന് വേണ്ടി)
+            if(phoneVal) localStorage.setItem('muaawina_phone', phoneVal);
+            if(passwordVal) localStorage.setItem('muaawina_mid', passwordVal);
+            
             Swal.fire('വിജയിച്ചു!', 'പ്രൊഫൈൽ വിജയകരമായി അപ്ഡേറ്റ് ചെയ്തു.', 'success').then(() => {
-                // സേവ് ചെയ്ത ശേഷം ഡാറ്റ റീഫ്രഷ് ചെയ്യാൻ
-                fetchMemberDetails(true); 
+                fetchMemberDetails(true); // വിവരങ്ങൾ റീലോഡ് ചെയ്യുന്നു
             });
         }
     }).catch(err => {
@@ -2594,6 +2667,7 @@ function saveProfile() {
         Swal.fire('പിഴവ്', 'നെറ്റ്‌വർക്ക് പ്രശ്നം! ഒന്നുകൂടി ശ്രമിക്കുക.', 'error');
     });
 }
+
       // പ്രൊഫൈൽ ഫോട്ടോ ഗൂഗിൾ ഡ്രൈവിലേക്ക് അപ്‌ലോഡ് ചെയ്യാൻ
         function uploadProfilePhoto(event) {
             const file = event.target.files[0];
