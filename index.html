@@ -892,11 +892,13 @@
         let globalAppMonth = new Date().getMonth();
 
         let fullHistory = [], currentMember = null, pendingMonthsList = [], upcomingMonthsList = [], timerInterval, currentPaymentType = 'single', currentTargetData = null, adminMembers = [], pendingApprovalsList = [], adminChart = null;
+        let directoryMembers = [];
+        let currentDirBatch = 'all';
         let currentFilteredMembers = [];
         let lastMonthDataGlobal = null;
 
         // --- പുതിയ API സിസ്റ്റം ---
-        const API_URL = "https://script.google.com/macros/s/AKfycby3WrrE8H4r1JJzVqDdw4xccP9LO9Z8sTRvUAPNPObw_e9atSG13Mo_kRcC_lf5nf1Imw/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxQJYmwW_g01o-tZBPevFEMH4uZ4E_ZBqDiteHmloKYc6ulnWvamHHJXPX0HpmPZWvARA/exec";
 
         async function callAPI(action, data = {}) {
             try {
@@ -2457,7 +2459,129 @@ function contactAdmin() {
     window.open(`https://wa.me/${wpNumber}?text=${textMsg}`, '_blank');
 }
 let activeHistoryFilter = 'all';
+// ================= ഡയറക്ടറി ഫംഗ്ഷനുകൾ =================
 
+// ഡാറ്റ കൊണ്ടുവരാനുള്ള ഫംഗ്ഷൻ
+function fetchDirectoryData() {
+    // ഡാറ്റ നേരത്തെ എടുത്തിട്ടുണ്ടെങ്കിൽ വീണ്ടും എടുക്കേണ്ടതില്ല
+    if (directoryMembers.length > 0) {
+        renderDirectory(directoryMembers);
+        return;
+    }
+    
+    const container = document.getElementById('directoryListContainer');
+    if(container) container.innerHTML = '<p class="text-center text-slate-400 font-bold text-xs p-5 uppercase tracking-widest animate-pulse mt-10">ഡാറ്റ ലോഡ് ചെയ്യുന്നു...</p>';
+    
+    callAPI('getDirectoryData', {}).then(res => {
+        if (res.error) {
+            if(container) container.innerHTML = `<p class="text-center text-rose-500 font-bold text-xs p-5">${res.error}</p>`;
+        } else if (res.members) {
+            directoryMembers = res.members;
+            setupDirectoryBatches();
+            renderDirectory(directoryMembers);
+        }
+    }).catch(err => {
+        if(container) container.innerHTML = '<p class="text-center text-rose-500 font-bold text-xs p-5">നെറ്റ്‌വർക്ക് പ്രശ്നം!</p>';
+    });
+}
+
+// ബാച്ച് ബട്ടണുകൾ സെറ്റ് ചെയ്യാൻ
+function setupDirectoryBatches() {
+    let batches = [...new Set(directoryMembers.map(m => m.batch))].filter(b => b !== 'UNASSIGNED').sort();
+    const filterContainer = document.getElementById('dirBatchFilters');
+    if (!filterContainer) return;
+    
+    let html = `<button onclick="filterDirBatch('all')" id="dirBtn-all" class="dir-filter-btn active px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 border-blue-500 bg-blue-500 text-white shadow-md transition-all whitespace-nowrap">എല്ലാവരും</button>`;
+    
+    batches.forEach(b => {
+        html += `<button onclick="filterDirBatch('${b}')" id="dirBtn-${b}" class="dir-filter-btn px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 border-slate-100 bg-white text-slate-500 shadow-sm transition-all whitespace-nowrap hover:bg-slate-50">${b}</button>`;
+    });
+    
+    filterContainer.innerHTML = html;
+}
+
+// ബാച്ച് വെച്ച് ഫിൽട്ടർ ചെയ്യാൻ
+function filterDirBatch(batch) {
+    currentDirBatch = batch;
+    
+    // ബട്ടൺ സ്റ്റൈൽ മാറ്റുന്നു
+    document.querySelectorAll('.dir-filter-btn').forEach(btn => {
+        btn.className = "dir-filter-btn px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 border-slate-100 bg-white text-slate-500 shadow-sm transition-all whitespace-nowrap hover:bg-slate-50";
+    });
+    const activeBtn = document.getElementById('dirBtn-' + batch);
+    if (activeBtn) {
+        activeBtn.className = "dir-filter-btn active px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 border-blue-500 bg-blue-500 text-white shadow-md transition-all whitespace-nowrap";
+    }
+    
+    filterDirectory();
+}
+
+// സെർച്ച് & ഫിൽട്ടർ ചെയ്യാൻ
+function filterDirectory() {
+    const q = document.getElementById('dirSearchInput') ? document.getElementById('dirSearchInput').value.toLowerCase() : '';
+    
+    let filtered = directoryMembers.filter(m => {
+        const matchSearch = m.name.toLowerCase().includes(q) || m.place.toLowerCase().includes(q) || m.phone.includes(q) || m.id.toLowerCase().includes(q);
+        const matchBatch = (currentDirBatch === 'all') || (m.batch === currentDirBatch);
+        return matchSearch && matchBatch;
+    });
+    
+    renderDirectory(filtered);
+}
+
+// ഡിസൈൻ ചെയ്ത കാർഡുകൾ കാണിക്കാൻ
+function renderDirectory(membersList) {
+    const container = document.getElementById('directoryListContainer');
+    if (!container) return;
+    
+    if (membersList.length === 0) {
+        container.innerHTML = '<div class="bg-white p-8 rounded-3xl border border-dashed border-slate-200 text-center mt-4"><i class="fas fa-search text-3xl text-slate-200 mb-3"></i><p class="text-slate-400 font-bold text-[11px] uppercase tracking-widest">ആരെയും കണ്ടെത്തിയില്ല</p></div>';
+        return;
+    }
+    
+    container.innerHTML = membersList.map(m => `
+        <div class="bg-white p-5 rounded-[24px] shadow-sm border border-slate-100 flex flex-col gap-4 relative overflow-hidden group hover:shadow-md hover:border-blue-100 transition-all">
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-blue-400 to-blue-600 opacity-80"></div>
+            
+            <div class="flex justify-between items-start pl-2">
+                <div class="flex gap-4 items-center">
+                    <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-black text-xl shadow-inner uppercase border-2 border-white">
+                        ${m.name.charAt(0)}
+                    </div>
+                    <div>
+                        <h3 class="font-black text-slate-800 text-sm uppercase tracking-tight leading-tight">${m.name}</h3>
+                        <p class="text-[9px] font-black text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-100 uppercase tracking-widest inline-block mt-1.5 shadow-sm">${m.batch}</p>
+                    </div>
+                </div>
+                <div class="text-right bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">MID</p>
+                    <p class="font-black text-blue-700 text-xs tracking-wider">${m.id}</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100 ml-2 shadow-inner">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-map-marker-alt text-slate-400 text-[10px] w-3 text-center"></i>
+                    <p class="text-[10px] font-bold text-slate-600 truncate">${m.place || 'ലഭ്യമല്ല'}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-tint text-rose-400 text-[10px] w-3 text-center"></i>
+                    <p class="text-[10px] font-bold text-slate-600">${m.blood || 'N/A'}</p>
+                </div>
+            </div>
+            
+            <!-- കോൾ / വാട്സ്ആപ്പ് ബട്ടണുകൾ -->
+            <div class="flex gap-2 ml-2 mt-1">
+                <a href="tel:${m.phone}" class="flex-1 bg-white border-2 border-slate-100 text-slate-600 py-3 rounded-xl flex justify-center items-center gap-2 active:scale-95 transition-all hover:bg-slate-50 hover:border-blue-200 hover:text-blue-600 shadow-sm">
+                    <i class="fas fa-phone-alt text-sm"></i> <span class="text-[11px] font-black tracking-widest">${m.phone}</span>
+                </a>
+                <a href="https://wa.me/91${m.phone.replace(/\D/g,'')}" target="_blank" class="w-14 bg-[#25D366]/10 border-2 border-[#25D366]/20 text-[#25D366] rounded-xl flex justify-center items-center active:scale-95 transition-all hover:bg-[#25D366]/20 shadow-sm">
+                    <i class="fab fa-whatsapp text-xl"></i>
+                </a>
+            </div>
+        </div>
+    `).join('');
+}
 function renderHistory(filterType = 'all') {
     if (!currentMember || !fullHistory) return;
     activeHistoryFilter = filterType;
@@ -2699,7 +2823,7 @@ function switchAppTab(tabName) {
         if(typeof fetchDirectoryData === 'function') fetchDirectoryData();
     }
 }
-        // പ്രൊഫൈൽ സേവ് ചെയ്യാനുള്ള ഫംഗ്ഷൻ
+
 // പ്രൊഫൈൽ സേവ് ചെയ്യാനുള്ള ഫംഗ്ഷൻ
 function saveProfile() {
     if (!currentMember || !currentMember.id) {
