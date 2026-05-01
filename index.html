@@ -1057,7 +1057,21 @@ if(document.getElementById('profBlood')) document.getElementById('profBlood').va
 if(document.getElementById('profJob')) document.getElementById('profJob').value = d.job || '';
 if(document.getElementById('profCompany')) document.getElementById('profCompany').value = d.company || '';
 if(document.getElementById('profLocation')) document.getElementById('profLocation').value = d.location || '';
-if(document.getElementById('profDob')) document.getElementById('profDob').value = d.dob || '';
+// ആ പഴയ വരിക്ക് പകരം ഈ കോഡ് നൽകുക:
+if(document.getElementById('profDob')) {
+    if(d.dob && d.dob !== "") {
+        let dobDate = new Date(d.dob);
+        if(!isNaN(dobDate.getTime())) {
+            // ഇത് കൃത്യമായി YYYY-MM-DD എന്ന ഫോർമാറ്റിലേക്ക് മാറ്റുന്നു
+            let yyyy = dobDate.getFullYear();
+            let mm = String(dobDate.getMonth() + 1).padStart(2, '0');
+            let dd = String(dobDate.getDate()).padStart(2, '0');
+            document.getElementById('profDob').value = `${yyyy}-${mm}-${dd}`;
+        }
+    } else {
+        document.getElementById('profDob').value = '';
+    }
+}
 if(document.getElementById('profPlace')) document.getElementById('profPlace').value = d.place || '';
 if(document.getElementById('profAddress')) document.getElementById('profAddress').value = d.address || '';
 if(document.getElementById('profPassword')) document.getElementById('profPassword').value = d.password || d.id || '';
