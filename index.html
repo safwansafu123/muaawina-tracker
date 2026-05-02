@@ -2660,7 +2660,7 @@ container.innerHTML = membersList.map(m => `
                 <a href="tel:${m.phone}" class="flex-1 bg-white border-2 border-slate-100 text-slate-600 py-3 rounded-xl flex justify-center items-center gap-2 active:scale-95 transition-all hover:bg-slate-50 hover:border-blue-200 hover:text-blue-600 shadow-sm">
                     <i class="fas fa-phone-alt text-sm"></i> <span class="text-[11px] font-black tracking-widest">${m.phone}</span>
                 </a>
-                <a href="https://wa.me/91${m.phone.replace(/\D/g,'')}" target="_blank" class="w-14 bg-[#25D366]/10 border-2 border-[#25D366]/20 text-[#25D366] rounded-xl flex justify-center items-center active:scale-95 transition-all hover:bg-[#25D366]/20 shadow-sm">
+                <a href="https://wa.me/91${phone.replace(/\D/g,'')}" target="_blank" class="w-14 bg-[#25D366]/10 border-2 border-[#25D366]/20 text-[#25D366] rounded-xl flex justify-center items-center active:scale-95 transition-all hover:bg-[#25D366]/20 shadow-sm">
                     <i class="fab fa-whatsapp text-xl"></i>
                 </a>
             </div>
