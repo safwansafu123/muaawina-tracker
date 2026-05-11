@@ -3689,45 +3689,27 @@ async function sendMediaBroadcast() {
     const mediaUrl = document.getElementById('broadcastMediaUrl').value.trim();
     const caption = document.getElementById('broadcastCaption').value.trim();
 
-    if (!mediaUrl) return Swal.fire('Error', 'മീഡിയ ലിങ്ക് (URL) നിർബന്ധമാണ്!', 'error');
+    if (!mediaUrl) return Swal.fire('Error', 'മീഡിയ ലിങ്ക് നൽകുക!', 'error');
 
-    // പ്രധാനപ്പെട്ട മാറ്റം: adminMembers ഇല്ലെങ്കിൽ അത് വീണ്ടും ശേഖരിക്കാൻ ശ്രമിക്കുന്നു
+    // അഡ്മിൻ ഡാറ്റയിൽ നിന്ന് മെമ്പർമാരെ എടുക്കുന്നു
     let targetMembers = adminMembers;
     
     if (!targetMembers || targetMembers.length === 0) {
-        showLoader(true);
-        const res = await callAPI('getAdminData');
-        showLoader(false);
-        if (res.members) {
-            targetMembers = res.members;
-            adminMembers = res.members; // ഗ്ലോബൽ ലിസ്റ്റും അപ്ഡേറ്റ് ചെയ്യുന്നു
-        } else {
-            return Swal.fire('Error', 'അംഗങ്ങളുടെ വിവരങ്ങൾ ലഭ്യമായില്ല!', 'error');
-        }
+        return Swal.fire('Error', 'ലിസ്റ്റ് ലോഡ് ആയിട്ടില്ല. ദയവായി റിപ്പോർട്ട് ടാബിൽ ബാച്ച് സെലക്ട് ചെയ്യുക.', 'error');
     }
-
-    const confirmResult = await Swal.fire({
-        title: 'ഉറപ്പാണോ?',
-        text: `ആകെ ${targetMembers.length} പേർക്ക് ഈ മീഡിയ അയക്കാൻ തുടങ്ങട്ടെ?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'അതെ, അയക്കുക',
-        cancelButtonText: 'വേണ്ട'
-    });
-
-    if (!confirmResult.isConfirmed) return;
 
     showLoader(true);
     let successCount = 0;
 
-    for (let i = 0; i < targetMembers.length; i++) {
-        let m = targetMembers[i];
-        if (m.phone && m.phone !== "") {
+    for (let m of targetMembers) {
+        if (m.phone) {
             try {
+                // 91 ചേർക്കുന്നു
                 let cleanPh = String(m.phone).replace(/\D/g, '').slice(-10);
                 let finalPhone = "91" + cleanPh;
 
-                const res = await fetch(BOT_BASE_URL + "/send-media", {
+                // നേരിട്ട് കമ്പ്യൂട്ടറിലെ ബോട്ടിലേക്ക് അയക്കുന്നു
+                await fetch(BOT_BASE_URL + "/send-media", {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Bypass-Tunnel-Reminder": "true" },
                     body: JSON.stringify({
@@ -3736,19 +3718,13 @@ async function sendMediaBroadcast() {
                         caption: caption
                     })
                 });
-                
-                if (res.ok) successCount++;
-                
-                // ചെറിയ ഗ്യാപ്പ് നൽകുന്നു
-                await new Promise(resolve => setTimeout(resolve, 3000));
-            } catch (e) {
-                console.error("Error for: " + m.name, e);
-            }
+                successCount++;
+            } catch (e) { console.log(e); }
         }
     }
 
     showLoader(false);
-    Swal.fire('പൂർത്തിയായി', `${successCount} പേർക്ക് മീഡിയ അയച്ചു! ✅`, 'success');
+    Swal.fire('പൂർത്തിയായി', `${successCount} പേർക്ക് അയച്ചു.`, 'success');
 }
 
         /**
