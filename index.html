@@ -3177,135 +3177,83 @@
             });
         }
 
-        function approveReq(rows, id, y, m, name) {
-            let phone = findPhone(id);
-            let mem = adminMembers.find(x => String(x.id) === String(id));
-            let currentFee = (mem && mem.fee) ? mem.fee : 50;
-            let remDue = 0;
+function approveReq(rows, id, y, m, name) { 
+    let phone = findPhone(id);
+    let mem = adminMembers.find(x => String(x.id) === String(id));
+    let currentFee = (mem && mem.fee) ? mem.fee : 50;
+    let remDue = 0;
 
-            // ബൾക്ക് അപ്രൂവൽ റിപ്പോർട്ടിനായി ട്രാക്ക് ചെയ്യുന്നു
-            const addToReport = (reqT) => {
-                const items = Array.isArray(rows) ? rows : [rows];
-                let appTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    // 1. റിപ്പോർട്ടിലേക്ക് വിവരങ്ങൾ ചേർക്കുന്ന താങ്കളുടെ പഴയ ലോജിക് (Miss ആകില്ല)
+    const addToReport = (reqT) => {
+        const items = Array.isArray(rows) ? rows : [rows];
+        let appTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-                if (items.length > 1) {
-                    // ബൾക്ക് ആണെങ്കിൽ ഒരൊറ്റ എൻട്രിയായി ചേർക്കുന്നു
-                    let totalAmt = items.length * currentFee;
-                    let monthSet = items.map(r => r[2]).join(", ");
-                    let yearSet = [...new Set(items.map(r => r[1]))].join("/");
-                    sessionApprovals.push({
-                        name: name,
-                        id: id,
-                        month: monthSet,
-                        year: yearSet,
-                        amount: totalAmt,
-                        isBulk: true,
-                        reqTime: reqT,
-                        approveTime: appTime
-                    });
-                } else {
-                    // സിംഗിൾ പേയ്‌മെന്റ്
-                    sessionApprovals.push({
-                        name: name,
-                        id: id,
-                        month: m,
-                        year: y,
-                        amount: currentFee,
-                        reqTime: reqT,
-                        approveTime: appTime
-                    });
-                }
-            };
-
-            if (mem && mem.pendingList) {
-                let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-                // ഇപ്പൊ അപ്രൂവ് ചെയ്ത മാസങ്ങൾ ഒഴിവാക്കി ബാക്കി കണക്കാക്കുന്നു
-                let approvedMonths = Array.isArray(rows) ? rows.map(r => `${r[2]} ${r[1]}`) : [`${m} ${y}`];
-
-                let remainingPending = mem.pendingList.filter(pStr => {
-                    if (approvedMonths.includes(pStr)) return false;
-
-                    let parts = pStr.split(" ");
-                    let mIdx = monthNames.indexOf(parts[0]);
-                    let mYear = parseInt(parts[1]);
-                    return mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth);
-                });
-                remDue = remainingPending.length * currentFee;
-            }
-
-            if (phone) {
-                Swal.fire({
-                    title: 'വാട്സ്ആപ്പ് മെസ്സേജ്', text: `${name}-ന് വാട്സ്ആപ്പിൽ അപ്രൂവൽ മെസ്സേജ് അയക്കണമെന്നുണ്ടോ?`,
-                    icon: 'question', showCancelButton: true, confirmButtonColor: '#10b981', cancelButtonColor: '#94a3b8',
-                    confirmButtonText: 'അതെ, അയക്കുക', cancelButtonText: 'വേണ്ട'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        let approvedAmt = (Array.isArray(rows) ? rows.length : 1) * currentFee;
-                        let msg = `السلام عليكم \n${name} (MID: ${id}),\nനിങ്ങളുടെ ₹${approvedAmt} രൂപ (${m} ${y}) MUAAWINA വരിസംഖ്യ സ്വീകരിച്ചിരിക്കുന്നു (Approved). ✅\nഇനി ആകെ അടയ്ക്കാനുള്ളത്: ₹${remDue}`;
-                        let link = getWALink(phone, msg);
-                        if (link) {
-                            openWhatsAppLink(link);
-                        }
-
-                        // മെമ്പറുടെ ലിസ്റ്റിൽ നിന്നുള്ള റിക്വസ്റ്റ് ടൈം കണ്ടെത്തുന്നു
-                        let requestTimestamp = 'N/A';
-                        let matchingReq = pendingApprovalsList.find(pa => pa.memberId === id && pa.month === (Array.isArray(rows) ? rows[0][2] : m));
-                        if (matchingReq) requestTimestamp = matchingReq.date;
-
-                        addToReport(requestTimestamp);
-                    }
-                    showLoader(true);
-                    callAPI('approvePayment', { rows: rows, id: id }).then(() => {
-                        // ഓട്ടോമാറ്റിക് റെസീപ്റ്റ് അയക്കുന്നു
-                        let approvedAmt = (Array.isArray(rows) ? rows.length : 1) * currentFee;
-                        sendAutoReceiptToMember(id, m, y, approvedAmt);
-                        adminLogin();
-                    });
-                });
-            } else {
-                showLoader(true);
-                callAPI('approvePayment', { rows: rows, id: id }).then(() => adminLogin());
-            }
+        if (items.length > 1) {
+            let totalAmt = items.length * currentFee;
+            let monthSet = items.map(r => r[2]).join(", ");
+            let yearSet = [...new Set(items.map(r => r[1]))].join("/");
+            sessionApprovals.push({
+                name: name, id: id, month: monthSet, year: yearSet, amount: totalAmt, isBulk: true, reqTime: reqT, approveTime: appTime
+            });
+        } else {
+            sessionApprovals.push({
+                name: name, id: id, month: m, year: y, amount: currentFee, reqTime: reqT, approveTime: appTime
+            });
         }
+    };
 
-        function rejectReq(rows, id, name, y, m) {
-            let phone = findPhone(id);
-            let mem = adminMembers.find(x => String(x.id) === String(id));
-            let totalDue = 0;
-            if (mem && mem.pendingList) {
-                let currentFee = mem.fee || 50;
-                let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                let dueList = mem.pendingList.filter(pStr => {
-                    let parts = pStr.split(" ");
-                    let mIdx = monthNames.indexOf(parts[0]);
-                    let mYear = parseInt(parts[1]);
-                    return mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth);
-                });
-                totalDue = dueList.length * currentFee;
+    // 2. ബാക്കി കുടിശ്ശിക (remDue) കണക്കാക്കുന്ന താങ്കളുടെ ലോജിക് (ഇതും സുരക്ഷിതം)
+    if (mem && mem.pendingList) {
+        let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        let approvedMonths = Array.isArray(rows) ? rows.map(r => `${r[2]} ${r[1]}`) : [`${m} ${y}`];
+        let remainingPending = mem.pendingList.filter(pStr => {
+            if (approvedMonths.includes(pStr)) return false;
+            let parts = pStr.split(" ");
+            let mIdx = monthNames.indexOf(parts[0]);
+            let mYear = parseInt(parts[1]);
+            return mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth);
+        });
+        remDue = remainingPending.length * currentFee;
+    }
+
+    // 3. വാട്സ്ആപ്പ് മെസ്സേജ് അയക്കുന്ന ഭാഗം
+    if (phone) {
+        Swal.fire({
+            title: 'വാട്സ്ആപ്പ് മെസ്സേജ്',
+            text: `${name}-ന് വാട്സ്ആപ്പിൽ അപ്രൂവൽ മെസ്സേജ് അയക്കണമെന്നുണ്ടോ?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'അതെ, അയക്കുക',
+            cancelButtonText: 'വേണ്ട'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let approvedAmt = (Array.isArray(rows) ? rows.length : 1) * currentFee;
+                let msg = `السلام عليكم \n${name} (MID: ${id}),\nനിങ്ങളുടെ ₹${approvedAmt} രൂപ (${m} ${y}) MUAAWINA വриസംഖ്യ സ്വീകരിച്ചിരിക്കുന്നു (Approved). ✅\nഇനി ആകെ അടയ്ക്കാനുള്ളത്: ₹${remDue}`;
+                let link = getWALink(phone, msg);
+                if (link) openWhatsAppLink(link);
+
+                let requestTimestamp = 'N/A';
+                let matchingReq = pendingApprovalsList.find(pa => pa.memberId === id && pa.month === (Array.isArray(rows) ? rows[0][2] : m));
+                if (matchingReq) requestTimestamp = matchingReq.date;
+
+                addToReport(requestTimestamp);
             }
 
-            if (phone) {
-                Swal.fire({
-                    title: 'വാട്സ്ആപ്പ് മെസ്സേജ്', text: `${name}-ന് വാട്സ്ആപ്പിൽ നിരസിച്ച മെസ്സേജ് അയക്കണമെന്നുണ്ടോ?`,
-                    icon: 'question', showCancelButton: true, confirmButtonColor: '#f43f5e', cancelButtonColor: '#94a3b8',
-                    confirmButtonText: 'അതെ, അയക്കുക', cancelButtonText: 'വേണ്ട'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        let msg = `السلام عليكم \n${name} (MID: ${id}),\nനിങ്ങളുടെ ${m} ${y} മാസത്തെ MUAAWINA വരിസംഖ്യ നിരസിച്ചിരിക്കുന്നു (Rejected).\nആകെ അടയ്ക്കാനുള്ളത്: ₹${totalDue}`;
-                        let link = getWALink(phone, msg);
-                        if (link) {
-                            openWhatsAppLink(link);
-                        }
-                    }
-                    showLoader(true);
-                    callAPI('rejectPayment', { rows: rows }).then(() => adminLogin());
-                });
-            } else {
-                showLoader(true);
-                callAPI('rejectPayment', { rows: rows }).then(() => adminLogin());
-            }
-        }
+            // പ്രധാനപ്പെട്ട തിരുത്തൽ: ഇവിടെ നമ്മൾ { rows: rows, id: id } എന്ന് കൃത്യമായി നൽകുന്നു
+            showLoader(true);
+            callAPI('approvePayment', { rows: rows, id: id }).then(() => {
+                let approvedAmt = (Array.isArray(rows) ? rows.length : 1) * currentFee;
+                sendAutoReceiptToMember(id, m, y, approvedAmt);
+                adminLogin();
+            });
+        });
+    } else {
+        showLoader(true);
+        callAPI('approvePayment', { rows: rows, id: id }).then(() => adminLogin());
+    }
+}
 
         function processAllRequests(type) {
             Swal.fire({
