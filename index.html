@@ -3685,54 +3685,71 @@
         /**
          * മീഡിയ ബ്രോഡ്കാസ്റ്റ് അയക്കാനുള്ള ഫംഗ്ഷൻ
          */
-        async function sendMediaBroadcast() {
-            const mediaUrl = document.getElementById('broadcastMediaUrl').value.trim();
-            const caption = document.getElementById('broadcastCaption').value.trim();
+async function sendMediaBroadcast() {
+    const mediaUrl = document.getElementById('broadcastMediaUrl').value.trim();
+    const caption = document.getElementById('broadcastCaption').value.trim();
 
-            if (!mediaUrl) return Swal.fire('Error', 'മീഡിയ ലിങ്ക് (URL) നിർബന്ധമാണ്!', 'error');
+    if (!mediaUrl) return Swal.fire('Error', 'മീഡിയ ലിങ്ക് (URL) നിർബന്ധമാണ്!', 'error');
 
-            if (!adminMembers || adminMembers.length === 0) {
-                return Swal.fire('Error', 'അംഗങ്ങളുടെ വിവരങ്ങൾ ലഭ്യമല്ല! ദയവായി അഡ്മിൻ ലോഗിൻ വീണ്ടും ചെയ്യുക.', 'error');
-            }
-
-            showLoader(true);
-            let successCount = 0;
-
-            for (let i = 0; i < adminMembers.length; i++) {
-                let m = adminMembers[i];
-                if (m.phone && m.phone !== "") {
-                    try {
-                        // ഫോൺ നമ്പർ ഫോർമാറ്റ് ചെയ്യുന്നു (91 ചേർക്കുന്നു)
-                        let cleanPh = String(m.phone).replace(/\D/g, '').slice(-10);
-                        let finalPhone = "91" + cleanPh;
-
-                        const res = await fetch(BOT_BASE_URL + "/send-media", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json", "Bypass-Tunnel-Reminder": "true" },
-                            body: JSON.stringify({
-                                phone: finalPhone,
-                                mediaUrl: mediaUrl,
-                                caption: caption
-                            })
-                        });
-                        
-                        if (res.ok) successCount++;
-                        
-                        // 5 സെക്കൻഡ് ഗ്യാപ്പ് (ബാൻ ഒഴിവാക്കാൻ)
-                        if (i < adminMembers.length - 1) {
-                            await new Promise(resolve => setTimeout(resolve, 5000));
-                        }
-                    } catch (e) {
-                        console.error("Broadcast Error for " + m.name, e);
-                    }
-                }
-            }
-
-            showLoader(false);
-            Swal.fire('വിജയിച്ചു', `${successCount} പേർക്ക് മീഡിയ വിജയകരമായി അയച്ചു! 🖼️`, 'success');
-            document.getElementById('broadcastMediaUrl').value = '';
-            document.getElementById('broadcastCaption').value = '';
+    // പ്രധാനപ്പെട്ട മാറ്റം: adminMembers ഇല്ലെങ്കിൽ അത് വീണ്ടും ശേഖരിക്കാൻ ശ്രമിക്കുന്നു
+    let targetMembers = adminMembers;
+    
+    if (!targetMembers || targetMembers.length === 0) {
+        showLoader(true);
+        const res = await callAPI('getAdminData');
+        showLoader(false);
+        if (res.members) {
+            targetMembers = res.members;
+            adminMembers = res.members; // ഗ്ലോബൽ ലിസ്റ്റും അപ്ഡേറ്റ് ചെയ്യുന്നു
+        } else {
+            return Swal.fire('Error', 'അംഗങ്ങളുടെ വിവരങ്ങൾ ലഭ്യമായില്ല!', 'error');
         }
+    }
+
+    const confirmResult = await Swal.fire({
+        title: 'ഉറപ്പാണോ?',
+        text: `ആകെ ${targetMembers.length} പേർക്ക് ഈ മീഡിയ അയക്കാൻ തുടങ്ങട്ടെ?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'അതെ, അയക്കുക',
+        cancelButtonText: 'വേണ്ട'
+    });
+
+    if (!confirmResult.isConfirmed) return;
+
+    showLoader(true);
+    let successCount = 0;
+
+    for (let i = 0; i < targetMembers.length; i++) {
+        let m = targetMembers[i];
+        if (m.phone && m.phone !== "") {
+            try {
+                let cleanPh = String(m.phone).replace(/\D/g, '').slice(-10);
+                let finalPhone = "91" + cleanPh;
+
+                const res = await fetch(BOT_BASE_URL + "/send-media", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Bypass-Tunnel-Reminder": "true" },
+                    body: JSON.stringify({
+                        phone: finalPhone,
+                        mediaUrl: mediaUrl,
+                        caption: caption
+                    })
+                });
+                
+                if (res.ok) successCount++;
+                
+                // ചെറിയ ഗ്യാപ്പ് നൽകുന്നു
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            } catch (e) {
+                console.error("Error for: " + m.name, e);
+            }
+        }
+    }
+
+    showLoader(false);
+    Swal.fire('പൂർത്തിയായി', `${successCount} പേർക്ക് മീഡിയ അയച്ചു! ✅`, 'success');
+}
 
         /**
          * അപ്രൂവൽ കിട്ടുമ്പോൾ മെമ്പർക്ക് ഓട്ടോമാറ്റിക് റെസീപ്റ്റ് അയക്കുന്നു
