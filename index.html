@@ -3177,11 +3177,26 @@
             });
         }
 
-// 👇 പുതിയ അപ്രൂവൽ ഫംഗ്ഷൻ (റെൻഡർ സെർവർ വഴി നേരിട്ട് അയക്കാൻ)
+// 1. അപ്രൂവൽ നൽകാനും കുടിശ്ശിക (remDue) കണക്കാക്കാനുമുള്ള ഫംഗ്ഷൻ
 function approveReq(rows, id, y, m, name) { 
     let phone = findPhone(id);
     let mem = adminMembers.find(x => String(x.id) === String(id));
     let currentFee = (mem && mem.fee) ? mem.fee : 50;
+    let remDue = 0;
+
+    // ബാക്കി കുടിശ്ശിക (remDue) കണക്കാക്കുന്ന ലോജിക്
+    if (mem && mem.pendingList) {
+        let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        let approvedMonths = Array.isArray(rows) ? rows.map(r => `${r[2]} ${r[1]}`) : [`${m} ${y}`];
+        let remainingPending = mem.pendingList.filter(pStr => {
+            if (approvedMonths.includes(pStr)) return false;
+            let parts = pStr.split(" ");
+            let mIdx = monthNames.indexOf(parts[0]);
+            let mYear = parseInt(parts[1]);
+            return mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth);
+        });
+        remDue = remainingPending.length * currentFee;
+    }
 
     if (!phone) {
         Swal.fire('ഫോൺ നമ്പർ ലഭ്യമല്ല', 'ഈ മെമ്പറുടെ ഫോൺ നമ്പർ ഡാറ്റാബേസിൽ ഇല്ല.', 'warning');
@@ -3201,7 +3216,7 @@ function approveReq(rows, id, y, m, name) {
         if (result.isConfirmed) {
             showLoader(true);
             
-            // 1. ഗൂഗിൾ ഷീറ്റിൽ അപ്രൂവൽ നൽകുന്നു
+            // ഗൂഗിൾ ഷീറ്റിൽ അപ്രൂവൽ നൽകുന്നു
             callAPI('approvePayment', { rows: rows, id: id }).then((res) => {
                 if (res.error) {
                     showLoader(false);
@@ -3209,33 +3224,10 @@ function approveReq(rows, id, y, m, name) {
                     return;
                 }
 
-                // 2. അപ്രൂവൽ വിജയകരമായാൽ ഫോട്ടോ റെഡിയാക്കുന്നു
+                // അപ്രൂവൽ വിജയകരമായാൽ ഒറിജിനൽ റെസീപ്റ്റ് ഉണ്ടാക്കാൻ വിളിക്കുന്നു
                 let approvedAmt = (Array.isArray(rows) ? rows.length : 1) * currentFee;
-                let captionText = `السلام عليكم ${name},\n\nനിങ്ങളുടെ പേയ്‌മെന്റ് വിജയകരമായി സ്വീകരിച്ചിരിക്കുന്നു. ✅\nതുക: ₹${approvedAmt}\nമാസം: ${m} ${y}\n\nMUAAWINA - വരിസംഖ്യ ട്രാക്കർ`;
-
-                // ഇവിടെ ഒരു ഡെമോ ഇമേജ് ആണ് നൽകിയിരിക്കുന്നത് (പിന്നീട് താങ്കളുടെ ഒറിജിനൽ റെസീപ്റ്റ് ആക്കാം)
-                let base64Image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
-
-                // 3. റെൻഡർ സെർവറിലേക്ക് നേരിട്ട് ഫോട്ടോയും ക്യാപ്ഷനും അയക്കുന്നു
-                let payload = {
-                    action: 'sendWhatsAppMedia',
-                    data: {
-                        phone: phone,
-                        base64: base64Image,
-                        caption: captionText
-                    }
-                };
-
-                // ഗൂഗിൾ സ്ക്രിപ്റ്റിലെ sendWhatsAppMedia വിളിക്കുന്നു
-                callAPI('sendWhatsAppMedia', payload.data).then((waRes) => {
-                    showLoader(false);
-                    if(waRes.success) {
-                        Swal.fire('വിജയിച്ചു!', 'അപ്രൂവൽ നൽകുകയും റെസീപ്റ്റ് വാട്സ്ആപ്പിൽ അയക്കുകയും ചെയ്തു.', 'success').then(() => adminLogin());
-                    } else {
-                        Swal.fire('ശ്രദ്ധിക്കുക', 'അപ്രൂവൽ നൽകി, പക്ഷേ വാട്സ്ആപ്പ് മെസ്സേജ് അയക്കാൻ കഴിഞ്ഞില്ല.', 'warning').then(() => adminLogin());
-                    }
-                });
-
+                sendAutoReceiptToMember(id, m, y, approvedAmt, remDue, name); 
+                
             }).catch(err => {
                 showLoader(false);
                 Swal.fire('Error', 'കണക്ഷൻ തടസ്സപ്പെട്ടു', 'error');
@@ -3666,46 +3658,63 @@ async function sendMediaBroadcast() {
         /**
          * അപ്രൂവൽ കിട്ടുമ്പോൾ മെമ്പർക്ക് ഓട്ടോമാറ്റിക് റെസീപ്റ്റ് അയക്കുന്നു
          */
-        async function sendAutoReceiptToMember(memberId, month, year, amount) {
-            let m = adminMembers.find(x => String(x.id) === String(memberId));
-            if (!m || !m.phone) return;
+// 2. ഒറിജിനൽ റെസീപ്റ്റ് ഫോട്ടോ ഉണ്ടാക്കി വാട്സ്ആപ്പിലേക്ക് അയക്കുന്ന ഫംഗ്ഷൻ
+async function sendAutoReceiptToMember(memberId, month, year, amount, remDue, name) {
+    let m = adminMembers.find(x => String(x.id) === String(memberId));
+    if (!m || !m.phone) {
+        showLoader(false);
+        return;
+    }
 
-            // റെസീപ്റ്റ് ടെംപ്ലേറ്റ് ഫിൽ ചെയ്യുന്നു
-            document.getElementById('rcptName').innerText = m.name;
-            document.getElementById('rcptMonth').innerText = `${month} ${year}`;
-            document.getElementById('rcptAmount').innerText = '₹' + amount;
+    // റെസീപ്റ്റ് ടെംപ്ലേറ്റ് ഫിൽ ചെയ്യുന്നു (ഫോട്ടോ ഡിസൈൻ മാറ്റമില്ലാതെ)
+    document.getElementById('rcptName').innerText = name || m.name;
+    document.getElementById('rcptMonth').innerText = `${month} ${year}`;
+    document.getElementById('rcptAmount').innerText = '₹' + amount;
 
-            let d = new Date();
-            document.getElementById('rcptDate').innerText = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    let d = new Date();
+    document.getElementById('rcptDate').innerText = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
-            const rcptNode = document.getElementById('receiptCard');
+    const rcptNode = document.getElementById('receiptCard');
 
-            // DOM അപ്ഡേറ്റ് ചെയ്യാൻ അല്പം സമയം നൽകുന്നു
-            await new Promise(resolve => setTimeout(resolve, 1000));
+    // DOM അപ്ഡേറ്റ് ചെയ്യാൻ അല്പം സമയം നൽകുന്നു
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-            try {
-                const canvas = await html2canvas(rcptNode, { scale: 2, backgroundColor: '#ffffff' });
-                const base64Data = canvas.toDataURL("image/jpeg", 0.8);
+    try {
+        // html2canvas ഉപയോഗിച്ച് ഒറിജിനൽ ഫോട്ടോ എടുക്കുന്നു
+        const canvas = await html2canvas(rcptNode, { scale: 2, backgroundColor: '#ffffff' });
+        const base64Data = canvas.toDataURL("image/jpeg", 0.8);
 
-                // ഫോൺ നമ്പർ ഫോർമാറ്റ് ചെയ്യുന്നു (91 ചേർക്കുന്നു)
-                let cleanPh = String(m.phone).replace(/\D/g, '').slice(-10);
-                let finalPhone = "91" + cleanPh;
-
-                await fetch(BOT_BASE_URL + "/send-media", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Bypass-Tunnel-Reminder": "true" },
-                    body: JSON.stringify({
-                        phone: finalPhone,
-                        base64: base64Data,
-                        filename: `MUAAWINA_Receipt_${month}_${year}.jpg`,
-                        caption: `السلام عليكم ${m.name},\nനിങ്ങളുടെ ${month} ${year} മാസത്തെ MUAAWINA വരിസംഖ്യ സ്വീകരിച്ചിരിക്കുന്നു. ഇതാ നിങ്ങളുടെ റെസീപ്റ്റ്. ✅`
-                    })
-                });
-                console.log("Auto Receipt Sent to " + finalPhone);
-            } catch (e) {
-                console.error("Auto Receipt Error:", e);
-            }
+        // കുടിശ്ശിക (Balance) ക്യാപ്ഷനിൽ മാത്രം ചേർക്കുന്നു
+        let captionText = `السلام عليكم ${name || m.name},\n\nനിങ്ങളുടെ ${month} ${year} മാസത്തെ MUAAWINA വരിസംഖ്യ സ്വീകരിച്ചിരിക്കുന്നു. ഇതാ നിങ്ങളുടെ റെസീപ്റ്റ്. ✅`;
+        
+        if (remDue > 0) {
+            captionText += `\n\n💰 ഇനി അടക്കാൻ ബാക്കിയുള്ള തുക: ₹${remDue}`;
+        } else {
+            captionText += `\n\n✅ നിങ്ങൾക്ക് ഇനി കുടിശ്ശികയൊന്നും ബാക്കി അടക്കാനില്ല.`;
         }
+
+        // നമ്മൾ നേരത്തെ ഉണ്ടാക്കിയ സുരക്ഷിതമായ ഗൂഗിൾ സ്ക്രിപ്റ്റ് വഴി അയക്കുന്നു
+        let payload = {
+            phone: m.phone,
+            base64: base64Data,
+            caption: captionText
+        };
+
+        callAPI('sendWhatsAppMedia', payload).then((waRes) => {
+            showLoader(false);
+            if(waRes && waRes.success) {
+                Swal.fire('വിജയിച്ചു!', 'അപ്രൂവൽ നൽകുകയും ഒറിജിനൽ റെസീപ്റ്റ് വാട്സ്ആപ്പിൽ അയക്കുകയും ചെയ്തു.', 'success').then(() => adminLogin());
+            } else {
+                Swal.fire('ശ്രദ്ധിക്കുക', 'അപ്രൂവൽ നൽകി, പക്ഷേ വാട്സ്ആപ്പ് മെസ്സേജ് അയക്കാൻ കഴിഞ്ഞില്ല.', 'warning').then(() => adminLogin());
+            }
+        });
+
+    } catch (e) {
+        showLoader(false);
+        console.error("Auto Receipt Error:", e);
+        Swal.fire('Error', 'റെസീപ്റ്റ് ഉണ്ടാക്കുന്നതിൽ പിഴവ് സംഭവിച്ചു.', 'error').then(() => adminLogin());
+    }
+}
         // --- App Install & Notification Logic ---
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
