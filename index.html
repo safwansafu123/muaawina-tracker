@@ -3664,7 +3664,7 @@ async function sendAutoReceiptToMember(memberId, month, year, amount, remDue, na
         return;
     }
 
-    // റെസീപ്റ്റ് ടെംപ്ലേറ്റ് ഫിൽ ചെയ്യുന്നു (ഫോട്ടോ ഡിസൈൻ മാറ്റമില്ലാതെ)
+    // റെസീപ്റ്റ് ടെംപ്ലേറ്റ് ഫിൽ ചെയ്യുന്നു
     document.getElementById('rcptName').innerText = name || m.name;
     document.getElementById('rcptMonth').innerText = `${month} ${year}`;
     document.getElementById('rcptAmount').innerText = '₹' + amount;
@@ -3674,15 +3674,20 @@ async function sendAutoReceiptToMember(memberId, month, year, amount, remDue, na
 
     const rcptNode = document.getElementById('receiptCard');
 
-    // DOM അപ്ഡേറ്റ് ചെയ്യാൻ അല്പം സമയം നൽകുന്നു
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // ലോഗോ ലോഡ് ആകാൻ കുറച്ചുകൂടി സമയം നൽകുന്നു (1.5 സെക്കൻഡ്)
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
     try {
-        // html2canvas ഉപയോഗിച്ച് ഒറിജിനൽ ഫോട്ടോ എടുക്കുന്നു
-        const canvas = await html2canvas(rcptNode, { scale: 2, backgroundColor: '#ffffff' });
+        // 👇 ലോഗോ കാണിക്കാൻ useCORS ചേർത്തിട്ടുള്ള പുതിയ വരി 👇
+        const canvas = await html2canvas(rcptNode, { 
+            scale: 2, 
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            allowTaint: true
+        });
         const base64Data = canvas.toDataURL("image/jpeg", 0.8);
 
-        // 👇 താങ്കൾ ആവശ്യപ്പെട്ട പഴയ രീതിയിലുള്ള മെസ്സേജ് ഫോർമാറ്റ് 👇
+        // ക്യാപ്ഷൻ ഫോർമാറ്റ്
         let captionText = `السلام عليكم ${name || m.name},\n\nനിങ്ങളുടെ പേയ്‌മെന്റ് വിജയകരമായി സ്വീകരിച്ചിരിക്കുന്നു. ✅\nതുക: ₹${amount}\nമാസം: ${month} ${year}\n\nMUAAWINA - വരിസംഖ്യ ട്രാക്കർ`;
         
         // കുടിശ്ശിക (Balance) താഴെ ചേർക്കുന്നു
@@ -3691,9 +3696,7 @@ async function sendAutoReceiptToMember(memberId, month, year, amount, remDue, na
         } else {
             captionText += `\n\n✅ നിങ്ങൾക്ക് ഇനി കുടിശ്ശികയൊന്നും ബാക്കി അടക്കാനില്ല.`;
         }
-        // 👆 ----------------------------------------------------- 👆
 
-        // നമ്മൾ നേരത്തെ ഉണ്ടാക്കിയ സുരക്ഷിതമായ ഗൂഗിൾ സ്ക്രിപ്റ്റ് വഴി അയക്കുന്നു
         let payload = {
             phone: m.phone,
             base64: base64Data,
