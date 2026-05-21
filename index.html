@@ -3655,9 +3655,7 @@ async function sendMediaBroadcast() {
     Swal.fire('പൂർത്തിയായി', `${successCount} പേർക്ക് അയച്ചു.`, 'success');
 }
 
-        /**
-         * അപ്രൂവൽ കിട്ടുമ്പോൾ മെമ്പർക്ക് ഓട്ടോമാറ്റിക് റെസീപ്റ്റ് അയക്കുന്നു
-         */
+
 // 2. ഒറിജിനൽ റെസീപ്റ്റ് ഫോട്ടോ ഉണ്ടാക്കി വാട്സ്ആപ്പിലേക്ക് അയക്കുന്ന ഫംഗ്ഷൻ
 async function sendAutoReceiptToMember(memberId, month, year, amount, remDue, name) {
     let m = adminMembers.find(x => String(x.id) === String(memberId));
@@ -3684,14 +3682,16 @@ async function sendAutoReceiptToMember(memberId, month, year, amount, remDue, na
         const canvas = await html2canvas(rcptNode, { scale: 2, backgroundColor: '#ffffff' });
         const base64Data = canvas.toDataURL("image/jpeg", 0.8);
 
-        // കുടിശ്ശിക (Balance) ക്യാപ്ഷനിൽ മാത്രം ചേർക്കുന്നു
-        let captionText = `السلام عليكم ${name || m.name},\n\nനിങ്ങളുടെ ${month} ${year} മാസത്തെ MUAAWINA വരിസംഖ്യ സ്വീകരിച്ചിരിക്കുന്നു. ഇതാ നിങ്ങളുടെ റെസീപ്റ്റ്. ✅`;
+        // 👇 താങ്കൾ ആവശ്യപ്പെട്ട പഴയ രീതിയിലുള്ള മെസ്സേജ് ഫോർമാറ്റ് 👇
+        let captionText = `السلام عليكم ${name || m.name},\n\nനിങ്ങളുടെ പേയ്‌മെന്റ് വിജയകരമായി സ്വീകരിച്ചിരിക്കുന്നു. ✅\nതുക: ₹${amount}\nമാസം: ${month} ${year}\n\nMUAAWINA - വരിസംഖ്യ ട്രാക്കർ`;
         
+        // കുടിശ്ശിക (Balance) താഴെ ചേർക്കുന്നു
         if (remDue > 0) {
             captionText += `\n\n💰 ഇനി അടക്കാൻ ബാക്കിയുള്ള തുക: ₹${remDue}`;
         } else {
             captionText += `\n\n✅ നിങ്ങൾക്ക് ഇനി കുടിശ്ശികയൊന്നും ബാക്കി അടക്കാനില്ല.`;
         }
+        // 👆 ----------------------------------------------------- 👆
 
         // നമ്മൾ നേരത്തെ ഉണ്ടാക്കിയ സുരക്ഷിതമായ ഗൂഗിൾ സ്ക്രിപ്റ്റ് വഴി അയക്കുന്നു
         let payload = {
