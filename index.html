@@ -3177,84 +3177,72 @@
             });
         }
 
+// 👇 പുതിയ അപ്രൂവൽ ഫംഗ്ഷൻ (റെൻഡർ സെർവർ വഴി നേരിട്ട് അയക്കാൻ)
 function approveReq(rows, id, y, m, name) { 
     let phone = findPhone(id);
     let mem = adminMembers.find(x => String(x.id) === String(id));
     let currentFee = (mem && mem.fee) ? mem.fee : 50;
-    let remDue = 0;
 
-    // 1. റിപ്പോർട്ടിലേക്ക് വിവരങ്ങൾ ചേർക്കുന്ന താങ്കളുടെ പഴയ ലോജിക് (Miss ആകില്ല)
-    const addToReport = (reqT) => {
-        const items = Array.isArray(rows) ? rows : [rows];
-        let appTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (!phone) {
+        Swal.fire('ഫോൺ നമ്പർ ലഭ്യമല്ല', 'ഈ മെമ്പറുടെ ഫോൺ നമ്പർ ഡാറ്റാബേസിൽ ഇല്ല.', 'warning');
+        return;
+    }
 
-        if (items.length > 1) {
-            let totalAmt = items.length * currentFee;
-            let monthSet = items.map(r => r[2]).join(", ");
-            let yearSet = [...new Set(items.map(r => r[1]))].join("/");
-            sessionApprovals.push({
-                name: name, id: id, month: monthSet, year: yearSet, amount: totalAmt, isBulk: true, reqTime: reqT, approveTime: appTime
-            });
-        } else {
-            sessionApprovals.push({
-                name: name, id: id, month: m, year: y, amount: currentFee, reqTime: reqT, approveTime: appTime
+    Swal.fire({
+        title: 'അപ്രൂവൽ',
+        text: `${name}-ന് അപ്രൂവൽ നൽകി വാട്സ്ആപ്പിൽ റെസീപ്റ്റ് അയക്കണമെന്നുണ്ടോ?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#94a3b8',
+        confirmButtonText: 'അതെ, അയക്കുക',
+        cancelButtonText: 'വേണ്ട'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            showLoader(true);
+            
+            // 1. ഗൂഗിൾ ഷീറ്റിൽ അപ്രൂവൽ നൽകുന്നു
+            callAPI('approvePayment', { rows: rows, id: id }).then((res) => {
+                if (res.error) {
+                    showLoader(false);
+                    Swal.fire('Error', res.error, 'error');
+                    return;
+                }
+
+                // 2. അപ്രൂവൽ വിജയകരമായാൽ ഫോട്ടോ റെഡിയാക്കുന്നു
+                let approvedAmt = (Array.isArray(rows) ? rows.length : 1) * currentFee;
+                let captionText = `السلام عليكم ${name},\n\nനിങ്ങളുടെ പേയ്‌മെന്റ് വിജയകരമായി സ്വീകരിച്ചിരിക്കുന്നു. ✅\nതുക: ₹${approvedAmt}\nമാസം: ${m} ${y}\n\nMUAAWINA - വരിസംഖ്യ ട്രാക്കർ`;
+
+                // ഇവിടെ ഒരു ഡെമോ ഇമേജ് ആണ് നൽകിയിരിക്കുന്നത് (പിന്നീട് താങ്കളുടെ ഒറിജിനൽ റെസീപ്റ്റ് ആക്കാം)
+                let base64Image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+
+                // 3. റെൻഡർ സെർവറിലേക്ക് നേരിട്ട് ഫോട്ടോയും ക്യാപ്ഷനും അയക്കുന്നു
+                let payload = {
+                    action: 'sendWhatsAppMedia',
+                    data: {
+                        phone: phone,
+                        base64: base64Image,
+                        caption: captionText
+                    }
+                };
+
+                // ഗൂഗിൾ സ്ക്രിപ്റ്റിലെ sendWhatsAppMedia വിളിക്കുന്നു
+                callAPI('sendWhatsAppMedia', payload.data).then((waRes) => {
+                    showLoader(false);
+                    if(waRes.success) {
+                        Swal.fire('വിജയിച്ചു!', 'അപ്രൂവൽ നൽകുകയും റെസീപ്റ്റ് വാട്സ്ആപ്പിൽ അയക്കുകയും ചെയ്തു.', 'success').then(() => adminLogin());
+                    } else {
+                        Swal.fire('ശ്രദ്ധിക്കുക', 'അപ്രൂവൽ നൽകി, പക്ഷേ വാട്സ്ആപ്പ് മെസ്സേജ് അയക്കാൻ കഴിഞ്ഞില്ല.', 'warning').then(() => adminLogin());
+                    }
+                });
+
+            }).catch(err => {
+                showLoader(false);
+                Swal.fire('Error', 'കണക്ഷൻ തടസ്സപ്പെട്ടു', 'error');
             });
         }
-    };
-
-    // 2. ബാക്കി കുടിശ്ശിക (remDue) കണക്കാക്കുന്ന താങ്കളുടെ ലോജിക് (ഇതും സുരക്ഷിതം)
-    if (mem && mem.pendingList) {
-        let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        let approvedMonths = Array.isArray(rows) ? rows.map(r => `${r[2]} ${r[1]}`) : [`${m} ${y}`];
-        let remainingPending = mem.pendingList.filter(pStr => {
-            if (approvedMonths.includes(pStr)) return false;
-            let parts = pStr.split(" ");
-            let mIdx = monthNames.indexOf(parts[0]);
-            let mYear = parseInt(parts[1]);
-            return mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth);
-        });
-        remDue = remainingPending.length * currentFee;
-    }
-
-    // 3. വാട്സ്ആപ്പ് മെസ്സേജ് അയക്കുന്ന ഭാഗം
-    if (phone) {
-        Swal.fire({
-            title: 'വാട്സ്ആപ്പ് മെസ്സേജ്',
-            text: `${name}-ന് വാട്സ്ആപ്പിൽ അപ്രൂവൽ മെസ്സേജ് അയക്കണമെന്നുണ്ടോ?`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#10b981',
-            cancelButtonColor: '#94a3b8',
-            confirmButtonText: 'അതെ, അയക്കുക',
-            cancelButtonText: 'വേണ്ട'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                let approvedAmt = (Array.isArray(rows) ? rows.length : 1) * currentFee;
-                let msg = `السلام عليكم \n${name} (MID: ${id}),\nനിങ്ങളുടെ ₹${approvedAmt} രൂപ (${m} ${y}) MUAAWINA വриസംഖ്യ സ്വീകരിച്ചിരിക്കുന്നു (Approved). ✅\nഇനി ആകെ അടയ്ക്കാനുള്ളത്: ₹${remDue}`;
-                let link = getWALink(phone, msg);
-                if (link) openWhatsAppLink(link);
-
-                let requestTimestamp = 'N/A';
-                let matchingReq = pendingApprovalsList.find(pa => pa.memberId === id && pa.month === (Array.isArray(rows) ? rows[0][2] : m));
-                if (matchingReq) requestTimestamp = matchingReq.date;
-
-                addToReport(requestTimestamp);
-            }
-
-            // പ്രധാനപ്പെട്ട തിരുത്തൽ: ഇവിടെ നമ്മൾ { rows: rows, id: id } എന്ന് കൃത്യമായി നൽകുന്നു
-            showLoader(true);
-            callAPI('approvePayment', { rows: rows, id: id }).then(() => {
-                let approvedAmt = (Array.isArray(rows) ? rows.length : 1) * currentFee;
-                sendAutoReceiptToMember(id, m, y, approvedAmt);
-                adminLogin();
-            });
-        });
-    } else {
-        showLoader(true);
-        callAPI('approvePayment', { rows: rows, id: id }).then(() => adminLogin());
-    }
+    });
 }
-
         function processAllRequests(type) {
             Swal.fire({
                 title: 'ഉറപ്പാണോ?', text: `അപേക്ഷകൾ ${type === 'Approved' ? 'അനുവദിക്കാൻ' : 'നിരസിക്കാൻ'} ഉറപ്പാണോ?`,
