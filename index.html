@@ -3664,6 +3664,12 @@ async function sendAutoReceiptToMember(memberId, month, year, amount, remDue, na
         return;
     }
 
+    // 👇 ലോഗോ സെറ്റ് ചെയ്യുന്നതിനുള്ള പുതിയ വരികൾ (ഇതാണ് നമ്മൾ വിട്ടുപോയത്!) 👇
+    let mainLogoSrc = "logo.png";
+    document.getElementById('receiptWatermark').src = mainLogoSrc;
+    document.getElementById('receiptHeaderLogo').src = mainLogoSrc;
+    // 👆 -------------------------------------------------------- 👆
+
     // റെസീപ്റ്റ് ടെംപ്ലേറ്റ് ഫിൽ ചെയ്യുന്നു
     document.getElementById('rcptName').innerText = name || m.name;
     document.getElementById('rcptMonth').innerText = `${month} ${year}`;
@@ -3674,11 +3680,10 @@ async function sendAutoReceiptToMember(memberId, month, year, amount, remDue, na
 
     const rcptNode = document.getElementById('receiptCard');
 
-    // ലോഗോ ലോഡ് ആകാൻ കുറച്ചുകൂടി സമയം നൽകുന്നു (1.5 സെക്കൻഡ്)
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // ലോഗോ ലോഡ് ആകാൻ അല്പം സമയം നൽകുന്നു
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     try {
-        // 👇 ലോഗോ കാണിക്കാൻ useCORS ചേർത്തിട്ടുള്ള പുതിയ വരി 👇
         const canvas = await html2canvas(rcptNode, { 
             scale: 2, 
             backgroundColor: '#ffffff',
