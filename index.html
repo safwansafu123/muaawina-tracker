@@ -3619,35 +3619,27 @@ async function sendMediaBroadcast() {
 
     if (!mediaUrl) return Swal.fire('Error', 'മീഡിയ ലിങ്ക് നൽകുക!', 'error');
 
-    // അഡ്മിൻ ഡാറ്റയിൽ നിന്ന് മെമ്പർമാരെ എടുക്കുന്നു
     let targetMembers = adminMembers;
-    
-    if (!targetMembers || targetMembers.length === 0) {
-        return Swal.fire('Error', 'ലിസ്റ്റ് ലോഡ് ആയിട്ടില്ല. ദയവായി റിപ്പോർട്ട് ടാബിൽ ബാച്ച് സെലക്ട് ചെയ്യുക.', 'error');
-    }
-
     showLoader(true);
     let successCount = 0;
 
     for (let m of targetMembers) {
         if (m.phone) {
             try {
-                // 91 ചേർക്കുന്നു
                 let cleanPh = String(m.phone).replace(/\D/g, '').slice(-10);
                 let finalPhone = "91" + cleanPh;
 
-                // നേരിട്ട് കമ്പ്യൂട്ടറിലെ ബോട്ടിലേക്ക് അയക്കുന്നു
                 await fetch(BOT_BASE_URL + "/send-media", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json", "Bypass-Tunnel-Reminder": "true" },
-                    body: JSON.stringify({
-                        phone: finalPhone,
-                        mediaUrl: mediaUrl,
-                        caption: caption
-                    })
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ phone: finalPhone, mediaUrl, caption })
                 });
+                
                 successCount++;
-            } catch (e) { console.log(e); }
+                // ഓരോ മെസ്സേജിനും ഇടയിൽ 3 സെക്കൻഡ് ഗ്യാപ്പ് നൽകുന്നു (Ban ഒഴിവാക്കാൻ)
+                await new Promise(resolve => setTimeout(resolve, 3000)); 
+                
+            } catch (e) { console.log("Error sending to:", m.phone); }
         }
     }
 
