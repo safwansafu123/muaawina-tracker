@@ -69,13 +69,6 @@
             border-width: 2px;
         }
 
-    /* ... നിങ്ങളുടെ പഴയ സ്റ്റൈലുകൾ ... */
-  
-    .batch-pill { transition: all 0.2s ease; cursor: pointer; }
-    /* ആക്ടീവ് ആണെങ്കിൽ നീല നിറം വരും */
-    .batch-pill.active { background-color: #2563eb !important; color: white !important; border-color: #2563eb !important; }
-
-
         .admin-tab {
             padding: 12px 0;
             font-weight: 700;
@@ -893,43 +886,20 @@
                 </div>
 
                 <!-- പുതിയ മീഡിയ ബ്രോഡ്കാസ്റ്റ് സെക്ഷൻ -->
-<div class="glass-card p-4 mb-6 border-t-4 border-emerald-600 shadow-md">
-    <p class="text-[10px] font-black text-slate-400 uppercase mb-3">ബാച്ചുകൾ തിരഞ്ഞെടുക്കുക</p>
-    
-    <div id="batchContainer" class="grid grid-cols-2 gap-2 mb-4">
-        </div>
-    <div class="space-y-3">
-        <div class="relative w-full">
-            <input type="file" id="mediaFile" accept="image/*,video/*,.pdf" class="hidden">
-            <label for="mediaFile" class="cursor-pointer w-full p-4 bg-blue-50 text-blue-700 rounded-2xl font-black text-[11px] uppercase tracking-widest border-2 border-blue-100 flex items-center justify-center gap-2 hover:bg-blue-100 transition-all">
-                <i class="fas fa-cloud-upload-alt"></i> ഫയൽ തിരഞ്ഞെടുക്കുക
-            </label>
-            <p id="fileNameDisplay" class="text-[9px] text-slate-400 font-bold mt-2 text-center uppercase">ഫയലൊന്നും തിരഞ്ഞെടുത്തിട്ടില്ല</p>
-        </div>
-        
-        <input type="text" id="broadcastCaption" placeholder="ക്യാപ്‌ഷൻ ടൈപ്പ് ചെയ്യുക..."
-            class="w-full p-3 rounded-xl border border-slate-100 text-xs font-bold outline-none focus:border-emerald-400">
-            
-        <button onclick="sendMediaBroadcast()"
-            class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-md active:scale-95">
-            Send Media 🚀
-        </button>
-    </div>
-</div>
-                <script>
-        // DOM ലോഡ് ആയ ശേഷം മാത്രം റൺ ആകാൻ ഈ event listener ഉപയോഗിക്കുക
-        document.addEventListener('DOMContentLoaded', () => {
-            const mediaFile = document.getElementById('mediaFile');
-            if(mediaFile) {
-                mediaFile.addEventListener('change', function(e) {
-                    const fileName = e.target.files[0] ? e.target.files[0].name : "ഫയലൊന്നും തിരഞ്ഞെടുത്തിട്ടില്ല";
-                    document.getElementById('fileNameDisplay').innerText = fileName;
-                });
-            }
-        });
-
-        // താങ്കളുടെ ബാക്കി എല്ലാ script-കളും ഇവിടെ തന്നെ തുടരട്ടെ...
-    </script>
+                <div class="glass-card p-4 mb-6 border-t-4 border-emerald-600 shadow-md">
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-3">മീഡിയ ബ്രോഡ്കാസ്റ്റ് (WhatsApp)</p>
+                    <div class="space-y-3">
+                        <input type="text" id="broadcastMediaUrl" placeholder="മീഡിയ ലിങ്ക് (URL) നൽകുക..."
+                            class="w-full p-3 rounded-xl border border-slate-100 text-xs font-bold outline-none focus:border-emerald-400">
+                        <div class="flex gap-2">
+                            <input type="text" id="broadcastCaption" placeholder="ക്യാപ്‌ഷൻ ടൈപ്പ് ചെയ്യുക..."
+                                class="flex-1 p-3 rounded-xl border border-slate-100 text-xs font-bold outline-none focus:border-emerald-400">
+                            <button onclick="sendMediaBroadcast()"
+                                class="bg-emerald-600 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase shadow-md active:scale-95">Send
+                                🖼️</button>
+                        </div>
+                    </div>
+                </div>
                 <div class="flex gap-2 items-center">
                     <select id="batchReportFilter" onchange="updateAdminStats(this.value)"
                         class="custom-select flex-1 p-4 rounded-2xl border-2 border-blue-50 bg-white font-black text-slate-700 text-sm outline-none focus:border-blue-500 shadow-sm transition-all"></select>
@@ -2054,10 +2024,9 @@
                 let allApprovals = d.approvals || [];
                 pendingApprovalsList = allApprovals.filter(a => !a.status || a.status === '' || a.status === 'Pending' || a.status === 'Processing');
                 permanentApprovals = allApprovals.filter(a => a.status === 'Approved');
-                populateBroadcastBatch();
+
                 renderBatchDropdowns();
                 populateMonthFilter();
-                
                 updateAdminStats('all');
                 renderApprovals(pendingApprovalsList);
                 switchAdminTab('overview');
@@ -2103,7 +2072,28 @@
             if (typeof initCustomDropdowns === 'function') initCustomDropdowns();
         }
 
+        function populateMonthFilter() {
+            let allMonths = new Set();
+            adminMembers.forEach(m => {
+                if (m.pendingList) m.pendingList.forEach(pm => allMonths.add(pm));
+            });
 
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            let sortedMonths = [...allMonths].sort((a, b) => {
+                let partsA = a.split(" "), partsB = b.split(" ");
+                if (partsA.length !== 2 || partsB.length !== 2) return 0;
+                let mA = partsA[0], yA = partsA[1], mB = partsB[0], yB = partsB[1];
+                if (yA !== yB) return parseInt(yA) - parseInt(yB);
+                return monthNames.indexOf(mA) - monthNames.indexOf(mB);
+            });
+
+            let options = '<option value="all">മാസം തിരിച്ച് തിരയുക (Month-wise)</option>' + sortedMonths.map(m => `<option value="${m}">${m}</option>`).join('');
+            const monthFilterEl = document.getElementById('monthWiseFilter');
+            if (monthFilterEl) monthFilterEl.innerHTML = options;
+
+            // Re-render custom dropdowns after updating options
+            if (typeof initCustomDropdowns === 'function') initCustomDropdowns();
+        }
         function updateAdminStats(batch) {
             let filtered = (batch === 'all' || batch === 'All') ? adminMembers : adminMembers.filter(m => m.batch === batch);
 
@@ -2608,7 +2598,7 @@
                         }, 500);
                     }
                 <\/script>
-
+                
             </body>
             </html>
             `;
@@ -3619,97 +3609,44 @@ function approveReq(rows, id, y, m, name) {
                 Swal.fire('പിഴവ്', 'നെറ്റ്‌വർക്ക് കണക്ഷൻ പ്രശ്നം!', 'error');
             });
         }
-// മീഡിയ ബ്രോഡ്കാസ്റ്റ് അയക്കാനുള്ള ഫംഗ്ഷൻ
+
+        /**
+         * മീഡിയ ബ്രോഡ്കാസ്റ്റ് അയക്കാനുള്ള ഫംഗ്ഷൻ
+         */
 async function sendMediaBroadcast() {
-    const fileInput = document.getElementById('mediaFile');
+    const mediaUrl = document.getElementById('broadcastMediaUrl').value.trim();
     const caption = document.getElementById('broadcastCaption').value.trim();
-    
-    if (fileInput.files.length === 0) return Swal.fire('Error', 'ഫയൽ തിരഞ്ഞെടുക്കുക!', 'error');
-    
-    const file = fileInput.files[0];
-    const reader = new FileReader();
 
-    reader.onload = async function(e) {
-        const base64 = e.target.result;
-        let fileType = 'document'; 
-        if (file.type.startsWith('image/')) fileType = 'image';
-        else if (file.type.startsWith('video/')) fileType = 'video';
+    if (!mediaUrl) return Swal.fire('Error', 'മീഡിയ ലിങ്ക് നൽകുക!', 'error');
 
-        const targetMembers = getTargetMembers();
-        if (targetMembers.length === 0) return Swal.fire('Error', 'ഈ ബാച്ചിൽ മെമ്പർമാരില്ല!', 'warning');
+    let targetMembers = adminMembers;
+    showLoader(true);
+    let successCount = 0;
 
-        showLoader(true);
-        let successCount = 0;
+    for (let m of targetMembers) {
+        if (m.phone) {
+            try {
+                let cleanPh = String(m.phone).replace(/\D/g, '').slice(-10);
+                let finalPhone = "91" + cleanPh;
 
-        for (let m of targetMembers) {
-            if (m.phone) {
-                try {
-                    let finalPhone = "91" + String(m.phone).replace(/\D/g, '').slice(-10);
-                    await fetch(BOT_BASE_URL + "/send-media", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ 
-                            phone: finalPhone, 
-                            base64: base64, 
-                            caption: caption,
-                            fileType: fileType,
-                            mimeType: file.type 
-                        })
-                    });
-                    successCount++;
-                    await new Promise(resolve => setTimeout(resolve, 3000));
-                } catch (e) { console.log(e); }
-            }
-        }
-        showLoader(false);
-        Swal.fire('പൂർത്തിയായി', `${successCount} പേർക്ക് അയച്ചു.`, 'success');
-    };
-    reader.readAsDataURL(file);
-}
-
-function populateBroadcastBatch() {
-    let bt = [...new Set(adminMembers.map(m => m.batch))].filter(b => b && b !== 'UNASSIGNED').sort();
-    const container = document.getElementById('batchContainer');
-    if (!container) return;
-    
-    let html = `
-        <button onclick="toggleBatch(this, 'all')" data-batch="all" 
-        class="batch-pill active p-3 rounded-xl border-2 border-blue-500 bg-blue-600 text-white text-[10px] font-black uppercase">
-            എല്ലാവരും (All)
-        </button>`;
-
-    bt.forEach(b => {
-        html += `
-            <button onclick="toggleBatch(this, '${b}')" data-batch="${b}" 
-            class="batch-pill p-3 rounded-xl border-2 border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
-                ${b}
-            </button>`;
-    });
-    container.innerHTML = html;
-}
-
-function toggleBatch(btn, batch) {
-    if (batch === 'all') {
-        document.querySelectorAll('.batch-pill').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    } else {
-        document.querySelector('[data-batch="all"]').classList.remove('active');
-        btn.classList.toggle('active');
-        if(document.querySelectorAll('.batch-pill.active').length === 0) {
-            document.querySelector('[data-batch="all"]').classList.add('active');
+                await fetch(BOT_BASE_URL + "/send-media", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ phone: finalPhone, mediaUrl, caption })
+                });
+                
+                successCount++;
+                // ഓരോ മെസ്സേജിനും ഇടയിൽ 3 സെക്കൻഡ് ഗ്യാപ്പ് നൽകുന്നു (Ban ഒഴിവാക്കാൻ)
+                await new Promise(resolve => setTimeout(resolve, 3000)); 
+                
+            } catch (e) { console.log("Error sending to:", m.phone); }
         }
     }
+
+    showLoader(false);
+    Swal.fire('പൂർത്തിയായി', `${successCount} പേർക്ക് അയച്ചു.`, 'success');
 }
 
-function getTargetMembers() {
-    const activeButtons = Array.from(document.querySelectorAll('.batch-pill.active'));
-    if (activeButtons.some(b => b.getAttribute('data-batch') === 'all')) {
-        return adminMembers;
-    }
-    let selectedBatches = activeButtons.map(b => b.getAttribute('data-batch'));
-    return adminMembers.filter(m => selectedBatches.includes(String(m.batch).trim()));
-}
-      
 
 // 2. ഒറിജിനൽ റെസീപ്റ്റ് ഫോട്ടോ ഉണ്ടാക്കി വാട്സ്ആപ്പിലേക്ക് അയക്കുന്ന ഫംഗ്ഷൻ
 async function sendAutoReceiptToMember(memberId, month, year, amount, remDue, name) {
