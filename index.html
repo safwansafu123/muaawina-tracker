@@ -70,14 +70,11 @@
         }
 
     /* ... നിങ്ങളുടെ പഴയ സ്റ്റൈലുകൾ ... */
-    .batch-pill {
-        transition: all 0.2s ease;
-    }
-    .batch-pill.active {
-        background-color: #2563eb !important; /* Tailwind-ലെ blue-600 */
-        color: white !important;
-        border-color: #2563eb !important;
-    }
+  
+    .batch-pill { transition: all 0.2s ease; cursor: pointer; }
+    /* ആക്ടീവ് ആണെങ്കിൽ നീല നിറം വരും */
+    .batch-pill.active { background-color: #2563eb !important; color: white !important; border-color: #2563eb !important; }
+
 
         .admin-tab {
             padding: 12px 0;
@@ -3695,49 +3692,34 @@ function populateBroadcastBatch() {
     
     // 'All' ബട്ടൺ (ആദ്യമേ ആക്ടീവ് ആണ്)
     let html = `
-        <button onclick="toggleBatch(this, 'all')" data-batch="all" 
-        class="batch-pill active p-3 rounded-xl border-2 border-blue-600 bg-blue-600 text-white text-[10px] font-black uppercase shadow-lg">
-            എല്ലാവരും (All)
-        </button>`;
+       <button onclick="toggleBatch(this, 'all')" data-batch="all" 
+class="batch-pill active p-3 rounded-xl border-2 border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
+    എല്ലാവരും (All)
+</button>
 
-    // ബാച്ച് ബട്ടണുകൾ
-    bt.forEach(b => {
-        html += `
-            <button onclick="toggleBatch(this, '${b}')" data-batch="${b}" 
-            class="batch-pill p-3 rounded-xl border-2 border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase hover:border-blue-400">
-                ${b}
-            </button>`;
+<button onclick="toggleBatch(this, '${b}')" data-batch="${b}" 
+class="batch-pill p-3 rounded-xl border-2 border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
+    ${b}
+</button>
     });
     container.innerHTML = html;
 }
 
 function toggleBatch(btn, batch) {
+    // 'All' ബട്ടൺ ക്ലിക്ക് ചെയ്താൽ
     if (batch === 'all') {
-        // 'All' ക്ലിക്ക് ചെയ്താൽ ബാക്കിയെല്ലാം അൺസെലക്ട് ആകും
-        document.querySelectorAll('.batch-pill').forEach(b => {
-            b.classList.remove('active', 'bg-blue-600', 'text-white', 'border-blue-600');
-            b.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
-        });
-        btn.classList.add('active', 'bg-blue-600', 'text-white', 'border-blue-600');
-        btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+        document.querySelectorAll('.batch-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
     } else {
-        // 'All' അൺസെലക്ട് ആകും
-        const allBtn = document.querySelector('[data-batch="all"]');
-        allBtn.classList.remove('active', 'bg-blue-600', 'text-white', 'border-blue-600');
-        allBtn.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+        // 'All' ബട്ടണിൽ നിന്ന് ആക്ടീവ് ഒഴിവാക്കുന്നു
+        document.querySelector('[data-batch="all"]').classList.remove('active');
         
+        // ക്ലിക്ക് ചെയ്ത ബട്ടൺ ടോഗിൾ ചെയ്യുന്നു
         btn.classList.toggle('active');
-        btn.classList.toggle('bg-blue-600');
-        btn.classList.toggle('text-white');
-        btn.classList.toggle('border-blue-600');
-        btn.classList.toggle('bg-white');
-        btn.classList.toggle('text-slate-600');
-        btn.classList.toggle('border-slate-200');
         
         // വേറെ ഒരെണ്ണം പോലും ആക്ടീവ് ഇല്ലെങ്കിൽ 'All' ആക്ടീവ് ആക്കുക
         if(document.querySelectorAll('.batch-pill.active').length === 0) {
-            allBtn.classList.add('active', 'bg-blue-600', 'text-white', 'border-blue-600');
-            allBtn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+            document.querySelector('[data-batch="all"]').classList.add('active');
         }
     }
 }
