@@ -2046,10 +2046,10 @@
                 let allApprovals = d.approvals || [];
                 pendingApprovalsList = allApprovals.filter(a => !a.status || a.status === '' || a.status === 'Pending' || a.status === 'Processing');
                 permanentApprovals = allApprovals.filter(a => a.status === 'Approved');
-
+                populateBroadcastBatch();
                 renderBatchDropdowns();
                 populateMonthFilter();
-                populateBroadcastBatch();
+                
                 updateAdminStats('all');
                 renderApprovals(pendingApprovalsList);
                 switchAdminTab('overview');
