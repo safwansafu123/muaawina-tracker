@@ -3688,41 +3688,56 @@ async function sendMediaBroadcast() {
     };
     reader.readAsDataURL(file);
 
-// 1. ബാച്ചുകൾ ലോഡ് ചെയ്യുന്ന ഫംഗ്ഷൻ
 function populateBroadcastBatch() {
-    let bt = [...new Set(adminMembers.map(m => m.batch))].sort();
+    let bt = [...new Set(adminMembers.map(m => m.batch))].filter(b => b && b !== 'UNASSIGNED').sort();
     const container = document.getElementById('batchContainer');
-    if (!container) return; // കണ്ടെയ്നർ ഇല്ലെങ്കിൽ കോഡ് നിർത്തുന്നു
+    if (!container) return;
     
+    // 'All' ബട്ടൺ (ആദ്യമേ ആക്ടീവ് ആണ്)
     let html = `
         <button onclick="toggleBatch(this, 'all')" data-batch="all" 
-        class="batch-pill active p-3 rounded-xl border border-blue-500 bg-blue-600 text-white text-[10px] font-black uppercase">
+        class="batch-pill active p-3 rounded-xl border-2 border-blue-600 bg-blue-600 text-white text-[10px] font-black uppercase shadow-lg">
             എല്ലാവരും (All)
         </button>`;
 
+    // ബാച്ച് ബട്ടണുകൾ
     bt.forEach(b => {
         html += `
             <button onclick="toggleBatch(this, '${b}')" data-batch="${b}" 
-            class="batch-pill p-3 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
+            class="batch-pill p-3 rounded-xl border-2 border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase hover:border-blue-400">
                 ${b}
             </button>`;
     });
     container.innerHTML = html;
 }
 
-// 2. ബട്ടൺ സെലക്ട് ചെയ്യുന്ന ഫംഗ്ഷൻ
 function toggleBatch(btn, batch) {
     if (batch === 'all') {
-        document.querySelectorAll('.batch-pill').forEach(b => b.classList.remove('active', 'bg-blue-600', 'text-white'));
-        btn.classList.add('active', 'bg-blue-600', 'text-white');
+        // 'All' ക്ലിക്ക് ചെയ്താൽ ബാക്കിയെല്ലാം അൺസെലക്ട് ആകും
+        document.querySelectorAll('.batch-pill').forEach(b => {
+            b.classList.remove('active', 'bg-blue-600', 'text-white', 'border-blue-600');
+            b.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+        });
+        btn.classList.add('active', 'bg-blue-600', 'text-white', 'border-blue-600');
+        btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
     } else {
-        document.querySelector('[data-batch="all"]').classList.remove('active', 'bg-blue-600', 'text-white');
+        // 'All' അൺസെലക്ട് ആകും
+        const allBtn = document.querySelector('[data-batch="all"]');
+        allBtn.classList.remove('active', 'bg-blue-600', 'text-white', 'border-blue-600');
+        allBtn.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+        
         btn.classList.toggle('active');
         btn.classList.toggle('bg-blue-600');
         btn.classList.toggle('text-white');
+        btn.classList.toggle('border-blue-600');
+        btn.classList.toggle('bg-white');
+        btn.classList.toggle('text-slate-600');
+        btn.classList.toggle('border-slate-200');
         
+        // വേറെ ഒരെണ്ണം പോലും ആക്ടീവ് ഇല്ലെങ്കിൽ 'All' ആക്ടീവ് ആക്കുക
         if(document.querySelectorAll('.batch-pill.active').length === 0) {
-            document.querySelector('[data-batch="all"]').classList.add('active', 'bg-blue-600', 'text-white');
+            allBtn.classList.add('active', 'bg-blue-600', 'text-white', 'border-blue-600');
+            allBtn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
         }
     }
 }
