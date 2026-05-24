@@ -2095,28 +2095,26 @@
             if (typeof initCustomDropdowns === 'function') initCustomDropdowns();
         }
 
-        function populateMonthFilter() {
-            let allMonths = new Set();
-            adminMembers.forEach(m => {
-                if (m.pendingList) m.pendingList.forEach(pm => allMonths.add(pm));
-            });
+        function populateBroadcastBatch() {
+    let bt = [...new Set(adminMembers.map(m => m.batch))].sort();
+    const container = document.getElementById('batchContainer');
+    
+    // 'All' ബട്ടൺ
+    let html = `
+        <button onclick="toggleBatch(this, 'all')" data-batch="all" 
+        class="batch-pill active p-3 rounded-xl border border-blue-500 bg-blue-600 text-white text-[10px] font-black uppercase">
+            എല്ലാവരും (All)
+        </button>`;
 
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            let sortedMonths = [...allMonths].sort((a, b) => {
-                let partsA = a.split(" "), partsB = b.split(" ");
-                if (partsA.length !== 2 || partsB.length !== 2) return 0;
-                let mA = partsA[0], yA = partsA[1], mB = partsB[0], yB = partsB[1];
-                if (yA !== yB) return parseInt(yA) - parseInt(yB);
-                return monthNames.indexOf(mA) - monthNames.indexOf(mB);
-            });
-
-            let options = '<option value="all">മാസം തിരിച്ച് തിരയുക (Month-wise)</option>' + sortedMonths.map(m => `<option value="${m}">${m}</option>`).join('');
-            const monthFilterEl = document.getElementById('monthWiseFilter');
-            if (monthFilterEl) monthFilterEl.innerHTML = options;
-
-            // Re-render custom dropdowns after updating options
-            if (typeof initCustomDropdowns === 'function') initCustomDropdowns();
-        }
+    bt.forEach(b => {
+        html += `
+            <button onclick="toggleBatch(this, '${b}')" data-batch="${b}" 
+            class="batch-pill p-3 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
+                ${b}
+            </button>`;
+    });
+    container.innerHTML = html;
+}
         function updateAdminStats(batch) {
             let filtered = (batch === 'all' || batch === 'All') ? adminMembers : adminMembers.filter(m => m.batch === batch);
 
@@ -3639,10 +3637,16 @@ function approveReq(rows, id, y, m, name) {
 // ബാച്ച് ഫിൽറ്റർ ചെയ്യുന്ന ഫംഗ്ഷൻ
 function getTargetMembers() {
     const activeButtons = Array.from(document.querySelectorAll('.batch-pill.active'));
-    let selectedBatches = activeButtons.map(b => b.getAttribute('onclick').match(/'([^']+)'/)[1]);
-
-    if (selectedBatches.includes('all')) return adminMembers;
     
+    // 'all' ബട്ടൺ ആക്ടീവ് ആണെങ്കിൽ എല്ലാവർക്കും അയക്കും
+    if (activeButtons.some(b => b.getAttribute('data-batch') === 'all')) {
+        return adminMembers;
+    }
+    
+    // സെലക്ട് ചെയ്ത ബാച്ചുകളുടെ ലിസ്റ്റ്
+    let selectedBatches = activeButtons.map(b => b.getAttribute('data-batch'));
+    
+    // ഫിൽട്ടർ ചെയ്യുന്നു
     return adminMembers.filter(m => selectedBatches.includes(String(m.batch).trim()));
 }
 
@@ -3713,16 +3717,22 @@ function populateBroadcastBatch() {
     container.innerHTML = html;
 }
 
-// ബട്ടൺ ക്ലിക്ക് ചെയ്യുമ്പോൾ സെലക്ട് ചെയ്യാൻ
 function toggleBatch(btn, batch) {
     if (batch === 'all') {
+        // 'All' ക്ലിക്ക് ചെയ്താൽ ബാക്കിയെല്ലാം അൺസെലക്ട് ആകും
         document.querySelectorAll('.batch-pill').forEach(b => b.classList.remove('active', 'bg-blue-600', 'text-white'));
         btn.classList.add('active', 'bg-blue-600', 'text-white');
     } else {
-        document.querySelector('[onclick*="all"]').classList.remove('active', 'bg-blue-600', 'text-white');
+        // 'All' അൺസെലക്ട് ആകും
+        document.querySelector('[data-batch="all"]').classList.remove('active', 'bg-blue-600', 'text-white');
         btn.classList.toggle('active');
         btn.classList.toggle('bg-blue-600');
         btn.classList.toggle('text-white');
+        
+        // വേറെ ഒരെണ്ണം പോലും ആക്ടീവ് ഇല്ലെങ്കിൽ 'All' ആക്ടീവ് ആക്കുക
+        if(document.querySelectorAll('.batch-pill.active').length === 0) {
+            document.querySelector('[data-batch="all"]').classList.add('active', 'bg-blue-600', 'text-white');
+        }
     }
 }
 
