@@ -2095,26 +2095,7 @@
             if (typeof initCustomDropdowns === 'function') initCustomDropdowns();
         }
 
-        function populateBroadcastBatch() {
-    let bt = [...new Set(adminMembers.map(m => m.batch))].sort();
-    const container = document.getElementById('batchContainer');
-    
-    // 'All' ബട്ടൺ
-    let html = `
-        <button onclick="toggleBatch(this, 'all')" data-batch="all" 
-        class="batch-pill active p-3 rounded-xl border border-blue-500 bg-blue-600 text-white text-[10px] font-black uppercase">
-            എല്ലാവരും (All)
-        </button>`;
 
-    bt.forEach(b => {
-        html += `
-            <button onclick="toggleBatch(this, '${b}')" data-batch="${b}" 
-            class="batch-pill p-3 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
-                ${b}
-            </button>`;
-    });
-    container.innerHTML = html;
-}
         function updateAdminStats(batch) {
             let filtered = (batch === 'all' || batch === 'All') ? adminMembers : adminMembers.filter(m => m.batch === batch);
 
@@ -3696,46 +3677,45 @@ async function sendMediaBroadcast() {
         Swal.fire('പൂർത്തിയായി', `${successCount} പേർക്ക് അയച്ചു.`, 'success');
     };
     reader.readAsDataURL(file);
-}
+
+// 1. ബാച്ചുകൾ ലോഡ് ചെയ്യുന്ന ഫംഗ്ഷൻ
 function populateBroadcastBatch() {
     let bt = [...new Set(adminMembers.map(m => m.batch))].sort();
     const container = document.getElementById('batchContainer');
+    if (!container) return; // കണ്ടെയ്നർ ഇല്ലെങ്കിൽ കോഡ് നിർത്തുന്നു
     
-    // 'All' ബട്ടൺ
     let html = `
-        <button onclick="toggleBatch(this, 'all')" class="batch-pill active p-3 rounded-xl border border-blue-500 bg-blue-600 text-white text-[10px] font-black uppercase">
+        <button onclick="toggleBatch(this, 'all')" data-batch="all" 
+        class="batch-pill active p-3 rounded-xl border border-blue-500 bg-blue-600 text-white text-[10px] font-black uppercase">
             എല്ലാവരും (All)
         </button>`;
 
-    // ബാച്ച് ബട്ടണുകൾ
     bt.forEach(b => {
         html += `
-            <button onclick="toggleBatch(this, '${b}')" class="batch-pill p-3 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
+            <button onclick="toggleBatch(this, '${b}')" data-batch="${b}" 
+            class="batch-pill p-3 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
                 ${b}
             </button>`;
     });
     container.innerHTML = html;
 }
 
+// 2. ബട്ടൺ സെലക്ട് ചെയ്യുന്ന ഫംഗ്ഷൻ
 function toggleBatch(btn, batch) {
     if (batch === 'all') {
-        // 'All' ക്ലിക്ക് ചെയ്താൽ ബാക്കിയെല്ലാം അൺസെലക്ട് ആകും
         document.querySelectorAll('.batch-pill').forEach(b => b.classList.remove('active', 'bg-blue-600', 'text-white'));
         btn.classList.add('active', 'bg-blue-600', 'text-white');
     } else {
-        // 'All' അൺസെലക്ട് ആകും
         document.querySelector('[data-batch="all"]').classList.remove('active', 'bg-blue-600', 'text-white');
         btn.classList.toggle('active');
         btn.classList.toggle('bg-blue-600');
         btn.classList.toggle('text-white');
         
-        // വേറെ ഒരെണ്ണം പോലും ആക്ടീവ് ഇല്ലെങ്കിൽ 'All' ആക്ടീവ് ആക്കുക
         if(document.querySelectorAll('.batch-pill.active').length === 0) {
             document.querySelector('[data-batch="all"]').classList.add('active', 'bg-blue-600', 'text-white');
         }
     }
 }
-
 // 2. ഒറിജിനൽ റെസീപ്റ്റ് ഫോട്ടോ ഉണ്ടാക്കി വാട്സ്ആപ്പിലേക്ക് അയക്കുന്ന ഫംഗ്ഷൻ
 async function sendAutoReceiptToMember(memberId, month, year, amount, remDue, name) {
     let m = adminMembers.find(x => String(x.id) === String(memberId));
