@@ -888,17 +888,19 @@
                 <!-- പുതിയ മീഡിയ ബ്രോഡ്കാസ്റ്റ് സെക്ഷൻ -->
 <div class="glass-card p-4 mb-6 border-t-4 border-emerald-600 shadow-md">
     <p class="text-[10px] font-black text-slate-400 uppercase mb-3">മീഡിയ ബ്രോഡ്കാസ്റ്റ് (WhatsApp)</p>
+    
+    <select id="broadcastBatchSelect" class="w-full p-3 rounded-xl border border-slate-100 mb-3 text-xs font-bold bg-slate-50">
+        <option value="all">എല്ലാവർക്കും (All)</option>
+    </select>
+
     <div class="space-y-3">
         <div class="relative w-full">
-    <input type="file" id="mediaFile" accept="image/*,video/*,.pdf" class="hidden">
-    
-    <label for="mediaFile" 
-        class="cursor-pointer w-full p-4 bg-blue-50 text-blue-700 rounded-2xl font-black text-[11px] uppercase tracking-widest border-2 border-blue-100 flex items-center justify-center gap-2 hover:bg-blue-100 transition-all">
-        <i class="fas fa-cloud-upload-alt"></i> ഫയൽ തിരഞ്ഞെടുക്കുക
-    </label>
-    
-    <p id="fileNameDisplay" class="text-[9px] text-slate-400 font-bold mt-2 text-center uppercase">ഫയലൊന്നും തിരഞ്ഞെടുത്തിട്ടില്ല</p>
-</div>
+            <input type="file" id="mediaFile" accept="image/*,video/*,.pdf" class="hidden">
+            <label for="mediaFile" class="cursor-pointer w-full p-4 bg-blue-50 text-blue-700 rounded-2xl font-black text-[11px] uppercase tracking-widest border-2 border-blue-100 flex items-center justify-center gap-2 hover:bg-blue-100 transition-all">
+                <i class="fas fa-cloud-upload-alt"></i> ഫയൽ തിരഞ്ഞെടുക്കുക
+            </label>
+            <p id="fileNameDisplay" class="text-[9px] text-slate-400 font-bold mt-2 text-center uppercase">ഫയലൊന്നും തിരഞ്ഞെടുത്തിട്ടില്ല</p>
+        </div>
         
         <input type="text" id="broadcastCaption" placeholder="ക്യാപ്‌ഷൻ ടൈപ്പ് ചെയ്യുക..."
             class="w-full p-3 rounded-xl border border-slate-100 text-xs font-bold outline-none focus:border-emerald-400">
@@ -2050,6 +2052,7 @@
 
                 renderBatchDropdowns();
                 populateMonthFilter();
+                populateBroadcastBatch();
                 updateAdminStats('all');
                 renderApprovals(pendingApprovalsList);
                 switchAdminTab('overview');
@@ -3636,11 +3639,18 @@ function approveReq(rows, id, y, m, name) {
         /**
          * മീഡിയ ബ്രോഡ്കാസ്റ്റ് അയക്കാനുള്ള ഫംഗ്ഷൻ
          */
+// ബാച്ച് ഫിൽറ്റർ ചെയ്യുന്ന ഫംഗ്ഷൻ
+function getTargetMembers() {
+    const selectedBatch = document.getElementById('broadcastBatchSelect').value;
+    if (selectedBatch === 'all') return adminMembers;
+    return adminMembers.filter(m => String(m.batch).trim() === selectedBatch);
+}
+
+// മീഡിയ ബ്രോഡ്കാസ്റ്റ് അയക്കാനുള്ള ഫംഗ്ഷൻ
 async function sendMediaBroadcast() {
     const fileInput = document.getElementById('mediaFile');
     const caption = document.getElementById('broadcastCaption').value.trim();
     
-    // ഫയൽ സെലക്ട് ചെയ്തിട്ടുണ്ടോ എന്ന് പരിശോധിക്കുന്നു
     if (fileInput.files.length === 0) return Swal.fire('Error', 'ഫയൽ തിരഞ്ഞെടുക്കുക!', 'error');
     
     const file = fileInput.files[0];
@@ -3648,22 +3658,20 @@ async function sendMediaBroadcast() {
 
     reader.onload = async function(e) {
         const base64 = e.target.result;
-        
-        // ഫയൽ ടൈപ്പ് കണ്ടെത്തുന്നു (ഇമേജ്, വീഡിയോ, അല്ലെങ്കിൽ document/PDF)
         let fileType = 'document'; 
         if (file.type.startsWith('image/')) fileType = 'image';
         else if (file.type.startsWith('video/')) fileType = 'video';
 
+        const targetMembers = getTargetMembers();
+        if (targetMembers.length === 0) return Swal.fire('Error', 'ഈ ബാച്ചിൽ മെമ്പർമാരില്ല!', 'warning');
+
         showLoader(true);
         let successCount = 0;
 
-        // ഇതാണ് നമ്മുടെ ലൂപ്പ് (Delay-യോട് കൂടി)
-        for (let m of adminMembers) {
+        for (let m of targetMembers) {
             if (m.phone) {
                 try {
                     let finalPhone = "91" + String(m.phone).replace(/\D/g, '').slice(-10);
-                    
-                    // ബോട്ടിന്റെ /send-media API-യിലേക്ക് ഡാറ്റ അയക്കുന്നു
                     await fetch(BOT_BASE_URL + "/send-media", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -3671,25 +3679,29 @@ async function sendMediaBroadcast() {
                             phone: finalPhone, 
                             base64: base64, 
                             caption: caption,
-                            fileType: fileType, 
-                            mimeType: file.type
+                            fileType: fileType,
+                            mimeType: file.type 
                         })
                     });
-                    
                     successCount++;
-                    // വാട്സ്ആപ്പ് ബാൻ ഒഴിവാക്കാൻ 3 സെക്കൻഡ് ഗ്യാപ്പ്
-                    await new Promise(resolve => setTimeout(resolve, 3000)); 
-                    
-                } catch (e) { console.log("Error sending to:", m.phone); }
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                } catch (e) { console.log(e); }
             }
         }
         showLoader(false);
         Swal.fire('പൂർത്തിയായി', `${successCount} പേർക്ക് അയച്ചു.`, 'success');
     };
-    
     reader.readAsDataURL(file);
 }
-
+function populateBroadcastBatch() {
+    // ഡാറ്റാബേസിൽ നിന്ന് എല്ലാ ബാച്ചുകളും എടുക്കുന്നു
+    let bt = [...new Set(adminMembers.map(m => m.batch))].sort((a,b) => a.localeCompare(b, undefined, {numeric: true}));
+    const select = document.getElementById('broadcastBatchSelect');
+    if(select) {
+        select.innerHTML = '<option value="all">എല്ലാവർക്കും (All)</option>' + 
+                           bt.map(b => `<option value="${b}">${b}</option>`).join('');
+    }
+}
 
 // 2. ഒറിജിനൽ റെസീപ്റ്റ് ഫോട്ടോ ഉണ്ടാക്കി വാട്സ്ആപ്പിലേക്ക് അയക്കുന്ന ഫംഗ്ഷൻ
 async function sendAutoReceiptToMember(memberId, month, year, amount, remDue, name) {
