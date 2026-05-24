@@ -887,12 +887,9 @@
 
                 <!-- പുതിയ മീഡിയ ബ്രോഡ്കാസ്റ്റ് സെക്ഷൻ -->
 <div class="glass-card p-4 mb-6 border-t-4 border-emerald-600 shadow-md">
-    <p class="text-[10px] font-black text-slate-400 uppercase mb-3">മീഡിയ ബ്രോഡ്കാസ്റ്റ് (WhatsApp)</p>
-    
-    <select id="broadcastBatchSelect" class="w-full p-3 rounded-xl border border-slate-100 mb-3 text-xs font-bold bg-slate-50">
-        <option value="all">എല്ലാവർക്കും (All)</option>
-    </select>
-
+  <p class="text-[10px] font-black text-slate-400 uppercase mb-3">ബാച്ചുകൾ തിരഞ്ഞെടുക്കുക</p>
+<div id="batchContainer" class="grid grid-cols-2 gap-2 mb-4">
+    </div>
     <div class="space-y-3">
         <div class="relative w-full">
             <input type="file" id="mediaFile" accept="image/*,video/*,.pdf" class="hidden">
@@ -3641,9 +3638,12 @@ function approveReq(rows, id, y, m, name) {
          */
 // ബാച്ച് ഫിൽറ്റർ ചെയ്യുന്ന ഫംഗ്ഷൻ
 function getTargetMembers() {
-    const selectedBatch = document.getElementById('broadcastBatchSelect').value;
-    if (selectedBatch === 'all') return adminMembers;
-    return adminMembers.filter(m => String(m.batch).trim() === selectedBatch);
+    const activeButtons = Array.from(document.querySelectorAll('.batch-pill.active'));
+    let selectedBatches = activeButtons.map(b => b.getAttribute('onclick').match(/'([^']+)'/)[1]);
+
+    if (selectedBatches.includes('all')) return adminMembers;
+    
+    return adminMembers.filter(m => selectedBatches.includes(String(m.batch).trim()));
 }
 
 // മീഡിയ ബ്രോഡ്കാസ്റ്റ് അയക്കാനുള്ള ഫംഗ്ഷൻ
@@ -3694,12 +3694,35 @@ async function sendMediaBroadcast() {
     reader.readAsDataURL(file);
 }
 function populateBroadcastBatch() {
-    // ഡാറ്റാബേസിൽ നിന്ന് എല്ലാ ബാച്ചുകളും എടുക്കുന്നു
-    let bt = [...new Set(adminMembers.map(m => m.batch))].sort((a,b) => a.localeCompare(b, undefined, {numeric: true}));
-    const select = document.getElementById('broadcastBatchSelect');
-    if(select) {
-        select.innerHTML = '<option value="all">എല്ലാവർക്കും (All)</option>' + 
-                           bt.map(b => `<option value="${b}">${b}</option>`).join('');
+    let bt = [...new Set(adminMembers.map(m => m.batch))].sort();
+    const container = document.getElementById('batchContainer');
+    
+    // 'All' ബട്ടൺ
+    let html = `
+        <button onclick="toggleBatch(this, 'all')" class="batch-pill active p-3 rounded-xl border border-blue-500 bg-blue-600 text-white text-[10px] font-black uppercase">
+            എല്ലാവരും (All)
+        </button>`;
+
+    // ബാച്ച് ബട്ടണുകൾ
+    bt.forEach(b => {
+        html += `
+            <button onclick="toggleBatch(this, '${b}')" class="batch-pill p-3 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
+                ${b}
+            </button>`;
+    });
+    container.innerHTML = html;
+}
+
+// ബട്ടൺ ക്ലിക്ക് ചെയ്യുമ്പോൾ സെലക്ട് ചെയ്യാൻ
+function toggleBatch(btn, batch) {
+    if (batch === 'all') {
+        document.querySelectorAll('.batch-pill').forEach(b => b.classList.remove('active', 'bg-blue-600', 'text-white'));
+        btn.classList.add('active', 'bg-blue-600', 'text-white');
+    } else {
+        document.querySelector('[onclick*="all"]').classList.remove('active', 'bg-blue-600', 'text-white');
+        btn.classList.toggle('active');
+        btn.classList.toggle('bg-blue-600');
+        btn.classList.toggle('text-white');
     }
 }
 
