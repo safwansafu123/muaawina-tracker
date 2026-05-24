@@ -15,10 +15,6 @@
         content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
-        document.getElementById('mediaFile').addEventListener('change', function(e) {
-    const fileName = e.target.files[0] ? e.target.files[0].name : "ഫയലൊന്നും തിരഞ്ഞെടുത്തിട്ടില്ല";
-    document.getElementById('fileNameDisplay').innerText = fileName;
-});
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         OneSignalDeferred.push(async function (OneSignal) {
             await OneSignal.init({
@@ -2611,7 +2607,15 @@
                         }, 500);
                     }
                 <\/script>
-                
+                <script>
+    // ഇത് ഫയൽ പേര് കാണിക്കാൻ
+    document.getElementById('mediaFile').addEventListener('change', function(e) {
+        const fileName = e.target.files[0] ? e.target.files[0].name : "ഫയലൊന്നും തിരഞ്ഞെടുത്തിട്ടില്ല";
+        document.getElementById('fileNameDisplay').innerText = fileName;
+    });
+
+    // താങ്കളുടെ ബാക്കി എല്ലാ script-കളും ഇവിടെ തന്നെ തുടരട്ടെ...
+</script>
             </body>
             </html>
             `;
