@@ -894,9 +894,10 @@
 
                 <!-- പുതിയ മീഡിയ ബ്രോഡ്കാസ്റ്റ് സെക്ഷൻ -->
 <div class="glass-card p-4 mb-6 border-t-4 border-emerald-600 shadow-md">
-  <p class="text-[10px] font-black text-slate-400 uppercase mb-3">ബാച്ചുകൾ തിരഞ്ഞെടുക്കുക</p>
-<div id="batchContainer" class="grid grid-cols-2 gap-2 mb-4">
-    </div>
+    <p class="text-[10px] font-black text-slate-400 uppercase mb-3">ബാച്ചുകൾ തിരഞ്ഞെടുക്കുക</p>
+    
+    <div id="batchContainer" class="grid grid-cols-2 gap-2 mb-4">
+        </div>
     <div class="space-y-3">
         <div class="relative w-full">
             <input type="file" id="mediaFile" accept="image/*,video/*,.pdf" class="hidden">
@@ -3685,23 +3686,29 @@ async function sendMediaBroadcast() {
     };
     reader.readAsDataURL(file);
 
+// ഇതാണ് ശരിയായ ഫംഗ്ഷൻ (ഇത് അതേപടി മാറ്റി നൽകുക)
 function populateBroadcastBatch() {
     let bt = [...new Set(adminMembers.map(m => m.batch))].filter(b => b && b !== 'UNASSIGNED').sort();
     const container = document.getElementById('batchContainer');
-    if (!container) return;
+    if (!container) return; // കണ്ടെയ്നർ ഇല്ലെങ്കിൽ കോഡ് നിർത്തുന്നു
     
     // 'All' ബട്ടൺ (ആദ്യമേ ആക്ടീവ് ആണ്)
     let html = `
-       <button onclick="toggleBatch(this, 'all')" data-batch="all" 
-class="batch-pill active p-3 rounded-xl border-2 border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
-    എല്ലാവരും (All)
-</button>
+        <button onclick="toggleBatch(this, 'all')" data-batch="all" 
+        class="batch-pill active p-3 rounded-xl border border-blue-500 bg-blue-600 text-white text-[10px] font-black uppercase">
+            എല്ലാവരും (All)
+        </button>`;
 
-<button onclick="toggleBatch(this, '${b}')" data-batch="${b}" 
-class="batch-pill p-3 rounded-xl border-2 border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
-    ${b}
-</button>
+    // ബാച്ച് ബട്ടണുകൾ ഉണ്ടാക്കുന്ന ലൂപ്പ്
+    bt.forEach(b => {
+        html += `
+            <button onclick="toggleBatch(this, '${b}')" data-batch="${b}" 
+            class="batch-pill p-3 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
+                ${b}
+            </button>`;
     });
+    
+    // ഇത് HTML-ലേക്ക് ചേർക്കുന്നു
     container.innerHTML = html;
 }
 
