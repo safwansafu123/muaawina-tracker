@@ -3619,26 +3619,6 @@ function approveReq(rows, id, y, m, name) {
                 Swal.fire('പിഴവ്', 'നെറ്റ്‌വർക്ക് കണക്ഷൻ പ്രശ്നം!', 'error');
             });
         }
-
-        /**
-         * മീഡിയ ബ്രോഡ്കാസ്റ്റ് അയക്കാനുള്ള ഫംഗ്ഷൻ
-         */
-// ബാച്ച് ഫിൽറ്റർ ചെയ്യുന്ന ഫംഗ്ഷൻ
-function getTargetMembers() {
-    const activeButtons = Array.from(document.querySelectorAll('.batch-pill.active'));
-    
-    // 'all' ബട്ടൺ ആക്ടീവ് ആണെങ്കിൽ എല്ലാവർക്കും അയക്കും
-    if (activeButtons.some(b => b.getAttribute('data-batch') === 'all')) {
-        return adminMembers;
-    }
-    
-    // സെലക്ട് ചെയ്ത ബാച്ചുകളുടെ ലിസ്റ്റ്
-    let selectedBatches = activeButtons.map(b => b.getAttribute('data-batch'));
-    
-    // ഫിൽട്ടർ ചെയ്യുന്നു
-    return adminMembers.filter(m => selectedBatches.includes(String(m.batch).trim()));
-}
-
 // മീഡിയ ബ്രോഡ്കാസ്റ്റ് അയക്കാനുള്ള ഫംഗ്ഷൻ
 async function sendMediaBroadcast() {
     const fileInput = document.getElementById('mediaFile');
@@ -3685,51 +3665,52 @@ async function sendMediaBroadcast() {
         Swal.fire('പൂർത്തിയായി', `${successCount} പേർക്ക് അയച്ചു.`, 'success');
     };
     reader.readAsDataURL(file);
+}
 
-// ഇതാണ് ശരിയായ ഫംഗ്ഷൻ (ഇത് അതേപടി മാറ്റി നൽകുക)
 function populateBroadcastBatch() {
     let bt = [...new Set(adminMembers.map(m => m.batch))].filter(b => b && b !== 'UNASSIGNED').sort();
     const container = document.getElementById('batchContainer');
-    if (!container) return; // കണ്ടെയ്നർ ഇല്ലെങ്കിൽ കോഡ് നിർത്തുന്നു
+    if (!container) return;
     
-    // 'All' ബട്ടൺ (ആദ്യമേ ആക്ടീവ് ആണ്)
     let html = `
         <button onclick="toggleBatch(this, 'all')" data-batch="all" 
-        class="batch-pill active p-3 rounded-xl border border-blue-500 bg-blue-600 text-white text-[10px] font-black uppercase">
+        class="batch-pill active p-3 rounded-xl border-2 border-blue-500 bg-blue-600 text-white text-[10px] font-black uppercase">
             എല്ലാവരും (All)
         </button>`;
 
-    // ബാച്ച് ബട്ടണുകൾ ഉണ്ടാക്കുന്ന ലൂപ്പ്
     bt.forEach(b => {
         html += `
             <button onclick="toggleBatch(this, '${b}')" data-batch="${b}" 
-            class="batch-pill p-3 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
+            class="batch-pill p-3 rounded-xl border-2 border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
                 ${b}
             </button>`;
     });
-    
-    // ഇത് HTML-ലേക്ക് ചേർക്കുന്നു
     container.innerHTML = html;
 }
 
 function toggleBatch(btn, batch) {
-    // 'All' ബട്ടൺ ക്ലിക്ക് ചെയ്താൽ
     if (batch === 'all') {
         document.querySelectorAll('.batch-pill').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
     } else {
-        // 'All' ബട്ടണിൽ നിന്ന് ആക്ടീവ് ഒഴിവാക്കുന്നു
         document.querySelector('[data-batch="all"]').classList.remove('active');
-        
-        // ക്ലിക്ക് ചെയ്ത ബട്ടൺ ടോഗിൾ ചെയ്യുന്നു
         btn.classList.toggle('active');
-        
-        // വേറെ ഒരെണ്ണം പോലും ആക്ടീവ് ഇല്ലെങ്കിൽ 'All' ആക്ടീവ് ആക്കുക
         if(document.querySelectorAll('.batch-pill.active').length === 0) {
             document.querySelector('[data-batch="all"]').classList.add('active');
         }
     }
 }
+
+function getTargetMembers() {
+    const activeButtons = Array.from(document.querySelectorAll('.batch-pill.active'));
+    if (activeButtons.some(b => b.getAttribute('data-batch') === 'all')) {
+        return adminMembers;
+    }
+    let selectedBatches = activeButtons.map(b => b.getAttribute('data-batch'));
+    return adminMembers.filter(m => selectedBatches.includes(String(m.batch).trim()));
+}
+      
+
 // 2. ഒറിജിനൽ റെസീപ്റ്റ് ഫോട്ടോ ഉണ്ടാക്കി വാട്സ്ആപ്പിലേക്ക് അയക്കുന്ന ഫംഗ്ഷൻ
 async function sendAutoReceiptToMember(memberId, month, year, amount, remDue, name) {
     let m = adminMembers.find(x => String(x.id) === String(memberId));
