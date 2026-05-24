@@ -913,6 +913,20 @@
         </button>
     </div>
 </div>
+                <script>
+        // DOM ലോഡ് ആയ ശേഷം മാത്രം റൺ ആകാൻ ഈ event listener ഉപയോഗിക്കുക
+        document.addEventListener('DOMContentLoaded', () => {
+            const mediaFile = document.getElementById('mediaFile');
+            if(mediaFile) {
+                mediaFile.addEventListener('change', function(e) {
+                    const fileName = e.target.files[0] ? e.target.files[0].name : "ഫയലൊന്നും തിരഞ്ഞെടുത്തിട്ടില്ല";
+                    document.getElementById('fileNameDisplay').innerText = fileName;
+                });
+            }
+        });
+
+        // താങ്കളുടെ ബാക്കി എല്ലാ script-കളും ഇവിടെ തന്നെ തുടരട്ടെ...
+    </script>
                 <div class="flex gap-2 items-center">
                     <select id="batchReportFilter" onchange="updateAdminStats(this.value)"
                         class="custom-select flex-1 p-4 rounded-2xl border-2 border-blue-50 bg-white font-black text-slate-700 text-sm outline-none focus:border-blue-500 shadow-sm transition-all"></select>
