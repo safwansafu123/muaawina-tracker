@@ -3262,6 +3262,60 @@ function approveReq(rows, id, y, m, name) {
         }
     });
 }
+
+        // 1.5 അപേക്ഷ നിരസിക്കാനുള്ള (Reject) ഫംഗ്ഷൻ
+function rejectReq(rows, id, name, year, month) {
+    Swal.fire({
+        title: 'നിരസിക്കുകയാണോ?',
+        text: `${name}-ന്റെ ${month} ${year} ലെ അപേക്ഷ നിരസിക്കാൻ ഉറപ്പാണോ?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#f43f5e',
+        cancelButtonColor: '#94a3b8',
+        confirmButtonText: 'അതെ, Reject ചെയ്യുക',
+        cancelButtonText: 'വേണ്ട'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            showLoader(true);
+            
+            // ഗൂഗിൾ ഷീറ്റിൽ നിരസിച്ചതായി രേഖപ്പെടുത്തുന്നു (Backend API)
+            callAPI('rejectPayment', { rows: rows, id: id }).then((res) => {
+                showLoader(false);
+                if (res.error) {
+                    return Swal.fire('Error', res.error, 'error');
+                }
+                
+                // വിജയിച്ചാൽ വാട്സ്ആപ്പിൽ അറിയിക്കാനുള്ള ഓപ്ഷൻ
+                Swal.fire({
+                    title: 'നിരസിച്ചു',
+                    text: 'അപേക്ഷ വിജയകരമായി നിരസിച്ചിരിക്കുന്നു.',
+                    icon: 'success',
+                    showCancelButton: true,
+                    confirmButtonText: 'WhatsApp-ൽ അറിയിക്കുക',
+                    cancelButtonText: 'ശരി',
+                    confirmButtonColor: '#10b981'
+                }).then((waResult) => {
+                    if (waResult.isConfirmed) {
+                        let phone = findPhone(id);
+                        if (phone) {
+                            let msg = `السلام عليكم \n${name} (MID: ${id}),\nനിങ്ങളുടെ ${month} ${year} മാസത്തെ MUAAWINA വരിസംഖ്യയുടെ പേയ്‌മെന്റ് അപേക്ഷ നിരസിക്കപ്പെട്ടിരിക്കുന്നു ❌. ദയവായി അഡ്മിനുമായി ബന്ധപ്പെടുക.`;
+                            openWhatsAppLink(getWALink(phone, msg));
+                        } else {
+                            Swal.fire('ശ്രദ്ധിക്കുക', 'ഈ മെമ്പർക്ക് ഫോൺ നമ്പർ നൽകിയിട്ടില്ല!', 'warning');
+                        }
+                    }
+                    adminLogin(); // പേജ് റിഫ്രഷ് ചെയ്യാൻ
+                });
+                
+            }).catch(err => {
+                showLoader(false);
+                Swal.fire('Error', 'കണക്ഷൻ തടസ്സപ്പെട്ടു', 'error');
+            });
+        }
+    });
+}
+
+        
         function processAllRequests(type) {
             Swal.fire({
                 title: 'ഉറപ്പാണോ?', text: `അപേക്ഷകൾ ${type === 'Approved' ? 'അനുവദിക്കാൻ' : 'നിരസിക്കാൻ'} ഉറപ്പാണോ?`,
