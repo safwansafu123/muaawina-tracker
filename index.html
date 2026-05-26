@@ -3263,57 +3263,43 @@ function approveReq(rows, id, y, m, name) {
     });
 }
 
-        // 1.5 അപേക്ഷ നിരസിക്കാനുള്ള (Reject) ഫംഗ്ഷൻ
-function rejectReq(rows, id, name, year, month) {
-    Swal.fire({
-        title: 'നിരസിക്കുകയാണോ?',
-        text: `${name}-ന്റെ ${month} ${year} ലെ അപേക്ഷ നിരസിക്കാൻ ഉറപ്പാണോ?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#f43f5e',
-        cancelButtonColor: '#94a3b8',
-        confirmButtonText: 'അതെ, Reject ചെയ്യുക',
-        cancelButtonText: 'വേണ്ട'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            showLoader(true);
-            
-            // ഗൂഗിൾ ഷീറ്റിൽ നിരസിച്ചതായി രേഖപ്പെടുത്തുന്നു (Backend API)
-            callAPI('rejectPayment', { rows: rows, id: id }).then((res) => {
-                showLoader(false);
-                if (res.error) {
-                    return Swal.fire('Error', res.error, 'error');
-                }
-                
-                // വിജയിച്ചാൽ വാട്സ്ആപ്പിൽ അറിയിക്കാനുള്ള ഓപ്ഷൻ
+        function rejectReq(rows, id, name, y, m) {
+            let phone = findPhone(id);
+            let mem = adminMembers.find(x => String(x.id) === String(id));
+            let totalDue = 0;
+            if (mem && mem.pendingList) {
+                let currentFee = mem.fee || 50;
+                let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                let dueList = mem.pendingList.filter(pStr => {
+                    let parts = pStr.split(" ");
+                    let mIdx = monthNames.indexOf(parts[0]);
+                    let mYear = parseInt(parts[1]);
+                    return mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth);
+                });
+                totalDue = dueList.length * currentFee;
+            }
+
+            if (phone) {
                 Swal.fire({
-                    title: 'നിരസിച്ചു',
-                    text: 'അപേക്ഷ വിജയകരമായി നിരസിച്ചിരിക്കുന്നു.',
-                    icon: 'success',
-                    showCancelButton: true,
-                    confirmButtonText: 'WhatsApp-ൽ അറിയിക്കുക',
-                    cancelButtonText: 'ശരി',
-                    confirmButtonColor: '#10b981'
-                }).then((waResult) => {
-                    if (waResult.isConfirmed) {
-                        let phone = findPhone(id);
-                        if (phone) {
-                            let msg = `السلام عليكم \n${name} (MID: ${id}),\nനിങ്ങളുടെ ${month} ${year} മാസത്തെ MUAAWINA വരിസംഖ്യയുടെ പേയ്‌മെന്റ് അപേക്ഷ നിരസിക്കപ്പെട്ടിരിക്കുന്നു ❌. ദയവായി അഡ്മിനുമായി ബന്ധപ്പെടുക.`;
-                            openWhatsAppLink(getWALink(phone, msg));
-                        } else {
-                            Swal.fire('ശ്രദ്ധിക്കുക', 'ഈ മെമ്പർക്ക് ഫോൺ നമ്പർ നൽകിയിട്ടില്ല!', 'warning');
+                    title: 'വാട്സ്ആപ്പ് മെസ്സേജ്', text: `${name}-ന് വാട്സ്ആപ്പിൽ നിരസിച്ച മെസ്സേജ് അയക്കണമെന്നുണ്ടോ?`,
+                    icon: 'question', showCancelButton: true, confirmButtonColor: '#f43f5e', cancelButtonColor: '#94a3b8',
+                    confirmButtonText: 'അതെ, അയക്കുക', cancelButtonText: 'വേണ്ട'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        let msg = `السلام عليكم \n${name} (MID: ${id}),\nനിങ്ങളുടെ ${m} ${y} മാസത്തെ MUAAWINA വരിസംഖ്യ നിരസിച്ചിരിക്കുന്നു (Rejected).\nആകെ അടയ്ക്കാനുള്ളത്: ₹${totalDue}`;
+                        let link = getWALink(phone, msg);
+                        if (link) {
+                            openWhatsAppLink(link);
                         }
                     }
-                    adminLogin(); // പേജ് റിഫ്രഷ് ചെയ്യാൻ
+                    showLoader(true);
+                    callAPI('rejectPayment', { rows: rows }).then(() => adminLogin());
                 });
-                
-            }).catch(err => {
-                showLoader(false);
-                Swal.fire('Error', 'കണക്ഷൻ തടസ്സപ്പെട്ടു', 'error');
-            });
+            } else {
+                showLoader(true);
+                callAPI('rejectPayment', { rows: rows }).then(() => adminLogin());
+            }
         }
-    });
-}
 
         
         function processAllRequests(type) {
