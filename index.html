@@ -117,9 +117,19 @@
             background: linear-gradient(180deg, #1e3a8a 0%, #3b82f6 100%);
         }
 
- 
-    .batch-pill { transition: all 0.2s ease; cursor: pointer; padding: 6px 4px; font-size: 9px; }
-    .batch-pill.active { background-color: #2563eb !important; color: white !important; border-color: #2563eb !important; }
+
+        .batch-pill {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            padding: 6px 4px;
+            font-size: 9px;
+        }
+
+        .batch-pill.active {
+            background-color: #2563eb !important;
+            color: white !important;
+            border-color: #2563eb !important;
+        }
 
         .login-card-bottom {
             background: white;
@@ -891,42 +901,45 @@
 
                 <!-- പുതിയ മീഡിയ ബ്രോഡ്കാസ്റ്റ് സെക്ഷൻ -->
                 <div class="glass-card p-4 mb-6 border-t-4 border-emerald-600 shadow-md">
-    <p class="text-[10px] font-black text-slate-400 uppercase mb-3">ബാച്ചുകൾ തിരഞ്ഞെടുക്കുക</p>
-    
-    <div id="batchContainer" class="grid grid-cols-4 gap-2 mb-4">
-        </div>
-    <div class="space-y-3">
-        <div class="relative w-full">
-            <input type="file" id="mediaFile" accept="image/*,video/*,.pdf" class="hidden">
-            <label for="mediaFile" class="cursor-pointer w-full p-4 bg-blue-50 text-blue-700 rounded-2xl font-black text-[11px] uppercase tracking-widest border-2 border-blue-100 flex items-center justify-center gap-2 hover:bg-blue-100 transition-all">
-                <i class="fas fa-cloud-upload-alt"></i> ഫയൽ തിരഞ്ഞെടുക്കുക
-            </label>
-            <p id="fileNameDisplay" class="text-[9px] text-slate-400 font-bold mt-2 text-center uppercase">ഫയലൊന്നും തിരഞ്ഞെടുത്തിട്ടില്ല</p>
-        </div>
-        
-        <input type="text" id="broadcastCaption" placeholder="ക്യാപ്‌ഷൻ ടൈപ്പ് ചെയ്യുക..."
-            class="w-full p-3 rounded-xl border border-slate-100 text-xs font-bold outline-none focus:border-emerald-400">
-            
-        <button onclick="sendMediaBroadcast()"
-            class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-md active:scale-95">
-            Send Media 🚀
-        </button>
-    </div>
-</div>
-                <script>
-        // DOM ലോഡ് ആയ ശേഷം മാത്രം റൺ ആകാൻ ഈ event listener ഉപയോഗിക്കുക
-        document.addEventListener('DOMContentLoaded', () => {
-            const mediaFile = document.getElementById('mediaFile');
-            if(mediaFile) {
-                mediaFile.addEventListener('change', function(e) {
-                    const fileName = e.target.files[0] ? e.target.files[0].name : "ഫയലൊന്നും തിരഞ്ഞെടുത്തിട്ടില്ല";
-                    document.getElementById('fileNameDisplay').innerText = fileName;
-                });
-            }
-        });
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-3">ബാച്ചുകൾ തിരഞ്ഞെടുക്കുക</p>
 
-        // താങ്കളുടെ ബാക്കി എല്ലാ script-കളും ഇവിടെ തന്നെ തുടരട്ടെ...
-    </script>
+                    <div id="batchContainer" class="grid grid-cols-4 gap-2 mb-4">
+                    </div>
+                    <div class="space-y-3">
+                        <div class="relative w-full">
+                            <input type="file" id="mediaFile" accept="image/*,video/*,.pdf" class="hidden">
+                            <label for="mediaFile"
+                                class="cursor-pointer w-full p-4 bg-blue-50 text-blue-700 rounded-2xl font-black text-[11px] uppercase tracking-widest border-2 border-blue-100 flex items-center justify-center gap-2 hover:bg-blue-100 transition-all">
+                                <i class="fas fa-cloud-upload-alt"></i> ഫയൽ തിരഞ്ഞെടുക്കുക
+                            </label>
+                            <p id="fileNameDisplay"
+                                class="text-[9px] text-slate-400 font-bold mt-2 text-center uppercase">ഫയലൊന്നും
+                                തിരഞ്ഞെടുത്തിട്ടില്ല</p>
+                        </div>
+
+                        <input type="text" id="broadcastCaption" placeholder="ക്യാപ്‌ഷൻ ടൈപ്പ് ചെയ്യുക..."
+                            class="w-full p-3 rounded-xl border border-slate-100 text-xs font-bold outline-none focus:border-emerald-400">
+
+                        <button onclick="sendMediaBroadcast()"
+                            class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-md active:scale-95">
+                            Send Media 🚀
+                        </button>
+                    </div>
+                </div>
+                <script>
+                    // DOM ലോഡ് ആയ ശേഷം മാത്രം റൺ ആകാൻ ഈ event listener ഉപയോഗിക്കുക
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const mediaFile = document.getElementById('mediaFile');
+                        if (mediaFile) {
+                            mediaFile.addEventListener('change', function (e) {
+                                const fileName = e.target.files[0] ? e.target.files[0].name : "ഫയലൊന്നും തിരഞ്ഞെടുത്തിട്ടില്ല";
+                                document.getElementById('fileNameDisplay').innerText = fileName;
+                            });
+                        }
+                    });
+
+                    // താങ്കളുടെ ബാക്കി എല്ലാ script-കളും ഇവിടെ തന്നെ തുടരട്ടെ...
+                </script>
                 <div class="flex gap-2 items-center">
                     <select id="batchReportFilter" onchange="updateAdminStats(this.value)"
                         class="custom-select flex-1 p-4 rounded-2xl border-2 border-blue-50 bg-white font-black text-slate-700 text-sm outline-none focus:border-blue-500 shadow-sm transition-all"></select>
@@ -1159,7 +1172,7 @@
                     </div>
                     <div
                         class="text-center bg-slate-50 py-3 rounded-2xl border-2 border-dashed border-slate-200 shadow-sm">
-                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest text-center">
+                        <p id="detDueLabel" class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest text-center">
                             ബാക്കി തുക (Balance)</p>
                         <p id="detDue" class="text-2xl font-black text-rose-600 leading-none text-center italic">₹0</p>
                     </div>
@@ -1374,7 +1387,7 @@
         let lastMonthDataGlobal = null;
 
         // --- പുതിയ API സിസ്റ്റം ---
-        const API_URL = "https://script.google.com/macros/s/AKfycbzeRqwxteGszlq-4rVBGNMD1lXTKKNfM-p2z25hUJmxCgrWRHOoxIko_F5n_SclrOcaEw/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzcGJYQAI7Ir0TVoxxEUYsZIpPSHbwl-7PKWNejIU2ferMXxHNl4WewfKeOHrM8M2cT/exec";
         const BOT_BASE_URL = "https://muaawina-whatsapp-bot.onrender.com"; // വാട്സ്ആപ്പ് ബോട്ട് URL (ഇനി ഇത് മാറാൻ സാധ്യതയില്ല!)
 
         async function callAPI(action, data = {}) {
@@ -1878,8 +1891,7 @@
             }, 1000);
 
             // --- പുതിയ UPI ആപ്പ് ലിങ്കിങ് കോഡ് ---
-            const trId = "TXN" + Date.now();
-            const baseUpiParams = `pa=${upiId}&pn=MUAAWINA&tn=MUAAWINA&am=${tot}&cu=INR&tr=${trId}`;
+            const baseUpiParams = `pa=${upiId}&pn=MUAAWINA&am=${tot}&cu=INR`;
 
             // സുരക്ഷിതമായി ലിങ്ക് തുറക്കാനുള്ള ഫംഗ്ഷൻ
             const openUpiApp = (url) => {
@@ -1924,7 +1936,14 @@
             // PhonePe ബട്ടൺ
             const phonepeBtn = document.getElementById('phonepeBtn');
             if (phonepeBtn) {
-                phonepeBtn.onclick = () => openUpiApp(`phonepe://pay?${baseUpiParams}`);
+                phonepeBtn.onclick = () => {
+                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                    if (isIOS) {
+                        openUpiApp(`phonepe://pay?${baseUpiParams}`);
+                    } else {
+                        openUpiApp(`intent://pay?${baseUpiParams}#Intent;scheme=upi;package=com.phonepe.app;end`);
+                    }
+                };
             }
 
             // Paytm, WhatsApp തുടങ്ങിയ മറ്റ് ആപ്പുകൾക്ക്
@@ -2125,25 +2144,7 @@
             let filtered = (batch === 'all' || batch === 'All') ? adminMembers : adminMembers.filter(m => m.batch === batch);
 
             let collected = filtered.reduce((sum, m) => sum + m.totalPaid, 0);
-
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            let pending = filtered.reduce((sum, m) => {
-                let count = 0;
-                if (m.pendingList) {
-                    m.pendingList.forEach(pStr => {
-                        let parts = pStr.split(" ");
-                        if (parts.length === 2) {
-                            let mIdx = monthNames.indexOf(parts[0]);
-                            let mYear = parseInt(parts[1]);
-                            // ഗൂഗിൾ ഷീറ്റിലെ Current Date വരെയുള്ള പെൻഡിങ് മാത്രം കൂട്ടുന്നു
-                            if (mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth)) {
-                                count++;
-                            }
-                        }
-                    });
-                }
-                return sum + (count * 50);
-            }, 0);
+            let pending = filtered.reduce((sum, m) => sum + (m.balance || 0), 0);
 
             const totalEl = document.getElementById('admTotal');
             const pendingEl = document.getElementById('admPending');
@@ -2642,39 +2643,10 @@
                 return;
             }
 
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
             l.innerHTML = mbs.map(m => {
-                let currentFee = m.fee || 50;
-                let dueCountUpToNow = 0;
-
-                // 1. കറന്റ് ഡേറ്റ് വരെയുള്ള മാസങ്ങളിൽ എത്ര എണ്ണം അടയ്ക്കാൻ ബാക്കിയുണ്ടെന്ന് നോക്കുന്നു
-                if (m.pendingList) {
-                    m.pendingList.forEach(pStr => {
-                        let parts = pStr.split(" ");
-                        if (parts.length === 2) {
-                            let mIdx = monthNames.indexOf(parts[0]);
-                            let mYear = parseInt(parts[1]);
-                            // ഗൂഗിൾ ഷീറ്റിലെ Current Date-ന് ഉള്ളിലാണോ എന്ന് നോക്കുന്നു
-                            if (mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth)) {
-                                dueCountUpToNow++;
-                            }
-                        }
-                    });
-                }
-
-                let dueAmount = dueCountUpToNow * currentFee;
-
-                // 2. അഡ്വാൻസ് കണക്കാക്കുന്ന പുതിയ രീതി (Calculation)
-                // (ഇതുവരെ അടയ്ക്കേണ്ട മാസം - ബാക്കിയുള്ള മാസം) * ഫീ = ഇതുവരെ അടച്ച തുക
-                // (ആകെ അടച്ച തുക) - (ഇതുവരെ അടച്ച തുക) = അഡ്വാൻസ്
-                let totalMonthsUpToNow = globalAppMonth + 1; // ഉദാഹരണത്തിന് ഏപ്രിൽ ആണെങ്കിൽ 4
-                let expectedToPayUntilNow = totalMonthsUpToNow * currentFee;
-                let paidUntilNow = expectedToPayUntilNow - dueAmount;
-                let advanceAmount = m.totalPaid - paidUntilNow;
-
-                // 0-ൽ താഴെ വരാതിരിക്കാൻ
-                if (advanceAmount < 0) advanceAmount = 0;
+                let dueAmount = m.balance || 0;
+                let dueCountUpToNow = m.pendingList ? m.pendingList.length : 0;
+                let advanceAmount = m.advance || 0;
 
                 // ഡിസ്‌പ്ലേ സെറ്റിംഗ്സ്
                 let displayAmount = "";
@@ -2727,44 +2699,12 @@
             const m = JSON.parse(decodeURIComponent(d));
             currentMember = m;
 
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            let dueCountUpToNow = 0;
-            let dueMonthsList = [];
+            let dueAmount = m.balance || 0;
+            let dueMonthsList = m.pendingList || [];
+            let advanceAmount = m.advance || 0;
+            let expectedToPayUntilNow = m.totalPaid - advanceAmount + dueAmount;
 
             let currentFee = m.fee || 50;
-
-            // 1. ഗൂഗിൾ ഷീറ്റിലെ തീയതി (Current Date) വരെയുള്ള കുടിശ്ശിക മാസങ്ങൾ മാത്രം കണ്ടെത്തുന്നു
-            if (m.pendingList) {
-                m.pendingList.forEach(pStr => {
-                    let parts = pStr.split(" ");
-                    if (parts.length === 2) {
-                        let mIdx = monthNames.indexOf(parts[0]);
-                        let mYear = parseInt(parts[1]);
-
-                        // Current Date-ന് ഉള്ളിലാണോ എന്ന് പരിശോധിക്കുന്നു
-                        if (mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth)) {
-                            dueCountUpToNow++;
-                            dueMonthsList.push(pStr);
-                        }
-                    }
-                });
-            }
-
-            // 2. തുക കണക്കാക്കുന്നു
-            let dueAmount = dueCountUpToNow * currentFee;
-
-            // 3. ആകെ അടയ്ക്കേണ്ടിയിരുന്ന തുക (Total Expected) = അടച്ച തുക + ബാക്കി തുക
-            // (Advance അടച്ചവർക്ക് കുടിശ്ശിക പൂജ്യമായതുകൊണ്ട് ഈ കണക്ക് കൃത്യമായി വരും)
-            let expectedToPayUntilNow = m.totalPaid + dueAmount;
-
-            // 4. അഡ്വാൻസ് തുക കണക്കാക്കുന്നു
-            // ആകെ അടച്ച തുകയിൽ നിന്ന് ഈ മാസം വരെ അടയ്ക്കേണ്ട തുക കുറയ്ക്കുന്നു
-            let advanceAmount = m.totalPaid > expectedToPayUntilNow ? m.totalPaid - expectedToPayUntilNow : 0;
-
-            // അഡ്വാൻസ് ഉള്ളവർക്ക് expectedToPayUntilNow എന്നത് m.totalPaid - advanceAmount ആയിരിക്കും
-            if (m.totalPaid > expectedToPayUntilNow) {
-                expectedToPayUntilNow = m.totalPaid - advanceAmount;
-            }
 
             // UI എലമെന്റുകളിലേക്ക് വിവരങ്ങൾ നൽകുന്നു
             document.getElementById('detName').innerText = m.name;
@@ -2779,20 +2719,24 @@
             const dueEl = document.getElementById('detDue');
             const pBox = document.getElementById('detPendingBox');
             const monthsEl = document.getElementById('detMonths');
+            const dueLabelEl = document.getElementById('detDueLabel');
 
             // തുകയ്ക്ക് അനുസരിച്ച് നിറവും ലേബലും മാറ്റുന്നു
             if (dueAmount > 0) {
                 dueEl.innerText = '₹' + dueAmount;
                 dueEl.className = "text-2xl font-black text-rose-600 leading-none text-center italic";
+                if (dueLabelEl) dueLabelEl.innerText = "ബാക്കി തുക (Balance)";
                 if (pBox) pBox.classList.remove('hidden');
                 if (monthsEl) monthsEl.innerText = dueMonthsList.join(', ');
             } else if (advanceAmount > 0) {
                 dueEl.innerText = '₹' + advanceAmount;
                 dueEl.className = "text-2xl font-black text-emerald-600 leading-none text-center italic";
+                if (dueLabelEl) dueLabelEl.innerText = "അഡ്വാൻസ് (Advance)";
                 if (pBox) pBox.classList.add('hidden');
             } else {
                 dueEl.innerText = '₹0';
                 dueEl.className = "text-2xl font-black text-slate-400 leading-none text-center italic";
+                if (dueLabelEl) dueLabelEl.innerText = "ബാക്കി തുക (Balance)";
                 if (pBox) pBox.classList.add('hidden');
             }
 
@@ -3099,30 +3043,8 @@
                 textToCopy += `\n📁 *[ ${batch} ]*\n`;
 
                 groupedByBatch[batch].forEach((m, index) => {
-                    let dueCount = 0;
-                    let currentFee = m.fee || 50;
-
-                    // 1. Current Date വരെയുള്ള മാസങ്ങൾ മാത്രം കുടിശ്ശികയായി കണക്കാക്കുന്നു
-                    if (m.pendingList) {
-                        m.pendingList.forEach(pStr => {
-                            let parts = pStr.split(" ");
-                            if (parts.length === 2) {
-                                let mIdx = monthNames.indexOf(parts[0]);
-                                let mYear = parseInt(parts[1]);
-                                if (mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth)) {
-                                    dueCount++;
-                                }
-                            }
-                        });
-                    }
-
-                    let dueAmount = dueCount * currentFee;
-
-                    // 2. അഡ്വാൻസ് തുക കണക്കാക്കുന്നു
-                    let expectedToPayUntilNow = (globalAppMonth + 1) * currentFee;
-                    let paidUntilNow = expectedToPayUntilNow - dueAmount;
-                    let advanceAmount = m.totalPaid - paidUntilNow;
-                    if (advanceAmount < 0) advanceAmount = 0;
+                    let dueAmount = m.balance || 0;
+                    let advanceAmount = m.advance || 0;
 
                     // റിപ്പോർട്ടിൽ ചേർക്കുന്നു
                     if (dueAmount > 0) {
@@ -3204,131 +3126,131 @@
             });
         }
 
-// 1. അപ്രൂവൽ നൽകാനും കുടിശ്ശിക (remDue) കണക്കാക്കാനുമുള്ള ഫംഗ്ഷൻ
-function approveReq(rows, id, y, m, name) { 
-    let phone = findPhone(id);
-    let mem = adminMembers.find(x => String(x.id) === String(id));
-    let currentFee = (mem && mem.fee) ? mem.fee : 50;
-    let remDue = 0;
+        // 1. അപ്രൂവൽ നൽകാനും കുടിശ്ശിക (remDue) കണക്കാക്കാനുമുള്ള ഫംഗ്ഷൻ
+        function approveReq(rows, id, y, m, name) {
+            let phone = findPhone(id);
+            let mem = adminMembers.find(x => String(x.id) === String(id));
+            let currentFee = (mem && mem.fee) ? mem.fee : 50;
+            let remDue = 0;
 
-    // ബാക്കി കുടിശ്ശിക (remDue) കണക്കാക്കുന്ന ലോജിക്
-    if (mem && mem.pendingList) {
-        let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        let approvedMonths = Array.isArray(rows) ? rows.map(r => `${r[2]} ${r[1]}`) : [`${m} ${y}`];
-        let remainingPending = mem.pendingList.filter(pStr => {
-            if (approvedMonths.includes(pStr)) return false;
-            let parts = pStr.split(" ");
-            let mIdx = monthNames.indexOf(parts[0]);
-            let mYear = parseInt(parts[1]);
-            return mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth);
-        });
-        remDue = remainingPending.length * currentFee;
-    }
+            // ബാക്കി കുടിശ്ശിക (remDue) കണക്കാക്കുന്ന ലോജിക്
+            if (mem && mem.pendingList) {
+                let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                let approvedMonths = Array.isArray(rows) ? rows.map(r => `${r[2]} ${r[1]}`) : [`${m} ${y}`];
+                let remainingPending = mem.pendingList.filter(pStr => {
+                    if (approvedMonths.includes(pStr)) return false;
+                    let parts = pStr.split(" ");
+                    let mIdx = monthNames.indexOf(parts[0]);
+                    let mYear = parseInt(parts[1]);
+                    return mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth);
+                });
+                remDue = remainingPending.length * currentFee;
+            }
 
-    if (!phone) {
-        Swal.fire('ഫോൺ നമ്പർ ലഭ്യമല്ല', 'ഈ മെമ്പറുടെ ഫോൺ നമ്പർ ഡാറ്റാബേസിൽ ഇല്ല.', 'warning');
-        return;
-    }
+            if (!phone) {
+                Swal.fire('ഫോൺ നമ്പർ ലഭ്യമല്ല', 'ഈ മെമ്പറുടെ ഫോൺ നമ്പർ ഡാറ്റാബേസിൽ ഇല്ല.', 'warning');
+                return;
+            }
 
-    Swal.fire({
-        title: 'അപ്രൂവൽ',
-        text: `${name}-ന് അപ്രൂവൽ നൽകി വാട്സ്ആപ്പിൽ റെസീപ്റ്റ് അയക്കണമെന്നുണ്ടോ?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#10b981',
-        cancelButtonColor: '#94a3b8',
-        confirmButtonText: 'അതെ, അയക്കുക',
-        cancelButtonText: 'വേണ്ട'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            showLoader(true);
-            
-            // ഗൂഗിൾ ഷീറ്റിൽ അപ്രൂവൽ നൽകുന്നു
-            callAPI('approvePayment', { rows: rows, id: id }).then((res) => {
-                if (res.error) {
-                    showLoader(false);
-                    Swal.fire('Error', res.error, 'error');
-                    return;
+            Swal.fire({
+                title: 'അപ്രൂവൽ',
+                text: `${name}-ന് അപ്രൂവൽ നൽകി വാട്സ്ആപ്പിൽ റെസീപ്റ്റ് അയക്കണമെന്നുണ്ടോ?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'അതെ, അയക്കുക',
+                cancelButtonText: 'വേണ്ട'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoader(true);
+
+                    // ഗൂഗിൾ ഷീറ്റിൽ അപ്രൂവൽ നൽകുന്നു
+                    callAPI('approvePayment', { rows: rows, id: id }).then((res) => {
+                        if (res.error) {
+                            showLoader(false);
+                            Swal.fire('Error', res.error, 'error');
+                            return;
+                        }
+
+                        // അപ്രൂവൽ വിജയകരമായാൽ ഒറിജിനൽ റെസീപ്റ്റ് ഉണ്ടാക്കാൻ വിളിക്കുന്നു
+                        let approvedAmt = (Array.isArray(rows) ? rows.length : 1) * currentFee;
+                        sendAutoReceiptToMember(id, m, y, approvedAmt, remDue, name);
+
+                    }).catch(err => {
+                        showLoader(false);
+                        Swal.fire('Error', 'കണക്ഷൻ തടസ്സപ്പെട്ടു', 'error');
+                    });
                 }
-
-                // അപ്രൂവൽ വിജയകരമായാൽ ഒറിജിനൽ റെസീപ്റ്റ് ഉണ്ടാക്കാൻ വിളിക്കുന്നു
-                let approvedAmt = (Array.isArray(rows) ? rows.length : 1) * currentFee;
-                sendAutoReceiptToMember(id, m, y, approvedAmt, remDue, name); 
-                
-            }).catch(err => {
-                showLoader(false);
-                Swal.fire('Error', 'കണക്ഷൻ തടസ്സപ്പെട്ടു', 'error');
             });
         }
-    });
-}
 
         // ഇതാണ് ശരിയായ Reject ഫംഗ്ഷൻ (പഴയത് മാറ്റി ഇത് വെക്കുക)
-function rejectReq(rows, id, name, y, m) {
-    let phone = findPhone(id);
-    let mem = adminMembers.find(x => String(x.id) === String(id));
-    let totalDue = 0;
-    
-    if (mem && mem.pendingList) {
-        let currentFee = mem.fee || 50;
-        let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        let dueList = mem.pendingList.filter(pStr => {
-            let parts = pStr.split(" ");
-            let mIdx = monthNames.indexOf(parts[0]);
-            let mYear = parseInt(parts[1]);
-            return mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth);
-        });
-        totalDue = dueList.length * currentFee;
-    }
+        function rejectReq(rows, id, name, y, m) {
+            let phone = findPhone(id);
+            let mem = adminMembers.find(x => String(x.id) === String(id));
+            let totalDue = 0;
 
-    Swal.fire({
-        title: 'നിരസിക്കുകയാണോ?',
-        text: `${name}-ന്റെ ${m} ${y} ലെ അപേക്ഷ നിരസിക്കാൻ ഉറപ്പാണോ?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#f43f5e',
-        cancelButtonColor: '#94a3b8',
-        confirmButtonText: 'അതെ, നിരസിക്കുക',
-        cancelButtonText: 'വേണ്ട'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            showLoader(true);
-            // ഷീറ്റിൽ അപ്ഡേറ്റ് ചെയ്യുന്നു
-            callAPI('rejectPayment', { rows: rows, id: id }).then((res) => {
-                showLoader(false);
-                if (res.error) {
-                    return Swal.fire('Error', res.error, 'error');
-                }
-                
-                // വാട്സ്ആപ്പ് മെസ്സേജ് അയക്കണോ എന്ന് ചോദിക്കുന്നു
-                if (phone) {
-                    Swal.fire({
-                        title: 'വിജയിച്ചു',
-                        text: 'അപേക്ഷ നിരസിച്ചു. വാട്സ്ആപ്പിൽ മെസ്സേജ് അയക്കണമെന്നുണ്ടോ?',
-                        icon: 'success',
-                        showCancelButton: true,
-                        confirmButtonText: 'WhatsApp-ൽ അറിയിക്കുക',
-                        cancelButtonText: 'വേണ്ട',
-                        confirmButtonColor: '#10b981'
-                    }).then((waResult) => {
-                        if (waResult.isConfirmed) {
-                            let msg = `السلام عليكم \n${name} (MID: ${id}),\nനിങ്ങളുടെ ${m} ${y} മാസത്തെ MUAAWINA വരിസംഖ്യ നിരസിച്ചിരിക്കുന്നു (Rejected). ദയവായി അഡ്മിനുമായി ബന്ധപ്പെടുക.\nആകെ അടയ്ക്കാനുള്ളത്: ₹${totalDue}`;
-                            openWhatsAppLink(getWALink(phone, msg));
+            if (mem && mem.pendingList) {
+                let currentFee = mem.fee || 50;
+                let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                let dueList = mem.pendingList.filter(pStr => {
+                    let parts = pStr.split(" ");
+                    let mIdx = monthNames.indexOf(parts[0]);
+                    let mYear = parseInt(parts[1]);
+                    return mYear < globalAppYear || (mYear === globalAppYear && mIdx <= globalAppMonth);
+                });
+                totalDue = dueList.length * currentFee;
+            }
+
+            Swal.fire({
+                title: 'നിരസിക്കുകയാണോ?',
+                text: `${name}-ന്റെ ${m} ${y} ലെ അപേക്ഷ നിരസിക്കാൻ ഉറപ്പാണോ?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f43f5e',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'അതെ, നിരസിക്കുക',
+                cancelButtonText: 'വേണ്ട'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoader(true);
+                    // ഷീറ്റിൽ അപ്ഡേറ്റ് ചെയ്യുന്നു
+                    callAPI('rejectPayment', { rows: rows, id: id }).then((res) => {
+                        showLoader(false);
+                        if (res.error) {
+                            return Swal.fire('Error', res.error, 'error');
                         }
-                        adminLogin(); // പാനൽ റിഫ്രഷ് ചെയ്യുന്നു
+
+                        // വാട്സ്ആപ്പ് മെസ്സേജ് അയക്കണോ എന്ന് ചോദിക്കുന്നു
+                        if (phone) {
+                            Swal.fire({
+                                title: 'വിജയിച്ചു',
+                                text: 'അപേക്ഷ നിരസിച്ചു. വാട്സ്ആപ്പിൽ മെസ്സേജ് അയക്കണമെന്നുണ്ടോ?',
+                                icon: 'success',
+                                showCancelButton: true,
+                                confirmButtonText: 'WhatsApp-ൽ അറിയിക്കുക',
+                                cancelButtonText: 'വേണ്ട',
+                                confirmButtonColor: '#10b981'
+                            }).then((waResult) => {
+                                if (waResult.isConfirmed) {
+                                    let msg = `السلام عليكم \n${name} (MID: ${id}),\nനിങ്ങളുടെ ${m} ${y} മാസത്തെ MUAAWINA വരിസംഖ്യ നിരസിച്ചിരിക്കുന്നു (Rejected). ദയവായി അഡ്മിനുമായി ബന്ധപ്പെടുക.\nആകെ അടയ്ക്കാനുള്ളത്: ₹${totalDue}`;
+                                    openWhatsAppLink(getWALink(phone, msg));
+                                }
+                                adminLogin(); // പാനൽ റിഫ്രഷ് ചെയ്യുന്നു
+                            });
+                        } else {
+                            Swal.fire('വിജയിച്ചു', 'അപേക്ഷ നിരസിച്ചു. ഫോൺ നമ്പർ ഇല്ലാത്തതിനാൽ മെസ്സേജ് അയക്കാൻ കഴിയില്ല.', 'info').then(() => adminLogin());
+                        }
+                    }).catch(err => {
+                        showLoader(false);
+                        Swal.fire('Error', 'കണക്ഷൻ തടസ്സപ്പെട്ടു', 'error');
                     });
-                } else {
-                    Swal.fire('വിജയിച്ചു', 'അപേക്ഷ നിരസിച്ചു. ഫോൺ നമ്പർ ഇല്ലാത്തതിനാൽ മെസ്സേജ് അയക്കാൻ കഴിയില്ല.', 'info').then(() => adminLogin());
                 }
-            }).catch(err => {
-                showLoader(false);
-                Swal.fire('Error', 'കണക്ഷൻ തടസ്സപ്പെട്ടു', 'error');
             });
         }
-    });
-}
 
-        
+
         function processAllRequests(type) {
             Swal.fire({
                 title: 'ഉറപ്പാണോ?', text: `അപേക്ഷകൾ ${type === 'Approved' ? 'അനുവദിക്കാൻ' : 'നിരസിക്കാൻ'} ഉറപ്പാണോ?`,
@@ -3707,165 +3629,165 @@ function rejectReq(rows, id, name, y, m) {
         /**
          * മീഡിയ ബ്രോഡ്കാസ്റ്റ് അയക്കാനുള്ള ഫംഗ്ഷൻ
          */
-// മീഡിയ ബ്രോഡ്കാസ്റ്റ് അയക്കാനുള്ള ഫംഗ്ഷൻ
-async function sendMediaBroadcast() {
-    const fileInput = document.getElementById('mediaFile');
-    const caption = document.getElementById('broadcastCaption').value.trim();
-    
-    if (fileInput.files.length === 0) return Swal.fire('Error', 'ഫയൽ തിരഞ്ഞെടുക്കുക!', 'error');
-    
-    const file = fileInput.files[0];
-    const reader = new FileReader();
+        // മീഡിയ ബ്രോഡ്കാസ്റ്റ് അയക്കാനുള്ള ഫംഗ്ഷൻ
+        async function sendMediaBroadcast() {
+            const fileInput = document.getElementById('mediaFile');
+            const caption = document.getElementById('broadcastCaption').value.trim();
 
-    reader.onload = async function(e) {
-        const base64 = e.target.result;
-        let fileType = 'document'; 
-        if (file.type.startsWith('image/')) fileType = 'image';
-        else if (file.type.startsWith('video/')) fileType = 'video';
+            if (fileInput.files.length === 0) return Swal.fire('Error', 'ഫയൽ തിരഞ്ഞെടുക്കുക!', 'error');
 
-        const targetMembers = getTargetMembers();
-        if (targetMembers.length === 0) return Swal.fire('Error', 'ഈ ബാച്ചിൽ മെമ്പർമാരില്ല!', 'warning');
+            const file = fileInput.files[0];
+            const reader = new FileReader();
 
-        showLoader(true);
-        let successCount = 0;
+            reader.onload = async function (e) {
+                const base64 = e.target.result;
+                let fileType = 'document';
+                if (file.type.startsWith('image/')) fileType = 'image';
+                else if (file.type.startsWith('video/')) fileType = 'video';
 
-        for (let m of targetMembers) {
-            if (m.phone) {
-                try {
-                    let finalPhone = "91" + String(m.phone).replace(/\D/g, '').slice(-10);
-                    await fetch(BOT_BASE_URL + "/send-media", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ 
-                            phone: finalPhone, 
-                            base64: base64, 
-                            caption: caption,
-                            fileType: fileType,
-                            mimeType: file.type 
-                        })
-                    });
-                    successCount++;
-                    await new Promise(resolve => setTimeout(resolve, 3000));
-                } catch (e) { console.log(e); }
-            }
+                const targetMembers = getTargetMembers();
+                if (targetMembers.length === 0) return Swal.fire('Error', 'ഈ ബാച്ചിൽ മെമ്പർമാരില്ല!', 'warning');
+
+                showLoader(true);
+                let successCount = 0;
+
+                for (let m of targetMembers) {
+                    if (m.phone) {
+                        try {
+                            let finalPhone = "91" + String(m.phone).replace(/\D/g, '').slice(-10);
+                            await fetch(BOT_BASE_URL + "/send-media", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    phone: finalPhone,
+                                    base64: base64,
+                                    caption: caption,
+                                    fileType: fileType,
+                                    mimeType: file.type
+                                })
+                            });
+                            successCount++;
+                            await new Promise(resolve => setTimeout(resolve, 3000));
+                        } catch (e) { console.log(e); }
+                    }
+                }
+                showLoader(false);
+                Swal.fire('പൂർത്തിയായി', `${successCount} പേർക്ക് അയച്ചു.`, 'success');
+            };
+            reader.readAsDataURL(file);
         }
-        showLoader(false);
-        Swal.fire('പൂർത്തിയായി', `${successCount} പേർക്ക് അയച്ചു.`, 'success');
-    };
-    reader.readAsDataURL(file);
-}
 
-function populateBroadcastBatch() {
-    let bt = [...new Set(adminMembers.map(m => m.batch))].filter(b => b && b !== 'UNASSIGNED').sort();
-    const container = document.getElementById('batchContainer');
-    if (!container) return;
-    
-    let html = `
+        function populateBroadcastBatch() {
+            let bt = [...new Set(adminMembers.map(m => m.batch))].filter(b => b && b !== 'UNASSIGNED').sort();
+            const container = document.getElementById('batchContainer');
+            if (!container) return;
+
+            let html = `
         <button onclick="toggleBatch(this, 'all')" data-batch="all" 
         class="batch-pill active p-3 rounded-xl border-2 border-blue-500 bg-blue-600 text-white text-[10px] font-black uppercase">
             എല്ലാവരും (All)
         </button>`;
 
-    bt.forEach(b => {
-        html += `
+            bt.forEach(b => {
+                html += `
             <button onclick="toggleBatch(this, '${b}')" data-batch="${b}" 
             class="batch-pill p-3 rounded-xl border-2 border-slate-200 bg-white text-slate-600 text-[10px] font-black uppercase">
                 ${b}
             </button>`;
-    });
-    container.innerHTML = html;
-}
-
-function toggleBatch(btn, batch) {
-    if (batch === 'all') {
-        document.querySelectorAll('.batch-pill').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    } else {
-        document.querySelector('[data-batch="all"]').classList.remove('active');
-        btn.classList.toggle('active');
-        if(document.querySelectorAll('.batch-pill.active').length === 0) {
-            document.querySelector('[data-batch="all"]').classList.add('active');
-        }
-    }
-}
-
-function getTargetMembers() {
-    const activeButtons = Array.from(document.querySelectorAll('.batch-pill.active'));
-    if (activeButtons.some(b => b.getAttribute('data-batch') === 'all')) {
-        return adminMembers;
-    }
-    let selectedBatches = activeButtons.map(b => b.getAttribute('data-batch'));
-    return adminMembers.filter(m => selectedBatches.includes(String(m.batch).trim()));
-}
-
-
-// 2. ഒറിജിനൽ റെസീപ്റ്റ് ഫോട്ടോ ഉണ്ടാക്കി വാട്സ്ആപ്പിലേക്ക് അയക്കുന്ന ഫംഗ്ഷൻ
-async function sendAutoReceiptToMember(memberId, month, year, amount, remDue, name) {
-    let m = adminMembers.find(x => String(x.id) === String(memberId));
-    if (!m || !m.phone) {
-        showLoader(false);
-        return;
-    }
-
-    // 👇 ലോഗോ സെറ്റ് ചെയ്യുന്നതിനുള്ള പുതിയ വരികൾ (ഇതാണ് നമ്മൾ വിട്ടുപോയത്!) 👇
-    let mainLogoSrc = "logo.png";
-    document.getElementById('receiptWatermark').src = mainLogoSrc;
-    document.getElementById('receiptHeaderLogo').src = mainLogoSrc;
-    // 👆 -------------------------------------------------------- 👆
-
-    // റെസീപ്റ്റ് ടെംപ്ലേറ്റ് ഫിൽ ചെയ്യുന്നു
-    document.getElementById('rcptName').innerText = name || m.name;
-    document.getElementById('rcptMonth').innerText = `${month} ${year}`;
-    document.getElementById('rcptAmount').innerText = '₹' + amount;
-
-    let d = new Date();
-    document.getElementById('rcptDate').innerText = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-
-    const rcptNode = document.getElementById('receiptCard');
-
-    // ലോഗോ ലോഡ് ആകാൻ അല്പം സമയം നൽകുന്നു
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    try {
-        const canvas = await html2canvas(rcptNode, { 
-            scale: 2, 
-            backgroundColor: '#ffffff',
-            useCORS: true,
-            allowTaint: true
-        });
-        const base64Data = canvas.toDataURL("image/jpeg", 0.8);
-
-        // ക്യാപ്ഷൻ ഫോർമാറ്റ്
-        let captionText = `السلام عليكم ${name || m.name},\n\nനിങ്ങളുടെ പേയ്‌മെന്റ് വിജയകരമായി സ്വീകരിച്ചിരിക്കുന്നു. ✅\nതുക: ₹${amount}\nമാസം: ${month} ${year}\n\nMUAAWINA - വരിസംഖ്യ ട്രാക്കർ`;
-        
-        // കുടിശ്ശിക (Balance) താഴെ ചേർക്കുന്നു
-        if (remDue > 0) {
-            captionText += `\n\n💰 ഇനി അടക്കാൻ ബാക്കിയുള്ള തുക: ₹${remDue}`;
-        } else {
-            captionText += `\n\n✅ നിങ്ങൾക്ക് ഇനി കുടിശ്ശികയൊന്നും ബാക്കി അടക്കാനില്ല.`;
+            });
+            container.innerHTML = html;
         }
 
-        let payload = {
-            phone: m.phone,
-            base64: base64Data,
-            caption: captionText
-        };
-
-        callAPI('sendWhatsAppMedia', payload).then((waRes) => {
-            showLoader(false);
-            if(waRes && waRes.success) {
-                Swal.fire('വിജയിച്ചു!', 'അപ്രൂവൽ നൽകുകയും ഒറിജിനൽ റെസീപ്റ്റ് വാട്സ്ആപ്പിൽ അയക്കുകയും ചെയ്തു.', 'success').then(() => adminLogin());
+        function toggleBatch(btn, batch) {
+            if (batch === 'all') {
+                document.querySelectorAll('.batch-pill').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
             } else {
-                Swal.fire('ശ്രദ്ധിക്കുക', 'അപ്രൂവൽ നൽകി, പക്ഷേ വാട്സ്ആപ്പ് മെസ്സേജ് അയക്കാൻ കഴിഞ്ഞില്ല.', 'warning').then(() => adminLogin());
+                document.querySelector('[data-batch="all"]').classList.remove('active');
+                btn.classList.toggle('active');
+                if (document.querySelectorAll('.batch-pill.active').length === 0) {
+                    document.querySelector('[data-batch="all"]').classList.add('active');
+                }
             }
-        });
+        }
 
-    } catch (e) {
-        showLoader(false);
-        console.error("Auto Receipt Error:", e);
-        Swal.fire('Error', 'റെസീപ്റ്റ് ഉണ്ടാക്കുന്നതിൽ പിഴവ് സംഭവിച്ചു.', 'error').then(() => adminLogin());
-    }
-}
+        function getTargetMembers() {
+            const activeButtons = Array.from(document.querySelectorAll('.batch-pill.active'));
+            if (activeButtons.some(b => b.getAttribute('data-batch') === 'all')) {
+                return adminMembers;
+            }
+            let selectedBatches = activeButtons.map(b => b.getAttribute('data-batch'));
+            return adminMembers.filter(m => selectedBatches.includes(String(m.batch).trim()));
+        }
+
+
+        // 2. ഒറിജിനൽ റെസീപ്റ്റ് ഫോട്ടോ ഉണ്ടാക്കി വാട്സ്ആപ്പിലേക്ക് അയക്കുന്ന ഫംഗ്ഷൻ
+        async function sendAutoReceiptToMember(memberId, month, year, amount, remDue, name) {
+            let m = adminMembers.find(x => String(x.id) === String(memberId));
+            if (!m || !m.phone) {
+                showLoader(false);
+                return;
+            }
+
+            // 👇 ലോഗോ സെറ്റ് ചെയ്യുന്നതിനുള്ള പുതിയ വരികൾ (ഇതാണ് നമ്മൾ വിട്ടുപോയത്!) 👇
+            let mainLogoSrc = "logo.png";
+            document.getElementById('receiptWatermark').src = mainLogoSrc;
+            document.getElementById('receiptHeaderLogo').src = mainLogoSrc;
+            // 👆 -------------------------------------------------------- 👆
+
+            // റെസീപ്റ്റ് ടെംപ്ലേറ്റ് ഫിൽ ചെയ്യുന്നു
+            document.getElementById('rcptName').innerText = name || m.name;
+            document.getElementById('rcptMonth').innerText = `${month} ${year}`;
+            document.getElementById('rcptAmount').innerText = '₹' + amount;
+
+            let d = new Date();
+            document.getElementById('rcptDate').innerText = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+            const rcptNode = document.getElementById('receiptCard');
+
+            // ലോഗോ ലോഡ് ആകാൻ അല്പം സമയം നൽകുന്നു
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            try {
+                const canvas = await html2canvas(rcptNode, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    useCORS: true,
+                    allowTaint: true
+                });
+                const base64Data = canvas.toDataURL("image/jpeg", 0.8);
+
+                // ക്യാപ്ഷൻ ഫോർമാറ്റ്
+                let captionText = `السلام عليكم ${name || m.name},\n\nനിങ്ങളുടെ പേയ്‌മെന്റ് വിജയകരമായി സ്വീകരിച്ചിരിക്കുന്നു. ✅\nതുക: ₹${amount}\nമാസം: ${month} ${year}\n\nMUAAWINA - വരിസംഖ്യ ട്രാക്കർ`;
+
+                // കുടിശ്ശിക (Balance) താഴെ ചേർക്കുന്നു
+                if (remDue > 0) {
+                    captionText += `\n\n💰 ഇനി അടക്കാൻ ബാക്കിയുള്ള തുക: ₹${remDue}`;
+                } else {
+                    captionText += `\n\n✅ നിങ്ങൾക്ക് ഇനി കുടിശ്ശികയൊന്നും ബാക്കി അടക്കാനില്ല.`;
+                }
+
+                let payload = {
+                    phone: m.phone,
+                    base64: base64Data,
+                    caption: captionText
+                };
+
+                callAPI('sendWhatsAppMedia', payload).then((waRes) => {
+                    showLoader(false);
+                    if (waRes && waRes.success) {
+                        Swal.fire('വിജയിച്ചു!', 'അപ്രൂവൽ നൽകുകയും ഒറിജിനൽ റെസീപ്റ്റ് വാട്സ്ആപ്പിൽ അയക്കുകയും ചെയ്തു.', 'success').then(() => adminLogin());
+                    } else {
+                        Swal.fire('ശ്രദ്ധിക്കുക', 'അപ്രൂവൽ നൽകി, പക്ഷേ വാട്സ്ആപ്പ് മെസ്സേജ് അയക്കാൻ കഴിഞ്ഞില്ല.', 'warning').then(() => adminLogin());
+                    }
+                });
+
+            } catch (e) {
+                showLoader(false);
+                console.error("Auto Receipt Error:", e);
+                Swal.fire('Error', 'റെസീപ്റ്റ് ഉണ്ടാക്കുന്നതിൽ പിഴവ് സംഭവിച്ചു.', 'error').then(() => adminLogin());
+            }
+        }
         // --- App Install & Notification Logic ---
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
